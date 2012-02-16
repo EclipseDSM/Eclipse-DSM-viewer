@@ -23,7 +23,7 @@ import com.dsmviewer.Activator;
 /**
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
- *
+ * 
  */
 public class PreferencePage extends FieldEditorPreferencePage implements
         IWorkbenchPreferencePage {
@@ -44,7 +44,6 @@ public class PreferencePage extends FieldEditorPreferencePage implements
         Composite composite = getFieldEditorParent();
         composite.setLayout(gridLayout);
     }
-
 
     @Override
     protected void performApply() {
