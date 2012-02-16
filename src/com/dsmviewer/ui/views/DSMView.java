@@ -1,6 +1,5 @@
 package com.dsmviewer.ui.views;
 
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -35,9 +34,7 @@ import org.eclipse.ui.part.ViewPart;
  *
  */
 public class DSMView extends ViewPart {
-	
-    // private final Logger logger = LoggerFactory.getLogger(getClass());
-	
+
 	private TableViewer viewer;
 	private Action action1;
 	private Action action2;
