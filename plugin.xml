@@ -1,21 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-
-   <extension
-         point="org.eclipse.ui.views">
-      <category
-            name="DSM"
-            id="DSM-viewer">
-      </category>
-      <view
-            name="DSM View"
-            icon="icons/sample.gif"
-            category="DSM-viewer"
-            class="com.dsmviewer.ui.views.DSMView"
-            id="com.dsmviewer.views.DSMViev">
-      </view>
-   </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
@@ -33,6 +18,28 @@
       <contexts
             file="contexts.xml">
       </contexts>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="DSM"
+            id="DSM-viewer">
+      </category>
+      <view
+            name="DSM View"
+            icon="icons/sample.gif"
+            category="DSM-viewer"
+            class="com.dsmviewer.ui.views.DSMView"
+            id="com.dsmviewer.views.DSMViev">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.viewActions">
+      <viewContribution
+            id="Eclipse-DSM-viewer.DSMView"
+            targetID="com.dsmviewer.views.DSMViev">
+      </viewContribution>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">

@@ -11,3 +11,9 @@ Require-Bundle: org.eclipse.ui,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: SevNTU Students
+Bundle-ClassPath: lib/junit-4.8.1.jar,
+ lib/log4j-1.2.16.jar,
+ lib/slf4j-api-1.6.2.jar,
+ lib/slf4j-log4j12-1.6.2.jar,
+ dsmviewer.jar
+Eclipse-RegisterBuddy: org.apache.log4j

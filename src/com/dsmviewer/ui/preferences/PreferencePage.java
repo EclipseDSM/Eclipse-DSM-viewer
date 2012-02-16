@@ -32,7 +32,7 @@ public class PreferencePage extends FieldEditorPreferencePage implements
 
     @Override
     public void init(final IWorkbench workbench) {
-        store = Activator.getDefault().getPreferenceStore();
+        store = Activator.getInstance().getPreferenceStore();
         setPreferenceStore(store);
         setDescription("DSM-viewer settings here.");
     }
