@@ -13,7 +13,7 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "DSM-viewer"; //$NON-NLS-1$
 
 	private static Activator plugin;
-		
+	
 	
 	/**
 	 * The constructor
