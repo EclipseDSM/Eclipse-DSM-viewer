@@ -146,7 +146,7 @@ public class DSMView extends ViewPart {
             }
         };
         action1.setText("Action 1");
-        action1.setToolTipText("Action 1 tooltip");
+        action1.setToolTipText("Action 1: อÿ");
         action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
                 getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 
@@ -156,7 +156,7 @@ public class DSMView extends ViewPart {
             }
         };
         action2.setText("Action 2");
-        action2.setToolTipText("Action 2 tooltip");
+        action2.setToolTipText("Action 2: ิ่");
         action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
                 getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
         doubleClickAction = new Action() {
