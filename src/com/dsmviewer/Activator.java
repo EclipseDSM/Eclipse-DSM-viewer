@@ -22,7 +22,7 @@ public class Activator extends AbstractUIPlugin {
     /**
      * Log4j properties file path.
      */
-    private static final String LOG4J_PROPERTIES_FILE_PATH = "config/log4j.properties";
+    private static final String LOG4J_PROPERTIES_FILE_PATH = "configs/log4j.properties";
 
     /**
      * The logger.
