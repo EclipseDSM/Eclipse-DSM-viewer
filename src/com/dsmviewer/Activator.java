@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The activator class controls the plug-in life cycle
+ * 
+ * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
+ *
  */
 public class Activator extends AbstractUIPlugin {
 
@@ -31,9 +33,6 @@ public class Activator extends AbstractUIPlugin {
 
     /** The plugin shared instance. */
     private static Activator plugin;
-
-    public Activator() {
-    }
 
     /*
      * (non-Javadoc)

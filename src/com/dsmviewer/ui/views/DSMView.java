@@ -1,5 +1,20 @@
 package com.dsmviewer.ui.views;
 
+import org.dtangler.core.MissingArgumentsException;
+import org.dtangler.core.analysis.configurableanalyzer.ConfigurableDependencyAnalyzer;
+import org.dtangler.core.analysisresult.AnalysisResult;
+import org.dtangler.core.configuration.Arguments;
+import org.dtangler.core.dependencies.Dependencies;
+import org.dtangler.core.dependencies.DependencyGraph;
+import org.dtangler.core.dependencyengine.DependencyEngine;
+import org.dtangler.core.dependencyengine.DependencyEngineFactory;
+import org.dtangler.core.dsmengine.DsmEngine;
+import org.dtangler.core.exception.DtException;
+import org.dtangler.core.input.ArgumentBuilder;
+import org.dtangler.core.textui.DSMWriter;
+import org.dtangler.core.textui.SysoutWriter;
+import org.dtangler.core.textui.ViolationWriter;
+import org.dtangler.core.textui.Writer;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -26,6 +41,8 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -34,13 +51,22 @@ import org.eclipse.ui.part.ViewPart;
  */
 public class DSMView extends ViewPart {
 
+    /**
+     * The logger.
+     */
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    
+    /**
+     * path to folder containing the items being analyzed | path and
+     * name of the dependencies file.
+     */
+    String dtanglerInput = "/home/selden/log4j viewer Eclipse linux workspace/log4j-viewer/com.plugin.log4j.viewer";
+    
     private TableViewer viewer;
     private Action action1;
     private Action action2;
-    private Action doubleClickAction;
 
-    public DSMView() {
-    }
+    private Action doubleClickAction;
 
     /**
      * This is a callback that will allow us to create the viewer and initialize it.
@@ -106,11 +132,11 @@ public class DSMView extends ViewPart {
         action1.setText("Action 1");
         action1.setToolTipText("Action 1 tooltip");
         action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-                getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+                getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED_DISABLED));
 
         action2 = new Action() {
             public void run() {
-                showMessage("Action 2 executed");
+                runDtangler();
             }
         };
         action2.setText("Action 2");
@@ -125,6 +151,51 @@ public class DSMView extends ViewPart {
             }
         };
     }
+
+    private void runDtangler() {
+        
+        String cmdLineArguments = "-input=" + dtanglerInput;
+
+        try {
+
+        Arguments arguments = new ArgumentBuilder().build(new String[] {cmdLineArguments});
+
+        DependencyEngine engine = new DependencyEngineFactory().getDependencyEngine(arguments);
+
+        Dependencies dependencies = engine.getDependencies(arguments);
+        DependencyGraph dependencyGraph = dependencies.getDependencyGraph();
+        AnalysisResult analysisResult = getAnalysisResult(arguments,dependencies);
+
+        printDsm(dependencyGraph, analysisResult);
+
+        if (analysisResult.isValid()) {
+            logger.info("Analisus stopped. Dtangler analysis result is valid.");
+        } else {
+            logger.info("Analisus stopped. Dtangler analysis result is not valid.");
+        }
+
+        } catch (MissingArgumentsException e) {
+            e.printStackTrace(); // wrong arguments
+        } catch (DtException e) {
+            e.printStackTrace(); // wrong DTangler operation
+        } catch (Exception e) {
+            System.err.println("Internal error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private AnalysisResult getAnalysisResult(Arguments arguments, Dependencies dependencies) {
+        return new ConfigurableDependencyAnalyzer(arguments).analyze(dependencies);
+    }
+
+    private void printDsm(DependencyGraph dependencies, AnalysisResult analysisResult) {
+        Writer writer = new SysoutWriter();        
+        DSMWriter textUI = new DSMWriter(writer);
+        textUI.printDsm(new DsmEngine(dependencies).createDsm(),analysisResult);
+        ViolationWriter violationWriter = new ViolationWriter(writer);
+        violationWriter.printViolations(analysisResult.getViolations(dependencies.getAllItems()));
+    }
+
 
     private void hookDoubleClickAction() {
         viewer.addDoubleClickListener(new IDoubleClickListener() {
@@ -146,20 +217,12 @@ public class DSMView extends ViewPart {
      */
     public void setFocus() {
         viewer.getControl().setFocus();
+        logger.info("DSM View is in focus.");
     }
 
     class NameSorter extends ViewerSorter {
     }
 
-    /*
-     * The content provider class is responsible for
-     * providing objects to the view. It can wrap
-     * existing objects in adapters or simply return
-     * objects as-is. These objects may be sensitive
-     * to the current input of the view, or ignore
-     * it and always show the same content 
-     * (like Task List, for example).
-     */
     class ViewContentProvider implements IStructuredContentProvider {
         public void inputChanged(Viewer v, Object oldInput, Object newInput) {
         }
@@ -171,7 +234,7 @@ public class DSMView extends ViewPart {
             return new String[] { "One", "Two", "Three" };
         }
     }
-
+    
     class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
         public String getColumnText(Object obj, int index) {
             return getText(obj);
@@ -182,8 +245,7 @@ public class DSMView extends ViewPart {
         }
 
         public Image getImage(Object obj) {
-            return PlatformUI.getWorkbench().
-                    getSharedImages().getImage(ISharedImages.IMG_OBJ_ELEMENT);
+            return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_DEF_VIEW);
         }
     }
 
