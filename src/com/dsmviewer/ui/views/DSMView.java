@@ -1,22 +1,10 @@
 package com.dsmviewer.ui.views;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.dtangler.core.MissingArgumentsException;
-import org.dtangler.core.analysis.configurableanalyzer.ConfigurableDependencyAnalyzer;
-import org.dtangler.core.analysisresult.AnalysisResult;
-import org.dtangler.core.configuration.Arguments;
-import org.dtangler.core.dependencies.Dependencies;
-import org.dtangler.core.dependencies.DependencyGraph;
-import org.dtangler.core.dependencyengine.DependencyEngine;
-import org.dtangler.core.dependencyengine.DependencyEngineFactory;
-import org.dtangler.core.dependencyengine.DependencyEnginePool;
-import org.dtangler.core.dsmengine.DsmEngine;
 import org.dtangler.core.exception.DtException;
-import org.dtangler.core.input.ArgumentBuilder;
-import org.dtangler.core.textui.DSMWriter;
-import org.dtangler.core.textui.SysoutWriter;
-import org.dtangler.core.textui.ViolationWriter;
-import org.dtangler.core.textui.Writer;
-import org.dtangler.javaengine.dependencyengine.JavaDependencyEngine;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -37,6 +25,7 @@ import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
@@ -46,37 +35,36 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-//import com.dsmviewer.DependencyEngine;
+import com.dsmviewer.dtangler.DtanglerArguments;
+import com.dsmviewer.dtangler.DtanglerRunner;
 
 /**
- * 
+ *
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
  * 
  */
 public class DSMView extends ViewPart {
 
+    private static final String PATH_TO_ANALYZE_DEPENDENCIES = "/home/selden/log4j viewer Eclipse linux workspace/log4j-viewer/com.plugin.log4j.viewer";
+
     /**
      * The logger.
      */
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
-    /**
-     * path to folder containing the items being analyzed | path and
-     * name of the dependencies file.
-     */
-    String dtanglerInput = "/home/selden/log4j viewer Eclipse linux workspace/log4j-viewer/com.plugin.log4j.viewer";
-    
-    private TableViewer viewer;
+   
+    private TableViewer viewer;    
     private Action action1;
-    private Action action2;
-
     private Action doubleClickAction;
 
     /**
      * This is a callback that will allow us to create the viewer and initialize it.
+     *
+     * @param parent the parent
      */
     public void createPartControl(Composite parent) {
+
+        addLifeCycleListener();
+
         viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
         viewer.setContentProvider(new ViewContentProvider());
         viewer.setLabelProvider(new ViewLabelProvider());
@@ -89,6 +77,15 @@ public class DSMView extends ViewPart {
         hookContextMenu();
         hookDoubleClickAction();
         contributeToActionBars();
+    }
+
+
+    /**
+     * Adds necessary listeners to DSM View.
+     */
+    private void addLifeCycleListener() {
+        getViewSite().getPage().addPartListener(new ViewListener());
+        logger.debug("View lifecycle listener was added to DSM View");
     }
 
     private void hookContextMenu() {
@@ -112,97 +109,59 @@ public class DSMView extends ViewPart {
 
     private void fillLocalPullDown(IMenuManager manager) {
         manager.add(action1);
-        manager.add(new Separator());
-        manager.add(action2);
+       // manager.add(new Separator());
     }
 
     private void fillContextMenu(IMenuManager manager) {
         manager.add(action1);
-        manager.add(action2);
         // Other plug-ins can contribute there actions here
         manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
     }
 
     private void fillLocalToolBar(IToolBarManager manager) {
         manager.add(action1);
-        manager.add(action2);
     }
 
     private void makeActions() {
         action1 = new Action() {
             public void run() {
-                showMessage("Action 1 executed");
+                Display.getDefault().asyncExec(new Runnable() {
+                    @Override
+                    public void run() {
+                        runDtangler();
+                    }
+                });
             }
         };
         action1.setText("Action 1");
         action1.setToolTipText("Action 1 tooltip");
         action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-                getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED_DISABLED));
+                getImageDescriptor(ISharedImages.IMG_ETOOL_PRINT_EDIT));
 
-        action2 = new Action() {
-            public void run() {
-                runDtangler();
-            }
-        };
-        action2.setText("Action 2");
-        action2.setToolTipText("Action 2 tooltip");
-        action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-                getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
         doubleClickAction = new Action() {
             public void run() {
                 ISelection selection = viewer.getSelection();
                 Object obj = ((IStructuredSelection) selection).getFirstElement();
-                showMessage("Double-click detected on " + obj.toString());
+                showInfoMessage("Double-click detected on " + obj.toString());
             }
         };
     }
 
     private void runDtangler() {
-
-        String cmdLineArguments = "-input=" + dtanglerInput;
-
+        List<String> pathList = new ArrayList<String>();
+        pathList.add(PATH_TO_ANALYZE_DEPENDENCIES);
+        DtanglerRunner dtanglerRunner = new DtanglerRunner();
         try {
-
-        Arguments arguments = new ArgumentBuilder().build(new String[] {cmdLineArguments});
-
-        DependencyEngine engine = new JavaDependencyEngine();        
-
-        Dependencies dependencies = engine.getDependencies(arguments);
-        DependencyGraph dependencyGraph = dependencies.getDependencyGraph();
-
-        AnalysisResult analysisResult = getAnalysisResult(arguments,dependencies);
-
-        printDsm(dependencyGraph, analysisResult);
-
-        if (analysisResult.isValid()) {
-            logger.info("Dtangler analisys stopped. Analysis result is valid.");
-        } else {
-            logger.info("Dtangler analisys stopped. Analysis result is not valid.");
-        }
-
+            dtanglerRunner.run(DtanglerArguments.build(pathList));
         } catch (MissingArgumentsException e) {
             e.printStackTrace(); // wrong arguments
+            showErrorMessage(e.getMessage());
         } catch (DtException e) {
             e.printStackTrace(); // wrong DTangler operation
-        } catch (Exception e) {
-            System.err.println("Internal error: " + e.getMessage());
-            e.printStackTrace();
+            showErrorMessage("DTangler cannot process your request.");
         }
     }
-
-    private AnalysisResult getAnalysisResult(Arguments arguments, Dependencies dependencies) {
-        return new ConfigurableDependencyAnalyzer(arguments).analyze(dependencies);
-    }
-
-    private void printDsm(DependencyGraph dependencies, AnalysisResult analysisResult) {
-        Writer writer = new SysoutWriter();        
-        DSMWriter textUI = new DSMWriter(writer);
-        textUI.printDsm(new DsmEngine(dependencies).createDsm(),analysisResult);
-        ViolationWriter violationWriter = new ViolationWriter(writer);
-        violationWriter.printViolations(analysisResult.getViolations(dependencies.getAllItems()));
-    }
-
-
+    
     private void hookDoubleClickAction() {
         viewer.addDoubleClickListener(new IDoubleClickListener() {
             public void doubleClick(DoubleClickEvent event) {
@@ -211,9 +170,27 @@ public class DSMView extends ViewPart {
         });
     }
 
-    private void showMessage(String message) {
+    /**
+     * Shows the info message.
+     *
+     * @param message the message
+     */
+    private void showInfoMessage(String message) {
         MessageDialog.openInformation(
-                viewer.getControl().getShell(),
+                Display.getDefault().getActiveShell(),
+                "DSM View",
+                message);
+    }
+
+
+    /**
+     * Shows the error message.
+     *
+     * @param message the message
+     */
+    private void showErrorMessage(String message) {
+        MessageDialog.openError(
+                Display.getDefault().getActiveShell(),
                 "DSM View",
                 message);
     }
@@ -223,33 +200,56 @@ public class DSMView extends ViewPart {
      */
     public void setFocus() {
         viewer.getControl().setFocus();
-        logger.info("DSM View is in focus.");
+        logger.info("View lifecycle: DSM view is in focus.");
     }
-
+        
     class NameSorter extends ViewerSorter {
     }
 
     class ViewContentProvider implements IStructuredContentProvider {
+        
+        /* (non-Javadoc)
+         * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
+         */
         public void inputChanged(Viewer v, Object oldInput, Object newInput) {
         }
 
+        /* (non-Javadoc)
+         * @see org.eclipse.jface.viewers.IContentProvider#dispose()
+         */
         public void dispose() {
         }
 
+        /* (non-Javadoc)
+         * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
+         */
         public Object[] getElements(Object parent) {
             return new String[] { "One", "Two", "Three" };
         }
     }
     
+    /**
+     * The Class ViewLabelProvider.
+     */
     class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
+        
+        /* (non-Javadoc)
+         * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang.Object, int)
+         */
         public String getColumnText(Object obj, int index) {
             return getText(obj);
         }
 
+        /* (non-Javadoc)
+         * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java.lang.Object, int)
+         */
         public Image getColumnImage(Object obj, int index) {
             return getImage(obj);
         }
 
+        /* (non-Javadoc)
+         * @see org.eclipse.jface.viewers.LabelProvider#getImage(java.lang.Object)
+         */
         public Image getImage(Object obj) {
             return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_DEF_VIEW);
         }
