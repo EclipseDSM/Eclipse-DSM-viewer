@@ -166,7 +166,6 @@ public class DSMView extends ViewPart {
         Arguments arguments = new ArgumentBuilder().build(new String[] {cmdLineArguments});
 
         DependencyEngine engine = new JavaDependencyEngine();        
-        // engine.setDependencyEngineId("java");
 
         Dependencies dependencies = engine.getDependencies(arguments);
         DependencyGraph dependencyGraph = dependencies.getDependencyGraph();
