@@ -8,6 +8,7 @@ import org.dtangler.core.dependencies.Dependencies;
 import org.dtangler.core.dependencies.DependencyGraph;
 import org.dtangler.core.dependencyengine.DependencyEngine;
 import org.dtangler.core.dependencyengine.DependencyEngineFactory;
+import org.dtangler.core.dependencyengine.DependencyEnginePool;
 import org.dtangler.core.dsmengine.DsmEngine;
 import org.dtangler.core.exception.DtException;
 import org.dtangler.core.input.ArgumentBuilder;
@@ -15,6 +16,7 @@ import org.dtangler.core.textui.DSMWriter;
 import org.dtangler.core.textui.SysoutWriter;
 import org.dtangler.core.textui.ViolationWriter;
 import org.dtangler.core.textui.Writer;
+import org.dtangler.javaengine.dependencyengine.JavaDependencyEngine;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -44,6 +46,9 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+//import com.dsmviewer.DependencyEngine;
+
 /**
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
@@ -55,7 +60,7 @@ public class DSMView extends ViewPart {
      * The logger.
      */
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     /**
      * path to folder containing the items being analyzed | path and
      * name of the dependencies file.
@@ -153,25 +158,27 @@ public class DSMView extends ViewPart {
     }
 
     private void runDtangler() {
-        
+
         String cmdLineArguments = "-input=" + dtanglerInput;
 
         try {
 
         Arguments arguments = new ArgumentBuilder().build(new String[] {cmdLineArguments});
 
-        DependencyEngine engine = new DependencyEngineFactory().getDependencyEngine(arguments);
+        DependencyEngine engine = new JavaDependencyEngine();        
+        // engine.setDependencyEngineId("java");
 
         Dependencies dependencies = engine.getDependencies(arguments);
         DependencyGraph dependencyGraph = dependencies.getDependencyGraph();
+
         AnalysisResult analysisResult = getAnalysisResult(arguments,dependencies);
 
         printDsm(dependencyGraph, analysisResult);
 
         if (analysisResult.isValid()) {
-            logger.info("Analisus stopped. Dtangler analysis result is valid.");
+            logger.info("Dtangler analisys stopped. Analysis result is valid.");
         } else {
-            logger.info("Analisus stopped. Dtangler analysis result is not valid.");
+            logger.info("Dtangler analisys stopped. Analysis result is not valid.");
         }
 
         } catch (MissingArgumentsException e) {
