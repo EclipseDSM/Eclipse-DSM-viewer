@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 // TODO: Auto-generated Javadoc
 /**
  * The Class Activator.
- *
+ * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
  */
 public class Activator extends AbstractUIPlugin {
@@ -66,19 +66,21 @@ public class Activator extends AbstractUIPlugin {
 
     /**
      * Gets the plugin id.
-     *
+     * 
      * @return the plugin id.
      */
     public String getPluginId() {
         return plugin.getBundle().getSymbolicName();
     }
-    
+
     /**
      * Gets the absolute path.
-     *
-     * @param filePath the file path
+     * 
+     * @param filePath
+     *            the file path
      * @return the absolute path
-     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
      */
     public static String getAbsolutePath(final String filePath) throws IOException {
         URL confUrl = getInstance().getBundle().getEntry(filePath);
@@ -87,8 +89,9 @@ public class Activator extends AbstractUIPlugin {
 
     /**
      * Returns an image descriptor for the image file at the given plug-in relative path.
-     *
-     * @param path the path
+     * 
+     * @param path
+     *            the path
      * @return the image descriptor
      */
     public static ImageDescriptor getImageDescriptor(String path) {

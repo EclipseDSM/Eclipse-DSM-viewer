@@ -7,10 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import com.dsmviewer.Activator;
 
-
 /**
- * The listener for DSM View events such as: close/open view, activate/deactivate view, etc. * 
- *
+ * The listener for DSM View events such as: close/open view, activate/deactivate view, etc. *
+ * 
  * @see IPartListener
  */
 class ViewListener implements IPartListener {
@@ -19,7 +18,7 @@ class ViewListener implements IPartListener {
      * The logger.
      */
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     /* (non-Javadoc)
      * @see org.eclipse.ui.IPartListener#partActivated(org.eclipse.ui.IWorkbenchPart)
      */
@@ -41,7 +40,7 @@ class ViewListener implements IPartListener {
      */
     @Override
     public void partClosed(final IWorkbenchPart part) {
-        
+
         String dsmViewID = Activator.getInstance().getPluginId();
         String closedViewID = part.getSite().getPluginId();
 

@@ -39,27 +39,31 @@ import com.dsmviewer.dtangler.DtanglerArguments;
 import com.dsmviewer.dtangler.DtanglerRunner;
 
 /**
- *
+ * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
  * 
  */
 public class DSMView extends ViewPart {
 
-    private static final String PATH_TO_ANALYZE_DEPENDENCIES = "/home/selden/log4j viewer Eclipse linux workspace/log4j-viewer/com.plugin.log4j.viewer";
+    private static final String DSM_VIEW_ID = "DSM View";
+
+    private static final String PATH_TO_ANALYZE_DEPENDENCIES =
+            "/home/selden/log4j viewer Eclipse linux workspace/log4j-viewer/com.plugin.log4j.viewer";
 
     /**
      * The logger.
      */
     private final Logger logger = LoggerFactory.getLogger(getClass());
-   
-    private TableViewer viewer;    
+
+    private TableViewer viewer;
     private Action action1;
     private Action doubleClickAction;
 
     /**
      * This is a callback that will allow us to create the viewer and initialize it.
-     *
-     * @param parent the parent
+     * 
+     * @param parent
+     *            the parent
      */
     public void createPartControl(Composite parent) {
 
@@ -78,7 +82,6 @@ public class DSMView extends ViewPart {
         hookDoubleClickAction();
         contributeToActionBars();
     }
-
 
     /**
      * Adds necessary listeners to DSM View.
@@ -109,7 +112,7 @@ public class DSMView extends ViewPart {
 
     private void fillLocalPullDown(IMenuManager manager) {
         manager.add(action1);
-       // manager.add(new Separator());
+        // manager.add(new Separator());
     }
 
     private void fillContextMenu(IMenuManager manager) {
@@ -161,7 +164,7 @@ public class DSMView extends ViewPart {
             showErrorMessage("DTangler cannot process your request.");
         }
     }
-    
+
     private void hookDoubleClickAction() {
         viewer.addDoubleClickListener(new IDoubleClickListener() {
             public void doubleClick(DoubleClickEvent event) {
@@ -172,26 +175,27 @@ public class DSMView extends ViewPart {
 
     /**
      * Shows the info message.
-     *
-     * @param message the message
+     * 
+     * @param message
+     *            the message
      */
     private void showInfoMessage(String message) {
         MessageDialog.openInformation(
                 Display.getDefault().getActiveShell(),
-                "DSM View",
+                DSM_VIEW_ID,
                 message);
     }
 
-
     /**
      * Shows the error message.
-     *
-     * @param message the message
+     * 
+     * @param message
+     *            the message
      */
     private void showErrorMessage(String message) {
         MessageDialog.openError(
                 Display.getDefault().getActiveShell(),
-                "DSM View",
+                DSM_VIEW_ID,
                 message);
     }
 
@@ -202,14 +206,15 @@ public class DSMView extends ViewPart {
         viewer.getControl().setFocus();
         logger.info("View lifecycle: DSM view is in focus.");
     }
-        
+
     class NameSorter extends ViewerSorter {
     }
 
     class ViewContentProvider implements IStructuredContentProvider {
-        
+
         /* (non-Javadoc)
-         * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
+         * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, 
+         * java.lang.Object, java.lang.Object)
          */
         public void inputChanged(Viewer v, Object oldInput, Object newInput) {
         }
@@ -227,12 +232,12 @@ public class DSMView extends ViewPart {
             return new String[] { "One", "Two", "Three" };
         }
     }
-    
+
     /**
      * The Class ViewLabelProvider.
      */
     class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
-        
+
         /* (non-Javadoc)
          * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang.Object, int)
          */
