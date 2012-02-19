@@ -29,29 +29,30 @@ public class DtanglerRunner {
      * The logger.
      */
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     /**
      * Run.
-     *
-     * @param arguments the arguments
+     * 
+     * @param arguments
+     *            the arguments
      */
     public void run(Arguments arguments) {
         try {
-        logger.info("Dtangler analisys started.");        
-                             
-        DependencyEngine engine = new JavaDependencyEngine();
-        Dependencies dependencies = engine.getDependencies(arguments);
-        DependencyGraph dependencyGraph = dependencies.getDependencyGraph();
+            logger.info("Dtangler analisys started.");
 
-        AnalysisResult analysisResult = getAnalysisResult(arguments,dependencies);
+            DependencyEngine engine = new JavaDependencyEngine();
+            Dependencies dependencies = engine.getDependencies(arguments);
+            DependencyGraph dependencyGraph = dependencies.getDependencyGraph();
 
-        printDsm(dependencyGraph, analysisResult);
+            AnalysisResult analysisResult = getAnalysisResult(arguments, dependencies);
 
-        if (analysisResult.isValid()) {
-            logger.info("Dtangler analisys stopped. Analysis result is valid.");
-        } else {
-            logger.info("Dtangler analisys stopped. Analysis result is not valid.");
-        }
+            printDsm(dependencyGraph, analysisResult);
+
+            if (analysisResult.isValid()) {
+                logger.info("Dtangler analisys stopped. Analysis result is valid.");
+            } else {
+                logger.info("Dtangler analisys stopped. Analysis result is not valid.");
+            }
 
         } catch (MissingArgumentsException e) {
             throw e;
@@ -59,12 +60,14 @@ public class DtanglerRunner {
             throw e;
         }
     }
-    
+
     /**
      * Gets the analysis result.
-     *
-     * @param arguments the arguments
-     * @param dependencies the dependencies
+     * 
+     * @param arguments
+     *            the arguments
+     * @param dependencies
+     *            the dependencies
      * @return the analysis result
      */
     private AnalysisResult getAnalysisResult(Arguments arguments, Dependencies dependencies) {
@@ -73,16 +76,18 @@ public class DtanglerRunner {
 
     /**
      * Prints the dsm.
-     *
-     * @param dependencies the dependencies
-     * @param analysisResult the analysis result
+     * 
+     * @param dependencies
+     *            the dependencies
+     * @param analysisResult
+     *            the analysis result
      */
     private void printDsm(DependencyGraph dependencies, AnalysisResult analysisResult) {
-        Writer writer = new SysoutWriter();        
+        Writer writer = new SysoutWriter();
         DSMWriter textUI = new DSMWriter(writer);
-        textUI.printDsm(new DsmEngine(dependencies).createDsm(),analysisResult);
+        textUI.printDsm(new DsmEngine(dependencies).createDsm(), analysisResult);
         ViolationWriter violationWriter = new ViolationWriter(writer);
         violationWriter.printViolations(analysisResult.getViolations(dependencies.getAllItems()));
     }
-    
+
 }
