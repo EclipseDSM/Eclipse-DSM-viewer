@@ -427,7 +427,7 @@
     <property name="message" value="Empty line has spaces"/>
   </module>
   <module name="SuppressionFilter">
-    <property name="file" value="${config_loc}/reveredata_checkstyle_suppression.xml"/>
+    <property name="file" value="${config_loc}/Eclipse-DSM_checkstyle_suppression.xml"/>
   </module>
   <module name="SuppressWithNearbyCommentFilter">
     <property name="influenceFormat" value="1"/>
