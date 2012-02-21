@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dsmviewer.Activator;
-import com.dsmviewer.exception.PluginUIException;
 import com.dsmviewer.ui.views.DSMView;
 
 /**
@@ -46,10 +45,10 @@ public class PreferencePage extends FieldEditorPreferencePage implements
             
             // ... PreferencePage controls composing
             
-        } catch (PluginUIException e) {
+        } catch (RuntimeException e) {
             e.printStackTrace();
-            logger.error("Plugin UI exception occured: " + e.getMessage());
-            DSMView.showErrorMessage("Plugin UI exception occured: " + e.getMessage());  
+            logger.error("Exception occured: " + e.getMessage());
+            DSMView.showErrorMessage("Exception occured: " + e.getMessage());  
         }
     }
 

@@ -54,12 +54,12 @@
 	<extension
         point="org.eclipse.ui.popupMenus">
         <objectContribution
-            objectClass="org.eclipse.core.resources.IResource"
+            objectClass="org.eclipse.core.resources.IProject"
             adaptable="true"
-            id="All supported recources">
+            id="Run DSM on project">
             
             <visibility>
-                <objectClass  name="org.eclipse.core.resources.IResource"/>                
+                <objectClass  name="org.eclipse.core.resources.IProject"/>                
             </visibility>
 
             <menu
@@ -72,10 +72,10 @@
             <action
                 label="Show DS-Matrix"
                 class="com.dsmviewer.dtangler.DtanglerRunner"
-                enablesFor="+"                
-                menubarPath="additions"                
+                enablesFor="+"
+                menubarPath="additions"         
                 tooltip="Run DSM viewer"
-                id="project/class DtanglerRunner"/>
+                id="Run DSM on project"/>
         </objectContribution>
 
 

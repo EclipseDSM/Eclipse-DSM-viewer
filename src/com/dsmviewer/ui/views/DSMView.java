@@ -30,8 +30,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dsmviewer.exception.PluginUIException;
-
 /**
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
@@ -75,9 +73,9 @@ public class DSMView extends ViewPart {
             hookContextMenu();
             hookDoubleClickAction();
             contributeToActionBars();
-        } catch (PluginUIException e) {
-            logger.error("Plugin UI exception occured: " + e.getMessage());
-            showErrorMessage("Plugin UI exception occured: " + e.getMessage());            
+        } catch (RuntimeException e) {
+            logger.error("Exception occured: " + e.getMessage());
+            showErrorMessage("Exception occured: " + e.getMessage());            
         }
     }
 

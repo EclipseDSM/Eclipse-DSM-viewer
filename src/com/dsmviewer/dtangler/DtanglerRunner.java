@@ -54,9 +54,15 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * 
      * {@inheritDoc}
      */
-    public void run(final IAction action) {      
+    public void run(final IAction action) {
+
         try {
-            Arguments arguments = DtanglerArguments.build(getPathList(selection), "packages", false);
+
+            List<String> pathList = getPathList(selection);
+
+            String scope = "classes";
+
+            Arguments arguments = DtanglerArguments.build(pathList, scope, false);
             run(arguments);
         } catch (MissingArgumentsException e) {
             e.printStackTrace(); // wrong arguments
@@ -77,19 +83,22 @@ public class DtanglerRunner implements IObjectActionDelegate {
     private String getFullPath(IResource resource) {
         return resource.getLocationURI().getPath().toString();
     }
-    
+
     /**
      * Gets the list of paths for resources that are selected in Package Explorer.
-     * @param selection - selected resources.
+     * 
+     * @param selection
+     *            - selected resources.
      * @return the list of paths that will pass to Dtangler Analyzer.
      */
     private List<String> getPathList(IStructuredSelection selection) {
-        List<String> pathList = new ArrayList<String>();        
+        List<String> pathList = new ArrayList<String>();
         @SuppressWarnings("unchecked")
         List<Object> selectedResources = selection.toList();
         for (Object selectedResource : selectedResources) {
             IResource resource = (IResource) selectedResource;
-            pathList.add(getFullPath(resource));
+            String resourcePath = getFullPath(resource);
+            pathList.add(resourcePath);
         }
         return pathList;
     }
@@ -106,8 +115,10 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * 
      * @param arguments
      *            - the arguments
-     * @throws DtException when DTangler cannot process current request.
-     * @throws MissingArgumentsException if the request parameters are incorrect.
+     * @throws DtException
+     *             when DTangler cannot process current request.
+     * @throws MissingArgumentsException
+     *             if the request parameters are incorrect.
      */
     public void run(Arguments arguments) {
         try {
