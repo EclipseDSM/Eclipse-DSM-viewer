@@ -6,8 +6,11 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.dsmviewer.Activator;
+import com.dsmviewer.ui.views.DSMView;
 
 /**
  * 
@@ -16,9 +19,14 @@ import com.dsmviewer.Activator;
  */
 public class PreferencePage extends FieldEditorPreferencePage implements
         IWorkbenchPreferencePage {
+    
+    /**
+     * The logger.
+     */
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private IPreferenceStore store;
-
+    
     @Override
     public void init(final IWorkbench workbench) {
         store = Activator.getInstance().getPreferenceStore();
@@ -32,6 +40,16 @@ public class PreferencePage extends FieldEditorPreferencePage implements
         gridLayout.verticalSpacing = 15;
         Composite composite = getFieldEditorParent();
         composite.setLayout(gridLayout);
+        
+        try {
+            
+            // ... PreferencePage controls composing
+            
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            logger.error("Exception occured: " + e.getMessage());
+            DSMView.showErrorMessage("Exception occured: " + e.getMessage());  
+        }
     }
 
     @Override

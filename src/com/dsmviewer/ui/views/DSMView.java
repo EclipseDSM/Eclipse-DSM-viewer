@@ -1,10 +1,5 @@
 package com.dsmviewer.ui.views;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.dtangler.core.MissingArgumentsException;
-import org.dtangler.core.exception.DtException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -35,9 +30,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dsmviewer.dtangler.DtanglerArguments;
-import com.dsmviewer.dtangler.DtanglerRunner;
-
 /**
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
@@ -48,7 +40,7 @@ public class DSMView extends ViewPart {
     private static final String DSM_VIEW_ID = "DSM View";
 
     private static final String PATH_TO_ANALYZE_DEPENDENCIES =
-            "/home/selden/log4j viewer Eclipse linux workspace/log4j-viewer/com.plugin.log4j.viewer";
+            "/home/selden/log4j viewer Eclipse linux workspace/log4j-viewer/com.plugin.log4j.viewer/bin/com/log4jviewer";
 
     /**
      * The logger.
@@ -56,7 +48,7 @@ public class DSMView extends ViewPart {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private TableViewer viewer;
-    private Action action1;
+    private Action runDtanglerManuallyAction;
     private Action doubleClickAction;
 
     /**
@@ -66,28 +58,32 @@ public class DSMView extends ViewPart {
      *            the parent
      */
     public void createPartControl(Composite parent) {
+        try {
+            addLifeCycleListener();
 
-        addLifeCycleListener();
+            viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+            viewer.setContentProvider(new ViewContentProvider());
+            viewer.setLabelProvider(new ViewLabelProvider());
+            viewer.setSorter(new NameSorter());
+            viewer.setInput(getViewSite());
 
-        viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-        viewer.setContentProvider(new ViewContentProvider());
-        viewer.setLabelProvider(new ViewLabelProvider());
-        viewer.setSorter(new NameSorter());
-        viewer.setInput(getViewSite());
-
-        // Create the help context id for the viewer's control
-        PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "DSM-viewer.viewer");
-        makeActions();
-        hookContextMenu();
-        hookDoubleClickAction();
-        contributeToActionBars();
+            // Create the help context id for the viewer's control
+            PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "DSM-viewer.viewer");
+            makeActions();
+            hookContextMenu();
+            hookDoubleClickAction();
+            contributeToActionBars();
+        } catch (RuntimeException e) {
+            logger.error("Exception occured: " + e.getMessage());
+            showErrorMessage("Exception occured: " + e.getMessage());            
+        }
     }
 
     /**
      * Adds necessary listeners to DSM View.
      */
     private void addLifeCycleListener() {
-        getViewSite().getPage().addPartListener(new ViewListener());
+        getViewSite().getPage().addPartListener(new ViewLyfeCycleListener());
         logger.debug("View lifecycle listener was added to DSM View");
     }
 
@@ -111,34 +107,34 @@ public class DSMView extends ViewPart {
     }
 
     private void fillLocalPullDown(IMenuManager manager) {
-        manager.add(action1);
+        manager.add(runDtanglerManuallyAction);
         // manager.add(new Separator());
     }
 
     private void fillContextMenu(IMenuManager manager) {
-        manager.add(action1);
+        manager.add(runDtanglerManuallyAction);
         // Other plug-ins can contribute there actions here
         manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
     }
 
     private void fillLocalToolBar(IToolBarManager manager) {
-        manager.add(action1);
+        manager.add(runDtanglerManuallyAction);
     }
 
     private void makeActions() {
-        action1 = new Action() {
+        runDtanglerManuallyAction = new Action() {            
             public void run() {
-                Display.getDefault().asyncExec(new Runnable() {
-                    @Override
-                    public void run() {
-                        runDtangler();
-                    }
-                });
+//                Display.getDefault().asyncExec(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        runDtanglerManually();
+//                    }
+//                });
             }
         };
-        action1.setText("Action 1");
-        action1.setToolTipText("Action 1 tooltip");
-        action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+        runDtanglerManuallyAction.setText("Action 1");
+        runDtanglerManuallyAction.setToolTipText("Action 1 tooltip");
+        runDtanglerManuallyAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
                 getImageDescriptor(ISharedImages.IMG_ETOOL_PRINT_EDIT));
 
         doubleClickAction = new Action() {
@@ -150,12 +146,20 @@ public class DSMView extends ViewPart {
         };
     }
 
-    private void runDtangler() {
+    /*
+    private void runDtanglerManually() {
         List<String> pathList = new ArrayList<String>();
-        pathList.add(PATH_TO_ANALYZE_DEPENDENCIES);
+
+//        pathList.add("/home/selden/DSM-viever Eclipse workspace/Eclipse-DSM-viewer/bin/com/dsmviewer");
+//        pathList.add("/home/selden/DSM-viever Eclipse workspace/Eclipse-DSM-viewer/bin/com/dsmviewer/dtangler");
+//        pathList.add("/home/selden/DSM-viever Eclipse workspace/Eclipse-DSM-viewer/bin/com/dsmviewer/ui/preferences");
+//        pathList.add("/home/selden/DSM-viever Eclipse workspace/Eclipse-DSM-viewer/bin/com/dsmviewer/ui/views");
+
         DtanglerRunner dtanglerRunner = new DtanglerRunner();
+
         try {
-            dtanglerRunner.run(DtanglerArguments.build(pathList));
+            Arguments arguments = DtanglerArguments.build(pathList, "classes", false);
+            dtanglerRunner.run(arguments);
         } catch (MissingArgumentsException e) {
             e.printStackTrace(); // wrong arguments
             showErrorMessage(e.getMessage());
@@ -163,7 +167,7 @@ public class DSMView extends ViewPart {
             e.printStackTrace(); // wrong DTangler operation
             showErrorMessage("DTangler cannot process your request.");
         }
-    }
+    }*/
 
     private void hookDoubleClickAction() {
         viewer.addDoubleClickListener(new IDoubleClickListener() {
@@ -179,7 +183,7 @@ public class DSMView extends ViewPart {
      * @param message
      *            the message
      */
-    private void showInfoMessage(String message) {
+    public static void showInfoMessage(String message) {
         MessageDialog.openInformation(
                 Display.getDefault().getActiveShell(),
                 DSM_VIEW_ID,
@@ -192,7 +196,7 @@ public class DSMView extends ViewPart {
      * @param message
      *            the message
      */
-    private void showErrorMessage(String message) {
+    public static void showErrorMessage(String message) {
         MessageDialog.openError(
                 Display.getDefault().getActiveShell(),
                 DSM_VIEW_ID,

@@ -11,9 +11,10 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO: Auto-generated Javadoc
+import com.dsmviewer.ui.views.DSMView;
+
 /**
- * The Class Activator.
+ * The Activator Class.
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
  */
@@ -23,7 +24,7 @@ public class Activator extends AbstractUIPlugin {
     public static final String PLUGIN_ID = "DSM-viewer"; //$NON-NLS-1$
 
     /**
-     * Log4j properties file path.
+     * "Log4j properties" file path.
      */
     private static final String LOG4J_PROPERTIES_FILE_PATH = "configs/log4j.properties";
 
@@ -43,7 +44,7 @@ public class Activator extends AbstractUIPlugin {
         super.start(context);
         plugin = this;
         PropertyConfigurator.configure(getAbsolutePath(LOG4J_PROPERTIES_FILE_PATH));
-        logger.info("Log4j configuration was successfully loaded.");
+        logger.info("Log4j configuration was loaded successfully.");
     }
 
     /*
@@ -54,11 +55,11 @@ public class Activator extends AbstractUIPlugin {
         plugin = null;
         super.stop(context);
     }
-
+   
     /**
-     * Returns the shared plugin instance.
+     * Returns the current plugin instance.
      * 
-     * @return the shared plugin instance.
+     * @return the current shared plugin instance.
      */
     public static Activator getInstance() {
         return plugin;
@@ -74,17 +75,22 @@ public class Activator extends AbstractUIPlugin {
     }
 
     /**
-     * Gets the absolute path.
+     * Gets an absolute path from given resource relative path.
      * 
      * @param filePath
-     *            the file path
-     * @return the absolute path
+     *            - relative path to any resource.
+     * @return the absolute path.
      * @throws IOException
-     *             Signals that an I/O exception has occurred.
      */
-    public static String getAbsolutePath(final String filePath) throws IOException {
+    public static String getAbsolutePath(final String filePath) {
+        String result = null;
         URL confUrl = getInstance().getBundle().getEntry(filePath);
-        return FileLocator.toFileURL(confUrl).getFile();
+        try {
+            result = FileLocator.toFileURL(confUrl).getFile();
+        } catch (IOException e) {
+            DSMView.showErrorMessage("Cannot find the file URL for " + filePath);
+        }
+        return result;
     }
 
     /**
@@ -98,7 +104,4 @@ public class Activator extends AbstractUIPlugin {
         return imageDescriptorFromPlugin(PLUGIN_ID, path);
     }
 
-    public Logger getLogger() {
-        return logger;
-    }
 }
