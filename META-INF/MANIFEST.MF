@@ -7,7 +7,8 @@ Bundle-Activator: com.dsmviewer.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.junit4;bundle-version="4.8.1",
- org.apache.log4j;bundle-version="1.2.13"
+ org.apache.log4j;bundle-version="1.2.13",
+ org.eclipse.core.resources;bundle-version="3.7.100"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: SevNTU Students
@@ -18,3 +19,4 @@ Bundle-ClassPath: lib/junit-4.8.1.jar,
  dsmviewer.jar,
  lib/dtangler-core_v_2.0.0.jar
 Eclipse-RegisterBuddy: org.apache.log4j
+Import-Package: org.eclipse.jdt.core

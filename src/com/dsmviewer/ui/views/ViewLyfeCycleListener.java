@@ -12,7 +12,7 @@ import com.dsmviewer.Activator;
  * 
  * @see IPartListener
  */
-class ViewListener implements IPartListener {
+class ViewLyfeCycleListener implements IPartListener {
 
     /**
      * The logger.
