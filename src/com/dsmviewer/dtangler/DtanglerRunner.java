@@ -60,7 +60,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
             List<String> pathList = getPathList(selection);
 
-            String scope = "classes";
+            String scope = "packages";
 
             Arguments arguments = DtanglerArguments.build(pathList, scope, false);
             run(arguments);
@@ -89,7 +89,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * 
      * @param selection
      *            - selected resources.
-     * @return the list of paths that will pass to Dtangler Analyzer.
+     * @return the list of paths that will be passed to Dtangler Analyzer.
      */
     private List<String> getPathList(IStructuredSelection selection) {
         List<String> pathList = new ArrayList<String>();
@@ -99,6 +99,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             IResource resource = (IResource) selectedResource;
             String resourcePath = getFullPath(resource);
             pathList.add(resourcePath);
+            System.out.println(resourcePath);
         }
         return pathList;
     }
