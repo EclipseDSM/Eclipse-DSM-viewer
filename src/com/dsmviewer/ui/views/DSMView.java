@@ -27,7 +27,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dsmviewer.dtangler.DSMatrixModel;
 
 /**
  * 
@@ -87,7 +86,7 @@ public class DSMView extends ViewPart {
         tableViewer.setUseHashlookup(true);
 
         composeColumns();
-        
+
         tableViewer.setContentProvider(new DSMViewContentProvider());
         tableViewer.setLabelProvider(new DSMViewLabelProvider());
 

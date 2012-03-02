@@ -14,7 +14,7 @@ public class DSMViewLabelProvider extends LabelProvider implements ITableLabelPr
      */
     public String getColumnText(Object obj, int index) {
         DsmRow dsmRow = (DsmRow)obj;
-        if (index == 0) {            
+        if (index == 0) {         
             return dsmRow.getDependee().getDisplayName();
         }
         else {

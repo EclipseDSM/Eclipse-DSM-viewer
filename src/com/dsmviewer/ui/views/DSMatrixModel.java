@@ -1,4 +1,4 @@
-package com.dsmviewer.dtangler;
+package com.dsmviewer.ui.views;
 
 import java.util.ArrayList;
 import java.util.List;
