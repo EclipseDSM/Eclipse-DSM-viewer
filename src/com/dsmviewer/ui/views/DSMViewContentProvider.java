@@ -1,7 +1,5 @@
 package com.dsmviewer.ui.views;
 
-import java.util.Collection;
-
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 

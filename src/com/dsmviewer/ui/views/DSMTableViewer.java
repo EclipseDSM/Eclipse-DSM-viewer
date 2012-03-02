@@ -46,22 +46,26 @@ public class DSMTableViewer extends TableViewer {
             }
         });
 
-        for (int i = 1; i <= dsMatrix.getSize(); i++) {           
+        for (int i = 1; i <= dsMatrix.getSize(); i++) {
             // save the column number to set column headers later.
-            dsMatrix.getRows().get(i-1).getDependee().setContentCount(i);
-            TableViewerColumn matrixColumn = createTableViewerColumn("" + i, 35, true);
+            dsMatrix.getRows().get(i - 1).getDependee().setContentCount(i);
+            TableViewerColumn matrixColumn = createTableViewerColumn("" + i, 32, true);
             this.columns.add(matrixColumn);
-            matrixColumn.setLabelProvider(new ColumnLabelProvider() {
-                @Override
-                public String getText(Object element) {
-                    DsmRow dsmRow = (DsmRow) element;
-                    return Integer.toString(dsmRow.getCells().get(0).getDependencyWeight());
-                }
-            });
+            setMatrixColumnLabelProvider(matrixColumn, i);
         }
     }
-    
-    
+
+    private TableViewerColumn setMatrixColumnLabelProvider(TableViewerColumn column, final int columnNumber) {
+        column.setLabelProvider(new ColumnLabelProvider() {
+            @Override
+            public String getText(Object element) {
+                DsmRow dsmRow = (DsmRow) element;
+                return Integer.toString(dsmRow.getCells().get(columnNumber-1).getDependencyWeight());
+            }
+        });
+        return column;
+    }
+
     private TableViewerColumn createTableViewerColumn(String title, int bound, boolean isResizable) {
         final TableViewerColumn viewerColumn = new TableViewerColumn(this, SWT.NONE);
         final TableColumn column = viewerColumn.getColumn();

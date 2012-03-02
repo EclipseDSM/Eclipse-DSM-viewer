@@ -81,7 +81,7 @@ public class DSMView extends ViewPart {
         tableViewer.setUseHashlookup(true);     
         
         tableViewer.setContentProvider(new DSMViewContentProvider());
-//        setLabelProvider(new DSMViewLabelProvider());
+//      setLabelProvider(new DSMViewLabelProvider());
 
         // Selection provider for the view.
         getSite().setSelectionProvider(tableViewer);
