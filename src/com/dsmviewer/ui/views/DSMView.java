@@ -1,6 +1,9 @@
 package com.dsmviewer.ui.views;
 
-import org.dtangler.core.dsm.DsmRow;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.dtangler.core.configuration.Arguments;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -8,12 +11,9 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
@@ -27,6 +27,9 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dsmviewer.dtangler.DSMatrix;
+import com.dsmviewer.dtangler.DtanglerArguments;
+import com.dsmviewer.dtangler.DtanglerRunner;
 
 /**
  * 
@@ -39,7 +42,7 @@ public class DSMView extends ViewPart {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private TableViewer tableViewer;
+    private static TableViewer tableViewer;
 
     private Table table;
 
@@ -56,6 +59,10 @@ public class DSMView extends ViewPart {
     public Table getTable() {
         return table;
     }
+    
+    public static TableViewer getTableViewer() {
+        return tableViewer;
+    }
 
     public void createPartControl(final Composite parent) {
         try {
@@ -71,57 +78,81 @@ public class DSMView extends ViewPart {
             contributeToActionBars();
         } catch (RuntimeException e) {
             logger.error("Cannot create control part: " + e.getMessage());
-            showErrorMessage("Cannot create control part: " + e.getMessage());            
+            showErrorMessage("Cannot create control part: " + e.getMessage());
         }
     }
 
-    private void createTableViewer(Composite parent) {
-        tableViewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);               
+    private void createTableViewer(Composite parent) {               
+        
+        tableViewer = new DSMTableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
         
         table = tableViewer.getTable();
         table.setHeaderVisible(true);
-        table.setLinesVisible(true);        
+        table.setLinesVisible(true);
         table.setToolTipText("DS-Matrix");
+        
+        DSMatrix dsMatrix = runDtanglerManually();
 
         tableViewer.setUseHashlookup(true);
 
-        composeColumns();
+        composeColumns(dsMatrix);
 
         tableViewer.setContentProvider(new DSMViewContentProvider());
         tableViewer.setLabelProvider(new DSMViewLabelProvider());
 
-        tableViewer.setInput(DSMatrixModel.INSTANCE.getDsmRows());
+        tableViewer.setInput(dsMatrix.getRows());
 
         // Selection provider for the view.
         getSite().setSelectionProvider(tableViewer);
 
     }
 
-    private void composeColumns() {
+    private DSMatrix runDtanglerManually() {
+
+        DtanglerRunner runner = new DtanglerRunner();
+        List<String> pathList = new ArrayList<String>();
+
+        String path = "//home//selden//Рабочий стол//dtangler-core_v_2.0.0.jar";
+        pathList.add(path);
+
+        String scope = "classes";
+
+        Arguments arguments = DtanglerArguments.build(pathList, scope, false);
+
+        return runner.run(arguments);
+    }
+
+    private void composeColumns(DSMatrix dsMatrix) {
 
         TableViewerColumn nameColumn = createTableViewerColumn("Names: ", 200, true);
-        
-        nameColumn.setLabelProvider(new ColumnLabelProvider() {
-            @Override
-            public String getText(Object element) {
-                DsmRow dsmRow = (DsmRow) element;
-                return dsmRow.getDependee().getDisplayName();
-            }
-        });
 
-        for (int i = 1; i <= 4; i++) {
-            TableViewerColumn column = createTableViewerColumn(""+i, 30, false);
-            column.setLabelProvider(new ColumnLabelProvider() {
-                @Override
-                public String getText(Object element) {
-                    DsmRow dsmRow = (DsmRow) element;
-                    return Integer.toString(dsmRow.getCells().get(0).getDependencyWeight());
-                }
-            });
+//        nameColumn.setLabelProvider(new ColumnLabelProvider() {
+//            @Override
+//            public String getText(Object element) {
+//                DsmRow dsmRow = (DsmRow) element;
+//                return dsmRow.getDependee().getDisplayName();
+//            }
+//        });
+
+        for (int i = 1; i <= dsMatrix.getSize(); i++) {
+
+            
+            
+            // save the column number to set column headers later.
+            dsMatrix.getRows().get(i-1).getDependee().setContentCount(i);
+
+            TableViewerColumn column = createTableViewerColumn("" + i, 35, true);
+//            column.setLabelProvider(new ColumnLabelProvider() {
+//                @Override
+//                public String getText(Object element) {
+//                    DsmRow dsmRow = (DsmRow) element;
+//                    return Integer.toString(dsmRow.getCells().get(0).getDependencyWeight());
+//                }
+//            });
         }
 
     }
-    
+
     private TableViewerColumn createTableViewerColumn(String title, int bound, boolean isResizable) {
         final TableViewerColumn viewerColumn = new TableViewerColumn(tableViewer, SWT.NONE);
         final TableColumn column = viewerColumn.getColumn();
@@ -136,7 +167,7 @@ public class DSMView extends ViewPart {
         table.removeAll();
         logger.debug("DSM table was cleared.");
     }
-    
+
     /**
      * Adds necessary listeners to DSM View.
      */
@@ -207,7 +238,8 @@ public class DSMView extends ViewPart {
     }
 
     /**
-     * Shows the error message. 
+     * Shows the error message.
+     * 
      * @param message
      *            the message
      */
@@ -231,5 +263,5 @@ public class DSMView extends ViewPart {
         getViewSite().getPage().removePartListener(lifeCycleListener);
         logger.debug("Lifecycle listener was removed from DSM view");
     }
-    
+
 }

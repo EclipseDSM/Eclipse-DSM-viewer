@@ -50,16 +50,15 @@
       </page>
    </extension>
 
-   <!-- Popupmenu action to check selected resources (files/packages/jars) on demand -->
-	<extension
-        point="org.eclipse.ui.popupMenus">
+   <!-- Popupmenu action to check selected resources (files/packages/jars) on demand in packages scope -->
+	<extension point="org.eclipse.ui.popupMenus">
         <objectContribution
-            objectClass="org.eclipse.core.resources.IProject"
+            objectClass="org.eclipse.core.resources.IResource"
             adaptable="true"
             id="Run DSM on project">
             
             <visibility>
-                <objectClass  name="org.eclipse.core.resources.IProject"/>                
+                <objectClass  name="org.eclipse.core.resources.IResource"/>                
             </visibility>
 
             <menu
@@ -70,14 +69,39 @@
                     name="xbatch"/>
             </menu>
             <action
-                label="Show DS-Matrix"
+                label="Show packages DS-Matrix"
                 class="com.dsmviewer.dtangler.DtanglerRunner"
                 enablesFor="+"
                 menubarPath="additions"         
-                tooltip="Run DSM viewer"
-                id="Run DSM on project"/>
+                tooltip="packages"
+                id="Run DSM on resource"/>
         </objectContribution>
 
+   <!-- Popupmenu action to check selected resources (files/packages/jars) on demand in classes scope -->
+        <objectContribution
+            objectClass="org.eclipse.core.resources.IResource"
+            adaptable="true"
+            id="Run DSM on project">
+            
+            <visibility>
+                <objectClass  name="org.eclipse.core.resources.IResource"/>                
+            </visibility>
+
+            <menu
+                id="DSM Viewer menu"
+                label="DSM Viewer menu"
+                path="additions">
+                <separator
+                    name="xbatch"/>
+            </menu>
+            <action
+                label="Show classes DS-Matrix"
+                class="com.dsmviewer.dtangler.DtanglerRunner"
+                enablesFor="+"
+                menubarPath="additions"         
+                tooltip="classes"
+                id="Run DSM on resource"/>
+        </objectContribution>
 
         <!-- Popupmenu action to check selected jars on demand
         <objectContribution

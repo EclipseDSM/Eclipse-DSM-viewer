@@ -18,21 +18,21 @@ public class DSMViewContentProvider extends ArrayContentProvider implements IStr
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.IContentProvider#dispose()
      */
-    public void dispose() {
-    }
-
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
-     */
-    public Object[] getElements(Object inputElement) {
-        if (inputElement instanceof Object[]) {
-            return (Object[]) inputElement;
-        }
-        if (inputElement instanceof Collection) {
-            return ((Collection) inputElement).toArray();
-        }
-        return new Object[0];
-    }
+//    public void dispose() {
+//    }
+//
+//    /* (non-Javadoc)
+//     * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
+//     */
+//    public Object[] getElements(Object inputElement) {
+//        if (inputElement instanceof Object[]) {
+//            return (Object[]) inputElement;
+//        }
+//        if (inputElement instanceof Collection) {
+//            return ((Collection) inputElement).toArray();
+//        }
+//        return new Object[0];
+//    }
     
         
     

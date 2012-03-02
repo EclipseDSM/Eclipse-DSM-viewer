@@ -59,16 +59,19 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * {@inheritDoc}
      */
     public void run(final IAction action) {
-
+        
+        System.out.println(action.getDescription());
+        
         try {
-            
+
             List<String> pathList = getPathList(selection);
-            String scope = "packages";
+            String scope = action.getDescription();
             
             Arguments arguments = DtanglerArguments.build(pathList, scope, false);            
             DSMatrix dsMatrix = run(arguments);
-            
 
+            DSMView.getTableViewer().setInput(dsMatrix.getRows());
+            
         } catch (MissingArgumentsException e) {
             e.printStackTrace(); // wrong arguments
             DSMView.showErrorMessage(e.getMessage());
@@ -105,7 +108,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
             dsMatrix = new DSMatrix(dependencyGraph);
 
-            //printDsmAndViolations(dependencyGraph, analysisResult);
+            printDsmAndViolations(dependencyGraph, analysisResult);
 
             if (analysisResult.isValid()) {
                 logger.info("Dtangler analisys stopped. Analysis result is valid.");
