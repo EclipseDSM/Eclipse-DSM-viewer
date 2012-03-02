@@ -51,6 +51,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      */
     public void selectionChanged(final IAction action, final ISelection selectionData) {
         selection = (IStructuredSelection) selectionData;
+        logger.debug("Package Explorer selection was changed to "+ ((IResource)selection.getFirstElement()).getClass().toString());
     }
 
     /**
@@ -59,19 +60,18 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * {@inheritDoc}
      */
     public void run(final IAction action) {
-        
-        System.out.println(action.getDescription());
-        
+
         try {
 
             List<String> pathList = getPathList(selection);
-            String scope = action.getDescription();
-            
-            Arguments arguments = DtanglerArguments.build(pathList, scope, false);            
-            DSMatrix dsMatrix = run(arguments);
 
-            DSMView.getTableViewer().setInput(dsMatrix.getRows());
-            
+            String scope = action.getDescription(); // "classes" / "packages"
+
+            Arguments arguments = DtanglerArguments.build(pathList, scope, false);
+
+            DSMatrix dsMatrix = computeDsMatrix(arguments);
+            DSMView.getTableViewer().showDSMatrix(dsMatrix);
+
         } catch (MissingArgumentsException e) {
             e.printStackTrace(); // wrong arguments
             DSMView.showErrorMessage(e.getMessage());
@@ -91,10 +91,10 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * @throws MissingArgumentsException
      *             if the request parameters are incorrect.
      */
-    public DSMatrix run(Arguments arguments) {
-        
+    public DSMatrix computeDsMatrix(Arguments arguments) {
+
         DSMatrix dsMatrix;
-        
+
         try {
             logger.info("Dtangler analisys started.");
 
@@ -121,7 +121,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
         } catch (DtException e) {
             throw e;
         }
-        
+
         return dsMatrix;
     }
 
@@ -151,7 +151,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             IResource resource = (IResource) selectedResource;
             String resourcePath = getFullPath(resource);
             pathList.add(resourcePath);
-            System.out.println(resourcePath);
+            logger.debug("Added to analysis:" + resourcePath);
         }
         return pathList;
     }
