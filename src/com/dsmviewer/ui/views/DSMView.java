@@ -1,5 +1,6 @@
 package com.dsmviewer.ui.views;
 
+import org.dtangler.core.dsm.DsmRow;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -7,13 +8,17 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
@@ -21,6 +26,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.dsmviewer.dtangler.DSMatrixModel;
 
 /**
  * 
@@ -41,6 +48,8 @@ public class DSMView extends ViewPart {
 
     private final DSMViewController dsmViewController = new DSMViewController(table);
 
+    private ViewLyfeCycleListener lifeCycleListener;
+
     public DSMViewController getDsmViewController() {
         return dsmViewController;
     }
@@ -49,12 +58,11 @@ public class DSMView extends ViewPart {
         return table;
     }
 
-    public void createPartControl(final Composite composite) {
+    public void createPartControl(final Composite parent) {
         try {
             addLifeCycleListener();
 
-            createTable(composite);
-            createTableViewer();
+            createTableViewer(parent);
 
             // Create the help context id for the viewer's control
             PlatformUI.getWorkbench().getHelpSystem().setHelp(tableViewer.getControl(), "DSM-viewer.viewer");
@@ -63,35 +71,79 @@ public class DSMView extends ViewPart {
             hookContextMenu();
             contributeToActionBars();
         } catch (RuntimeException e) {
-            logger.error("Exception occured: " + e.getMessage());
-            showErrorMessage("Exception occured: " + e.getMessage());            
+            logger.error("Cannot create control part: " + e.getMessage());
+            showErrorMessage("Cannot create control part: " + e.getMessage());            
         }
     }
 
-    private void createTable(final Composite parent) {
-        int style = SWT.SINGLE | SWT.BORDER | SWT.FULL_SELECTION | SWT.HIDE_SELECTION;
-        table = new Table(parent, style);
-
-        GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
-        table.setLayoutData(gridData);
-
-        table.setLinesVisible(true);
+    private void createTableViewer(Composite parent) {
+        tableViewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);               
+        
+        table = tableViewer.getTable();
         table.setHeaderVisible(true);
-    }
+        table.setLinesVisible(true);        
+        table.setToolTipText("DS-Matrix");
 
-    private void createTableViewer() {
-        tableViewer = new TableViewer(table);
         tableViewer.setUseHashlookup(true);
+
+        composeColumns();
+        
         tableViewer.setContentProvider(new DSMViewContentProvider());
         tableViewer.setLabelProvider(new DSMViewLabelProvider());
-        tableViewer.setInput(getViewSite());        
+
+        tableViewer.setInput(DSMatrixModel.INSTANCE.getDsmRows());
+
+        // Selection provider for the view.
+        getSite().setSelectionProvider(tableViewer);
+
     }
 
+    private void composeColumns() {
+
+        TableViewerColumn nameColumn = createTableViewerColumn("Names: ", 200, true);
+        
+        nameColumn.setLabelProvider(new ColumnLabelProvider() {
+            @Override
+            public String getText(Object element) {
+                DsmRow dsmRow = (DsmRow) element;
+                return dsmRow.getDependee().getDisplayName();
+            }
+        });
+
+        for (int i = 1; i <= 4; i++) {
+            TableViewerColumn column = createTableViewerColumn(""+i, 30, false);
+            column.setLabelProvider(new ColumnLabelProvider() {
+                @Override
+                public String getText(Object element) {
+                    DsmRow dsmRow = (DsmRow) element;
+                    return Integer.toString(dsmRow.getCells().get(0).getDependencyWeight());
+                }
+            });
+        }
+
+    }
+    
+    private TableViewerColumn createTableViewerColumn(String title, int bound, boolean isResizable) {
+        final TableViewerColumn viewerColumn = new TableViewerColumn(tableViewer, SWT.NONE);
+        final TableColumn column = viewerColumn.getColumn();
+        column.setText(title);
+        column.setWidth(bound);
+        column.setResizable(isResizable);
+        column.setMoveable(false);
+        return viewerColumn;
+    }
+
+    public void clearDSMTable() {
+        table.removeAll();
+        logger.debug("DSM table was cleared.");
+    }
+    
     /**
      * Adds necessary listeners to DSM View.
      */
     private void addLifeCycleListener() {
-        getViewSite().getPage().addPartListener(new ViewLyfeCycleListener());
+        lifeCycleListener = new ViewLyfeCycleListener();
+        getViewSite().getPage().addPartListener(lifeCycleListener);
         logger.debug("View lifecycle listener was added to DSM View");
     }
 
@@ -175,4 +227,10 @@ public class DSMView extends ViewPart {
         logger.info("View lifecycle: DSM view is in focus.");
     }
 
+    public void dispose() {
+        // Remove lifecycle listener from view
+        getViewSite().getPage().removePartListener(lifeCycleListener);
+        logger.debug("Lifecycle listener was removed from DSM view");
+    }
+    
 }
