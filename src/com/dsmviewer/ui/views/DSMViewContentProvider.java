@@ -5,8 +5,8 @@ import org.eclipse.jface.viewers.IStructuredContentProvider;
 
 public class DSMViewContentProvider extends ArrayContentProvider implements IStructuredContentProvider {
 
-/** Don`t remove this class! It will be useful later ) */
-    
+    /** Don`t remove this class! It will be useful later ) */
+
 //    /** (non-Javadoc)
 //     * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, 
 //     * java.lang.Object, java.lang.Object)
@@ -20,6 +20,7 @@ public class DSMViewContentProvider extends ArrayContentProvider implements IStr
 //    public void dispose() {
 //    }
 //
+
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
      */
@@ -33,7 +34,5 @@ public class DSMViewContentProvider extends ArrayContentProvider implements IStr
 //        }
 //        return new Object[0];
 //    }
-    
-        
-    
+
 }
