@@ -7,8 +7,9 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
@@ -55,13 +56,16 @@ public class DSMView extends ViewPart {
     }
 
     public void createPartControl(final Composite parent) {
-        try {
+        try {            
+            
+            Composite childComposite = new Composite(parent, SWT.DOUBLE_BUFFERED);
+            
             addLifeCycleListener();
 
-            createTableViewer(parent);
+            createTableViewer(childComposite);
 
             createTable();
-            
+
             // Create the help context id for the viewer's control
             PlatformUI.getWorkbench().getHelpSystem().setHelp(tableViewer.getControl(), "DSM-viewer.viewer");
 
@@ -76,13 +80,12 @@ public class DSMView extends ViewPart {
 
     private void createTableViewer(Composite parent) {
 
-        tableViewer = new DSMTableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+        tableViewer = new DSMTableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL
+                | SWT.FULL_SELECTION | SWT.BORDER);
 
-        tableViewer.setUseHashlookup(true);     
-        
+        tableViewer.setUseHashlookup(true);
         tableViewer.setContentProvider(new DSMViewContentProvider());
-//      setLabelProvider(new DSMViewLabelProvider());
-
+        
         // Selection provider for the view.
         getSite().setSelectionProvider(tableViewer);
     }
@@ -93,8 +96,8 @@ public class DSMView extends ViewPart {
         table.setLinesVisible(true);
         table.setToolTipText("DS-Matrix");
     }
-   
-    
+
+
     public void clearDSMTable() {
         table.removeAll();
         logger.debug("DSM table was cleared.");
