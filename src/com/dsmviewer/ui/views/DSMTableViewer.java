@@ -41,12 +41,11 @@ public class DSMTableViewer extends TableViewer {
         super(parent, style);
     }
 
-    public void showDSMatrix(DSMatrix dsMatrix) {
+    public void showModel(DSMModel dsmModel) {
         removeAllColumns();
         
-        composeColumns(dsMatrix);
-        
-        setInput(dsMatrix.getRows());
+        composeColumns(dsmModel.getLabel());
+        setInput(dsmModel.getMatrix());
 
         Control tableControl = this.getControl();
         tableControl.pack();        
@@ -77,22 +76,22 @@ public class DSMTableViewer extends TableViewer {
         columns.clear();
     }
 
-    private void composeColumns(DSMatrix dsMatrix) {
+    private void composeColumns(ArrayList<DSMModel.Label> label) {
 
-        TableViewerColumn nameColumn = createTableViewerColumn("Names: ", NAME_COLUMN_SIZE, true);
-        setNameColumnLabelProvider(nameColumn);
-        // nameColumn.getColumn().pack();
+        //TableViewerColumn nameColumn = createTableViewerColumn("Names: ", NAME_COLUMN_SIZE, true);
+        //setNameColumnLabelProvider(nameColumn);
+        //nameColumn.getColumn().pack();
         
-        this.columns.add(nameColumn); // add column to list
+        //this.columns.add(nameColumn); // add column to list
 
-        for (int i = 1; i <= dsMatrix.getSize(); i++) {
+        for (int n = 0; n < label.size(); n++) {
             // save the column number to set column headers later.
-            dsMatrix.getRows().get(i - 1).getDependee().setContentCount(i);
-            TableViewerColumn matrixColumn = createTableViewerColumn("" + i, DS_MATRIX_COLUMN_SIZE, false);
+            //dsMatrix.getRows().get(i - 1).getDependee().setContentCount(i);
+            TableViewerColumn matrixColumn = createTableViewerColumn(Integer.toString(label.get(n).number), DS_MATRIX_COLUMN_SIZE, false);
 
             matrixColumn.getColumn().setAlignment(SWT.CENTER);
 
-            setMatrixColumnLabelProvider(matrixColumn, i);  
+            setMatrixColumnLabelProvider(matrixColumn, n);  
             
             //matrixColumn.getColumn().pack();
             this.columns.add(matrixColumn); // add column to list
@@ -126,18 +125,17 @@ public class DSMTableViewer extends TableViewer {
         column.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object element) {
-                DsmRow dsmRow = (DsmRow) element;
-                int dependencyWeight = dsmRow.getCells().get(columnNumber - 1).getDependencyWeight();
-                String result = (dependencyWeight == 0) ? "" : Integer.toString(dependencyWeight);
+                final DSMModel.Row row = (DSMModel.Row) element;
+                int weight = row.row.get(columnNumber);
+                String result = row.number == columnNumber ? "--" : Integer.toString(weight);
                 return result;
             }
 
             @Override
             public Color getBackground(Object element) {
-                final DsmRow dsmRow = (DsmRow) element;
-                final Dependable dep = dsmRow.getDependee();
-                if (dep.getContentCount() == columnNumber) { // main 
-                    return new Color(Display.getCurrent(), 200, 200, 200);
+                final DSMModel.Row row = (DSMModel.Row) element;
+                if (row.number == columnNumber) {
+                    return new Color(Display.getCurrent(), 200, 200, 200); // diagonal
                 }
                 else {
                     return null;

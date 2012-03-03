@@ -5,7 +5,7 @@
     This configuration file was written by the eclipse-cs plugin configuration editor
 -->
 <!--
-    Checkstyle-Configuration: Eclipse-DSM checkstyle config
+    Checkstyle-Configuration: check
     Description: none
 -->
 <module name="Checker">
@@ -427,7 +427,7 @@
     <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
   </module>
   <module name="SuppressionFilter">
-    <property name="file" value="/home/selden/DSM-viever Eclipse workspace/Eclipse-DSM-viewer/configs/eclipse/Eclipse-DSM _checkstyle_suppression.xml"/>
+    <property name="file" value="${config_loc}Eclipse-DSM _checkstyle_suppression.xml"/>
   </module>
   <module name="SuppressWithNearbyCommentFilter">
     <property name="influenceFormat" value="1"/>

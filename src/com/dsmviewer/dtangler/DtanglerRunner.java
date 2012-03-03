@@ -26,6 +26,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dsmviewer.ui.views.DSMModel;
 import com.dsmviewer.ui.views.DSMView;
 
 /**
@@ -69,8 +70,8 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
             Arguments arguments = DtanglerArguments.build(pathList, scope, false);
 
-            DSMatrix dsMatrix = computeDsMatrix(arguments);
-            DSMView.getTableViewer().showDSMatrix(dsMatrix);
+            DSMModel dsmModel = computeModel(arguments);
+            DSMView.getTableViewer().showModel(dsmModel);
 
         } catch (MissingArgumentsException e) {
             e.printStackTrace(); // wrong arguments
@@ -91,9 +92,9 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * @throws MissingArgumentsException
      *             if the request parameters are incorrect.
      */
-    public DSMatrix computeDsMatrix(Arguments arguments) {
+    public DSMModel computeModel(Arguments arguments) {
 
-        DSMatrix dsMatrix;
+        DSMModel dsmModel;
 
         try {
             logger.info("Dtangler analisys started.");
@@ -106,7 +107,8 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
             AnalysisResult analysisResult = getAnalysisResult(arguments, dependencies);
 
-            dsMatrix = new DSMatrix(dependencyGraph);
+            dsmModel = new DSMModel();
+            dsmModel.createModel(dependencyGraph);
 
             printDsmAndViolations(dependencyGraph, analysisResult);
 
@@ -122,7 +124,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             throw e;
         }
 
-        return dsMatrix;
+        return dsmModel;
     }
 
     /**
