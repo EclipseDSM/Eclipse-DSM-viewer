@@ -52,7 +52,8 @@ public class DtanglerRunner implements IObjectActionDelegate {
      */
     public void selectionChanged(final IAction action, final ISelection selectionData) {
         selection = (IStructuredSelection) selectionData;
-        logger.debug("Package Explorer selection was changed to "+ ((IResource)selection.getFirstElement()).getClass().toString());
+        logger.debug("Package Explorer selection was changed to "
+                + ((IResource) selection.getFirstElement()).getClass().toString());
     }
 
     /**

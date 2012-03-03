@@ -1,15 +1,12 @@
 package com.dsmviewer.ui.views;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.dtangler.core.dependencies.DependencyGraph;
 import org.dtangler.core.dsm.Dsm;
 import org.dtangler.core.dsm.DsmRow;
-import org.dtangler.core.dsm.DsmCell;
 import org.dtangler.core.dsmengine.DsmEngine;
 
 /**
@@ -18,82 +15,99 @@ import org.dtangler.core.dsmengine.DsmEngine;
  * 
  */
 public class DSMModel {
-    private ArrayList<Row> matrix;
-    private ArrayList<Label> label;
-        
-    public ArrayList<Row> getMatrix() {
-        return matrix;
+    private ArrayList<Row> rows;
+    private ArrayList<Label> labels;
+
+    public ArrayList<Row> getRows() {
+        return rows;
     }
-    public ArrayList<Label> getLabel() {
-        return label;
+
+    public ArrayList<Label> getLabels() {
+        return labels;
     }
-    
+
     public void createModel(DependencyGraph dependencyGraph)
     {
         Dsm dsm = new DsmEngine(dependencyGraph).createDsm();
-        matrix = new ArrayList<Row>();
-        label = new ArrayList<Label>();
-        
+        rows = new ArrayList<Row>();
+        labels = new ArrayList<Label>();
+
         // получение имен всех классов
-        SortedSet<String> temp = new TreeSet<String>(); 
-        for(DsmRow row : dsm.getRows())
+        SortedSet<String> temp = new TreeSet<String>();
+        for (DsmRow row : dsm.getRows())
         {
             String curPath = row.getDependee().getFullyQualifiedName();
             curPath = curPath.substring(curPath.lastIndexOf(':') + 1).trim();
-            while(curPath.length() != 1)
-            {
+            while (curPath.length() > 1) {
                 temp.add(curPath);
                 int index = curPath.lastIndexOf('.');
-                if(index >= 0) curPath = curPath.substring(0, index);
-                else break;
+                if (index >= 0)
+                    curPath = curPath.substring(0, index);
+                else
+                    break;
             }
         }
 
         // создание подписей к матрице для всех внутренностей пакета
         int pos = 0;
-        for(String cur : temp) {
-            String shortname = (cur.lastIndexOf('.') >= 0) ? cur.substring(cur.lastIndexOf('.')) : cur;
-            label.add(new Label(pos, 0, cur, shortname));
+        for (String cur : temp) {
+            String shortname = (cur.lastIndexOf('.') >= 0) ? cur.substring(cur.lastIndexOf('.') + 1) : cur;
+            labels.add(new Label(pos, 0, cur, shortname, true));
             pos++;
         }
-//        String[] classes = temp.toArray(new String[0]);
-//        for(int n = 0; n < classes.length; n++) {
-//            String shortname = (classes[n].lastIndexOf('.') >= 0) ? classes[n].substring(classes[n].lastIndexOf('.')) : classes[n];
-//            array.add(new Label(n, 0, classes[n], shortname));
-//        }
-        label.trimToSize();
-        
+        labels.trimToSize();
+
         // расчет дерева
-        buildTree(label, 0, label.size() - 1, -1);
-        
-        // расчет DSM
-        // пока что Dummy для теста UI
-        matrix.ensureCapacity(label.size());
-        for(int n = 0; n < label.size(); n++) {
-            ArrayList<Integer> row = new ArrayList<Integer>(label.size()); 
-            for(int m = 0; m < label.size(); m++) {
-                // вот тут будет магическая ебля с исходным dsm
-                row.add(m, Math.max(n, m));
+        buildTree(labels, 0, labels.size() - 1, -1);
+
+        // selecting active indexes in labels (these ones, data for which was calculated by drangler)
+        int[] active = new int[dsm.getRows().size()];
+        rows.ensureCapacity(labels.size());
+        // TODO: Check is dtangler output DS-matrix is sorted by rows in natural order!
+        for (int n = 0, m = 0; n < labels.size(); n++) {
+            // сразу создаем место под создание новой DSM
+            ArrayList<Integer> row = new ArrayList<Integer>(labels.size());
+            for (int h = 0; h < labels.size(); h++) {
+                row.add(0);
             }
-            matrix.add(n, new Row(n, row));
+            rows.add(new Row(n, row));
+            if (m < active.length && labels.get(n).fold == 0) {
+                active[m++] = n;
+            }
         }
+        // scalling old dsm to new size
+        for (int n = 0; n < active.length; n++) {
+            for (int m = 0; m < active.length; m++) {
+                /* находим в исходной dsm ячейку с индексами [n, m]
+                 * копируем данные в новую dsm в место с индексом [active[n], active[m]]
+                 * то есть в те места новой dsm, где находятся объекты, которые существовали в исходной dsm
+                 */
+                int element = dsm.getRows().get(n).getCells().get(m).getDependencyWeight();
+                rows.get(active[n]).row.set(active[m], element);
+            }
+        }
+        
+        buildDSM(rows, labels, 0, labels.size() - 1);
+        
+        @SuppressWarnings("unused")
+        int n = 0; // debug anchor
     }
-    
-    private void buildTree(ArrayList<Label> array, int index, int last, int parent)
-    {
-        if(index >= array.size()) {
-            if(parent < array.size()) buildTree(array, parent + 2, last, parent + 1);
+
+    private void buildTree(ArrayList<Label> array, int index, int last, int parent) {
+        if (index >= array.size()) {
+            if (parent < array.size())
+                buildTree(array, parent + 2, last, parent + 1);
             return;
         }
-        else if(parent == -1) {
-            for(Label item : array){
+        else if (parent == -1) {
+            for (Label item : array) {
                 item.fold = 0;
             }
             buildTree(array, index + 1, last, index);
             return;
         }
         else {
-            if(array.get(index).fullname.startsWith(array.get(parent).fullname)) {
+            if (array.get(index).fullname.startsWith(array.get(parent).fullname + ".")) {
                 array.get(parent).fold++;
                 buildTree(array, index + 1, last, parent);
             }
@@ -102,26 +116,32 @@ public class DSMModel {
             }
         }
     }
-    
-    protected class Label{
+
+    private void buildDSM(ArrayList<Row> rows, ArrayList<Label> labels, int stIdx, int edIdx) {
+        // TODO: заполнение пустых элементов, сейчас проверю null они в ArrayList или нет
+    }
+
+    protected class Label {
         int number;
         int fold;
+        boolean folded;
         String fullname;
         String shortname;
-        
-        public Label(int number, int fold, String fullname, String shortname)
+
+        public Label(int number, int fold, String fullname, String shortname, boolean folded)
         {
             this.number = number;
+            this.folded = folded;
             this.fold = fold;
             this.fullname = fullname;
             this.shortname = shortname;
         }
     }
-    
-    protected class Row{
+
+    protected class Row {
         int number;
         ArrayList<Integer> row;
-        
+
         public Row(int number, ArrayList<Integer> row)
         {
             this.number = number;

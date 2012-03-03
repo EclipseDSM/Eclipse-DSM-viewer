@@ -50,16 +50,16 @@ public class DSMView extends ViewPart {
     public Table getTable() {
         return table;
     }
-    
+
     public static DSMTableViewer getTableViewer() {
         return tableViewer;
     }
 
     public void createPartControl(final Composite parent) {
-        try {            
-            
+        try {
+
             Composite childComposite = new Composite(parent, SWT.DOUBLE_BUFFERED);
-            
+
             addLifeCycleListener();
 
             createTableViewer(childComposite);
@@ -85,7 +85,7 @@ public class DSMView extends ViewPart {
 
         tableViewer.setUseHashlookup(true);
         tableViewer.setContentProvider(new DSMViewContentProvider());
-        
+
         // Selection provider for the view.
         getSite().setSelectionProvider(tableViewer);
     }
@@ -96,7 +96,6 @@ public class DSMView extends ViewPart {
         table.setLinesVisible(true);
         table.setToolTipText("DS-Matrix");
     }
-
 
     public void clearDSMTable() {
         table.removeAll();

@@ -41,12 +41,12 @@ public class DSMTableViewer extends TableViewer {
 
     public void showModel(DSMModel dsmModel) {
         removeAllColumns();
-        
-        composeColumns(dsmModel.getLabel());
-        setInput(dsmModel.getMatrix());
+
+        composeColumns(dsmModel.getLabels());
+        setInput(dsmModel.getRows());
 
         Control tableControl = this.getControl();
-        tableControl.pack();        
+        tableControl.pack();
 
         addControlListener(tableControl);
     }
@@ -75,24 +75,12 @@ public class DSMTableViewer extends TableViewer {
     }
 
     private void composeColumns(ArrayList<DSMModel.Label> label) {
-
-        //TableViewerColumn nameColumn = createTableViewerColumn("Names: ", NAME_COLUMN_SIZE, true);
-        //setNameColumnLabelProvider(nameColumn);
-        //nameColumn.getColumn().pack();
-        
-        //this.columns.add(nameColumn); // add column to list
-
         for (int n = 0; n < label.size(); n++) {
-            // save the column number to set column headers later.
-            //dsMatrix.getRows().get(i - 1).getDependee().setContentCount(i);
-            TableViewerColumn matrixColumn = createTableViewerColumn(Integer.toString(label.get(n).number), DS_MATRIX_COLUMN_SIZE, false);
-
+            TableViewerColumn matrixColumn = createTableViewerColumn(Integer.toString(label.get(n).number),
+                    DS_MATRIX_COLUMN_SIZE, false);
             matrixColumn.getColumn().setAlignment(SWT.CENTER);
-
-            setMatrixColumnLabelProvider(matrixColumn, n);  
-            
-            //matrixColumn.getColumn().pack();
-            this.columns.add(matrixColumn); // add column to list
+            setMatrixColumnLabelProvider(matrixColumn, n);
+            this.columns.add(matrixColumn);
         }
     }
 
@@ -110,7 +98,7 @@ public class DSMTableViewer extends TableViewer {
             public Color getBackground(Object element) {
                 return new Color(Display.getCurrent(), 240, 220, 240);
             }
-            
+
             public Image getImage(Object obj) {
                 return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_DEF_PERSPECTIVE);
             }
