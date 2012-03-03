@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.dtangler.core.dependencies.DependencyGraph;
 import org.dtangler.core.dsm.Dsm;
 import org.dtangler.core.dsm.DsmRow;
-import org.dtangler.core.dsmengine.DsmEngine;
 
 /**
  * 
@@ -26,9 +24,8 @@ public class DSMModel {
         return labels;
     }
 
-    public void createModel(DependencyGraph dependencyGraph)
+    public void createModel(Dsm dsm)
     {
-        Dsm dsm = new DsmEngine(dependencyGraph).createDsm();
         rows = new ArrayList<Row>();
         labels = new ArrayList<Label>();
 
@@ -63,6 +60,7 @@ public class DSMModel {
         // selecting active indexes in labels (these ones, data for which was calculated by drangler)
         int[] active = new int[dsm.getRows().size()];
         rows.ensureCapacity(labels.size());
+        
         // TODO: Check is dtangler output DS-matrix is sorted by rows in natural order!
         for (int n = 0, m = 0; n < labels.size(); n++) {
             // сразу создаем место под создание новой DSM
@@ -86,9 +84,9 @@ public class DSMModel {
                 rows.get(active[n]).row.set(active[m], element);
             }
         }
-        
+
         buildDSM(rows, labels, 0, labels.size() - 1);
-        
+
         @SuppressWarnings("unused")
         int n = 0; // debug anchor
     }
@@ -122,11 +120,11 @@ public class DSMModel {
     }
 
     protected class Label {
-        int number;
-        int fold;
-        boolean folded;
-        String fullname;
-        String shortname;
+        private int number;
+        private int fold;
+        private boolean folded;
+        private String fullname;
+        private String shortname;
 
         public Label(int number, int fold, String fullname, String shortname, boolean folded)
         {
@@ -135,6 +133,30 @@ public class DSMModel {
             this.fold = fold;
             this.fullname = fullname;
             this.shortname = shortname;
+        }
+
+        public int getNumber() {
+            return number;
+        }
+
+        public int getFold() {
+            return fold;
+        }
+
+        public String getFullname() {
+            return shortname;
+        }
+
+        public String getShortname() {
+            return shortname;
+        }
+
+        public boolean isFolded() {
+            return folded;
+        }
+
+        public void setFolded(boolean folded) {
+            this.folded = folded;
         }
     }
 

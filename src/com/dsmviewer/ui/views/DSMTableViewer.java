@@ -3,8 +3,6 @@ package com.dsmviewer.ui.views;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dtangler.core.dependencies.Dependable;
-import org.dtangler.core.dsm.DsmRow;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -12,13 +10,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +25,8 @@ public class DSMTableViewer extends TableViewer {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     // fixed sizes !
-    private static final int DS_MATRIX_COLUMN_SIZE = 30;
-    private static final int NAME_COLUMN_SIZE = 210;
-
+    private final static int DS_MATRIX_COLUMN_SIZE = 30;
+    
     private List<TableViewerColumn> columns = new ArrayList<TableViewerColumn>();
 
     public DSMTableViewer(Composite parent, int style) {
@@ -76,38 +70,15 @@ public class DSMTableViewer extends TableViewer {
 
     private void composeColumns(ArrayList<DSMModel.Label> label) {
         for (int n = 0; n < label.size(); n++) {
-            TableViewerColumn matrixColumn = createTableViewerColumn(Integer.toString(label.get(n).number),
+            TableViewerColumn matrixColumn = createTableViewerColumn(Integer.toString(label.get(n).getNumber()),
                     DS_MATRIX_COLUMN_SIZE, false);
             matrixColumn.getColumn().setAlignment(SWT.CENTER);
-            setMatrixColumnLabelProvider(matrixColumn, n);
+            setColumnLabelProvider(matrixColumn, n);
             this.columns.add(matrixColumn);
         }
     }
 
-    private TableViewerColumn setNameColumnLabelProvider(TableViewerColumn column) {
-        column.setLabelProvider(new ColumnLabelProvider() {
-
-            @Override
-            public String getText(Object element) {
-                final DsmRow dsmRow = (DsmRow) element;
-                final Dependable dep = dsmRow.getDependee();
-                return dep.getContentCount() + ": " + dep.getDisplayName();
-            }
-
-            @Override
-            public Color getBackground(Object element) {
-                return new Color(Display.getCurrent(), 240, 220, 240);
-            }
-
-            public Image getImage(Object obj) {
-                return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_DEF_PERSPECTIVE);
-            }
-
-        });
-        return column;
-    }
-
-    private TableViewerColumn setMatrixColumnLabelProvider(TableViewerColumn column, final int columnNumber) {
+    private TableViewerColumn setColumnLabelProvider(TableViewerColumn column, final int columnNumber) {
         column.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object element) {

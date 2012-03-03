@@ -10,6 +10,7 @@ import org.dtangler.core.configuration.Arguments;
 import org.dtangler.core.dependencies.Dependencies;
 import org.dtangler.core.dependencies.DependencyGraph;
 import org.dtangler.core.dependencyengine.DependencyEngine;
+import org.dtangler.core.dsm.Dsm;
 import org.dtangler.core.dsmengine.DsmEngine;
 import org.dtangler.core.exception.DtException;
 import org.dtangler.core.textui.DSMWriter;
@@ -107,9 +108,9 @@ public class DtanglerRunner implements IObjectActionDelegate {
             DependencyGraph dependencyGraph = dependencies.getDependencyGraph();
 
             AnalysisResult analysisResult = getAnalysisResult(arguments, dependencies);
-
+            Dsm dsm = new DsmEngine(dependencyGraph).createDsm();
             dsmModel = new DSMModel();
-            dsmModel.createModel(dependencyGraph);
+            dsmModel.createModel(dsm);
 
             printDsmAndViolations(dependencyGraph, analysisResult);
 
