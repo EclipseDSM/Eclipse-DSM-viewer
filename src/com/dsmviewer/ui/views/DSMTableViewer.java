@@ -22,8 +22,6 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dsmviewer.dtangler.DSMatrix;
-
 public class DSMTableViewer extends TableViewer {
 
     /**
