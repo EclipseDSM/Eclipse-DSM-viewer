@@ -10,6 +10,7 @@ import org.dtangler.core.configuration.Arguments;
 import org.dtangler.core.dependencies.Dependencies;
 import org.dtangler.core.dependencies.DependencyGraph;
 import org.dtangler.core.dependencyengine.DependencyEngine;
+import org.dtangler.core.dsm.Dsm;
 import org.dtangler.core.dsmengine.DsmEngine;
 import org.dtangler.core.exception.DtException;
 import org.dtangler.core.textui.DSMWriter;
@@ -26,6 +27,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dsmviewer.ui.views.DSMModel;
 import com.dsmviewer.ui.views.DSMView;
 
 /**
@@ -51,7 +53,8 @@ public class DtanglerRunner implements IObjectActionDelegate {
      */
     public void selectionChanged(final IAction action, final ISelection selectionData) {
         selection = (IStructuredSelection) selectionData;
-        logger.debug("Package Explorer selection was changed to "+ ((IResource)selection.getFirstElement()).getClass().toString());
+        logger.debug("Package Explorer selection was changed to "
+                + ((IResource) selection.getFirstElement()).getClass().toString());
     }
 
     /**
@@ -69,8 +72,8 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
             Arguments arguments = DtanglerArguments.build(pathList, scope, false);
 
-            DSMatrix dsMatrix = computeDsMatrix(arguments);
-            DSMView.getTableViewer().showDSMatrix(dsMatrix);
+            DSMModel dsmModel = computeModel(arguments);
+            DSMView.getTableViewer().showModel(dsmModel);
 
         } catch (MissingArgumentsException e) {
             e.printStackTrace(); // wrong arguments
@@ -91,9 +94,9 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * @throws MissingArgumentsException
      *             if the request parameters are incorrect.
      */
-    public DSMatrix computeDsMatrix(Arguments arguments) {
+    public DSMModel computeModel(Arguments arguments) {
 
-        DSMatrix dsMatrix;
+        DSMModel dsmModel;
 
         try {
             logger.info("Dtangler analisys started.");
@@ -105,8 +108,9 @@ public class DtanglerRunner implements IObjectActionDelegate {
             DependencyGraph dependencyGraph = dependencies.getDependencyGraph();
 
             AnalysisResult analysisResult = getAnalysisResult(arguments, dependencies);
-
-            dsMatrix = new DSMatrix(dependencyGraph);
+            Dsm dsm = new DsmEngine(dependencyGraph).createDsm();
+            dsmModel = new DSMModel();
+            dsmModel.createModel(dsm);
 
             printDsmAndViolations(dependencyGraph, analysisResult);
 
@@ -122,7 +126,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             throw e;
         }
 
-        return dsMatrix;
+        return dsmModel;
     }
 
     /**
