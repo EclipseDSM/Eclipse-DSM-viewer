@@ -5,7 +5,7 @@
     This configuration file was written by the eclipse-cs plugin configuration editor
 -->
 <!--
-    Checkstyle-Configuration: DSMViewer checkstyle config
+    Checkstyle-Configuration: Eclipse-DSM checkstyle config
     Description: none
 -->
 <module name="Checker">
@@ -344,16 +344,12 @@
     <module name="AnonInnerLength">
       <property name="max" value="25"/>
     </module>
-    <module name="AbstractClassName">
-      <property name="checkModifier" value="true"/>
-    </module>
+    <module name="AbstractClassName"/>
     <module name="CustomDeclarationOrder">
       <property name="severity" value="info"/>
     </module>
     <module name="IllegalCatch">
       <property name="severity" value="warning"/>
-      <property name="allowThrow" value="true"/>
-      <property name="allowRethrow" value="true"/>
     </module>
     <module name="MultipleVariableDeclarations">
       <property name="severity" value="warning"/>
@@ -369,10 +365,6 @@
     <module name="NestedTryDepth">
       <property name="severity" value="warning"/>
       <property name="max" value="4"/>
-    </module>
-    <module name="ReturnCount"/>
-    <module name="ReturnCount">
-      <property name="severity" value="warning"/>
     </module>
     <module name="OneStatementPerLine">
       <property name="severity" value="info"/>
@@ -393,6 +385,13 @@
       <property name="targets" value="CLASS_DEF,INTERFACE_DEF,ENUM_DEF,ANNOTATION_DEF,ANNOTATION_FIELD_DEF,ENUM_CONSTANT_DEF,PARAMETER_DEF"/>
       <property name="ignoreFinal" value="false"/>
       <property name="ignoreStatic" value="false"/>
+    </module>
+    <module name="ReturnCountExtended">
+      <property name="linesLimit" value="10"/>
+      <property name="ignoreEmptyReturns" value="true"/>
+    </module>
+    <module name="ForbidInstantiation">
+      <property name="forbiddenClassNames" value="NullPointerException"/>
     </module>
   </module>
   <module name="JavadocPackage">
@@ -425,9 +424,10 @@
     <property name="severity" value="ignore"/>
     <property name="format" value="^\s+$"/>
     <property name="message" value="Empty line has spaces"/>
+    <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
   </module>
   <module name="SuppressionFilter">
-    <property name="file" value="${config_loc}/Eclipse-DSM_checkstyle_suppression.xml"/>
+    <property name="file" value="/home/selden/DSM-viever Eclipse workspace/Eclipse-DSM-viewer/configs/eclipse/Eclipse-DSM _checkstyle_suppression.xml"/>
   </module>
   <module name="SuppressWithNearbyCommentFilter">
     <property name="influenceFormat" value="1"/>

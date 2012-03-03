@@ -43,10 +43,15 @@ public class DtanglerRunner implements IObjectActionDelegate {
     /** Current Eclipse Project Explorer selection. */
     private IStructuredSelection selection;
 
+    public void setActivePart(final IAction arg0, final IWorkbenchPart arg1) {
+    }
+
     /**
      * {@inheritDoc}
      */
-    public void setActivePart(final IAction arg0, final IWorkbenchPart arg1) {
+    public void selectionChanged(final IAction action, final ISelection selectionData) {
+        selection = (IStructuredSelection) selectionData;
+        logger.debug("Package Explorer selection was changed to "+ ((IResource)selection.getFirstElement()).getClass().toString());
     }
 
     /**
@@ -60,10 +65,13 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
             List<String> pathList = getPathList(selection);
 
-            String scope = "classes";
+            String scope = action.getDescription(); // "classes" / "packages"
 
             Arguments arguments = DtanglerArguments.build(pathList, scope, false);
-            run(arguments);
+
+            DSMatrix dsMatrix = computeDsMatrix(arguments);
+            DSMView.getTableViewer().showDSMatrix(dsMatrix);
+
         } catch (MissingArgumentsException e) {
             e.printStackTrace(); // wrong arguments
             DSMView.showErrorMessage(e.getMessage());
@@ -71,6 +79,50 @@ public class DtanglerRunner implements IObjectActionDelegate {
             e.printStackTrace(); // wrong DTangler operation
             DSMView.showErrorMessage("DTangler cannot process your request.");
         }
+    }
+
+    /**
+     * Run Dtangler analysis with given Arguments.
+     * 
+     * @param arguments
+     *            - the arguments
+     * @throws DtException
+     *             when DTangler cannot process current request.
+     * @throws MissingArgumentsException
+     *             if the request parameters are incorrect.
+     */
+    public DSMatrix computeDsMatrix(Arguments arguments) {
+
+        DSMatrix dsMatrix;
+
+        try {
+            logger.info("Dtangler analisys started.");
+
+            DependencyEngine engine = new JavaDependencyEngine();
+            // engine.setDependencyEngineId("java");
+
+            Dependencies dependencies = engine.getDependencies(arguments);
+            DependencyGraph dependencyGraph = dependencies.getDependencyGraph();
+
+            AnalysisResult analysisResult = getAnalysisResult(arguments, dependencies);
+
+            dsMatrix = new DSMatrix(dependencyGraph);
+
+            printDsmAndViolations(dependencyGraph, analysisResult);
+
+            if (analysisResult.isValid()) {
+                logger.info("Dtangler analisys stopped. Analysis result is valid.");
+            } else {
+                logger.info("Dtangler analisys stopped. Analysis result is not valid.");
+            }
+
+        } catch (MissingArgumentsException e) {
+            throw e;
+        } catch (DtException e) {
+            throw e;
+        }
+
+        return dsMatrix;
     }
 
     /**
@@ -89,7 +141,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * 
      * @param selection
      *            - selected resources.
-     * @return the list of paths that will pass to Dtangler Analyzer.
+     * @return the list of paths that will be passed to Dtangler Analyzer.
      */
     private List<String> getPathList(IStructuredSelection selection) {
         List<String> pathList = new ArrayList<String>();
@@ -99,58 +151,13 @@ public class DtanglerRunner implements IObjectActionDelegate {
             IResource resource = (IResource) selectedResource;
             String resourcePath = getFullPath(resource);
             pathList.add(resourcePath);
+            logger.debug("Added to analysis:" + resourcePath);
         }
         return pathList;
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public void selectionChanged(final IAction action, final ISelection selectionData) {
-        selection = (IStructuredSelection) selectionData;
-    }
-
-    /**
-     * Run Dtangler library with given Arguments.
-     * 
-     * @param arguments
-     *            - the arguments
-     * @throws DtException
-     *             when DTangler cannot process current request.
-     * @throws MissingArgumentsException
-     *             if the request parameters are incorrect.
-     */
-    public void run(Arguments arguments) {
-        try {
-            logger.info("Dtangler analisys started.");
-
-            DependencyEngine engine = new JavaDependencyEngine();
-            engine.setDependencyEngineId("java");
-
-            Dependencies dependencies = engine.getDependencies(arguments);
-            DependencyGraph dependencyGraph = dependencies.getDependencyGraph();
-
-            AnalysisResult analysisResult = getAnalysisResult(arguments, dependencies);
-
-            // Dsm dsm = new DsmEngine(dependencyGraph).createDsm(); // get an extremely useful DSM object.
-
-            printDsmAndViolations(dependencyGraph, analysisResult);
-
-            if (analysisResult.isValid()) {
-                logger.info("Dtangler analisys stopped. Analysis result is valid.");
-            } else {
-                logger.info("Dtangler analisys stopped. Analysis result is not valid.");
-            }
-
-        } catch (MissingArgumentsException e) {
-            throw e;
-        } catch (DtException e) {
-            throw e;
-        }
-    }
-
-    /**
-     * Gets the Dtangler analysis result.
+     * Gets the Dtangler analysis result as AnalisysResult object.
      * 
      * @param arguments
      *            the Arguments.
