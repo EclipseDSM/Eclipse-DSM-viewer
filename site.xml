@@ -4,7 +4,7 @@
       DSM viewer plugin for Eclipse update site.
    </description>
    <feature url="features/com.dsmviewer.feature_0.0.1.jar" id="com.dsmviewer.feature" version="0.0.1" nl="en_GB,en_US">
-      <category name="DSM-viewer"/>
+      <category name="Eclipse DSM viewer"/>
    </feature>
-   <category-def name="DSM-viewer" label="DSM-viewer"/>
+   <category-def name="Eclipse DSM viewer" label="Eclipse DSM viewer"/>
 </site>
