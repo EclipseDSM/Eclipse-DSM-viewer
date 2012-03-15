@@ -22,7 +22,7 @@ public class DtanglerArguments extends Arguments {
      * @return Arguments that are appropriable for Dtangler java engine.
      * 
      */
-    public static Arguments build(String commandLineArguments) {
+    public static Arguments build(final String commandLineArguments) {
         return new ArgumentBuilder().build(new String[] { commandLineArguments });
     }
 
@@ -40,7 +40,7 @@ public class DtanglerArguments extends Arguments {
      * @see <a href="http://web.sysart.fi/dtangler/builds/dtangler-r15064_Release-2.0.0/
      *      release/documentation/documentation.html">Dtangler documentation</a> *
      */
-    public static Arguments build(List<String> pathList, String scope, boolean cyclesAllowed) {
+    public static Arguments build(final List<String> pathList, final String scope, final boolean cyclesAllowed) {
         Arguments arguments = new Arguments();
         arguments.setInput(pathList);
         arguments.setScope(scope);

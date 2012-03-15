@@ -57,10 +57,10 @@
       <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="ignore"/>
     </module>
     <module name="LineLength">
-      <property name="severity" value="warning"/>
+      <property name="severity" value="ignore"/>
       <property name="ignorePattern" value="^@.*$"/>
       <property name="max" value="120"/>
-      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="info"/>
+      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="warning"/>
     </module>
     <module name="MethodLength">
       <property name="severity" value="warning"/>
@@ -70,25 +70,36 @@
       <property name="severity" value="warning"/>
       <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="info"/>
     </module>
-    <module name="EmptyForIteratorPad"/>
-    <module name="MethodParamPad"/>
     <module name="NoWhitespaceAfter">
-      <property name="tokens" value="BNOT,DEC,DOT,INC,LNOT,UNARY_MINUS,UNARY_PLUS"/>
+      <property name="severity" value="info"/>
+      <property name="tokens" value="BNOT,DEC,DOT,INC,LNOT,UNARY_MINUS"/>
     </module>
-    <module name="NoWhitespaceBefore"/>
-    <module name="OperatorWrap"/>
+    <module name="NoWhitespaceBefore">
+      <property name="severity" value="info"/>
+    </module>
+    <module name="OperatorWrap">
+      <property name="severity" value="info"/>
+    </module>
     <module name="ParenPad">
+      <property name="severity" value="info"/>
       <property name="tokens" value="CTOR_CALL,METHOD_CALL,RPAREN,SUPER_CTOR_CALL"/>
     </module>
-    <module name="TypecastParenPad"/>
-    <module name="WhitespaceAfter"/>
-    <module name="WhitespaceAround"/>
+    <module name="TypecastParenPad">
+      <property name="severity" value="info"/>
+      <property name="tokens" value="RPAREN,TYPECAST"/>
+    </module>
+    <module name="WhitespaceAfter">
+      <property name="severity" value="info"/>
+    </module>
+    <module name="WhitespaceAround">
+      <property name="severity" value="info"/>
+    </module>
     <module name="ModifierOrder">
       <property name="severity" value="ignore"/>
       <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
     </module>
     <module name="RedundantModifier">
-      <property name="severity" value="ignore"/>
+      <property name="severity" value="warning"/>
       <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="warning"/>
     </module>
     <module name="AvoidNestedBlocks">
@@ -106,7 +117,7 @@
       <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
     </module>
     <module name="NeedBraces">
-      <property name="severity" value="ignore"/>
+      <property name="severity" value="warning"/>
       <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="warning"/>
     </module>
     <module name="RightCurly">
@@ -179,26 +190,14 @@
       <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="info"/>
     </module>
     <module name="FinalParameters">
-      <property name="severity" value="ignore"/>
-      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="info"/>
-    </module>
-    <module name="TodoComment">
       <property name="severity" value="info"/>
-      <property name="format" value="TODO|TODO:|FIXME|TODOLOW"/>
       <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="info"/>
     </module>
     <module name="UpperEll">
       <property name="severity" value="warning"/>
     </module>
-    <module name="RegexpSinglelineJava">
-      <property name="severity" value="ignore"/>
-      <property name="format" value="[ ]{2,}"/>
-      <property name="message" value="two or more consequent whitespaces"/>
-      <property name="ignoreComments" value="true"/>
-      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="info"/>
-    </module>
     <module name="MissingOverride">
-      <property name="severity" value="ignore"/>
+      <property name="severity" value="warning"/>
       <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="warning"/>
     </module>
     <module name="FallThrough">
@@ -245,9 +244,6 @@
       <property name="tokens" value="LABELED_STAT"/>
     </module>
     <module name="DefaultComesLast">
-      <property name="severity" value="warning"/>
-    </module>
-    <module name="ModifiedControlVariable">
       <property name="severity" value="warning"/>
     </module>
     <module name="PackageDeclaration">
@@ -310,6 +306,7 @@
     <module name="LineLengthExtended">
       <property name="severity" value="warning"/>
       <property name="max" value="120"/>
+      <property name="tabWidth" value="4"/>
       <property name="ignoreClass" value="true"/>
       <property name="ignoreConstructor" value="true"/>
       <property name="ignoreField" value="true"/>
@@ -332,9 +329,6 @@
     <module name="VariableDeclarationUsageDistance">
       <property name="severity" value="warning"/>
       <property name="validateBetweenScopes" value="true"/>
-    </module>
-    <module name="AbbreviationAsWordInName">
-      <property name="severity" value="warning"/>
     </module>
     <module name="SuppressWarnings">
       <property name="severity" value="ignore"/>
@@ -382,23 +376,30 @@
     <module name="AbbreviationAsWordInName">
       <property name="severity" value="warning"/>
       <property name="allowedAbbreviations" value="XML,URL,DSM"/>
-      <property name="targets" value="CLASS_DEF,INTERFACE_DEF,ENUM_DEF,ANNOTATION_DEF,ANNOTATION_FIELD_DEF,ENUM_CONSTANT_DEF,PARAMETER_DEF"/>
-      <property name="ignoreFinal" value="false"/>
-      <property name="ignoreStatic" value="false"/>
+      <property name="targets" value="CLASS_DEF,INTERFACE_DEF,ENUM_DEF,ANNOTATION_DEF,ANNOTATION_FIELD_DEF,ENUM_CONSTANT_DEF,PARAMETER_DEF,VARIABLE_DEF,METHOD_DEF"/>
     </module>
     <module name="ReturnCountExtended">
-      <property name="linesLimit" value="10"/>
+      <property name="ignoreMethodLinesCount" value="10"/>
       <property name="ignoreEmptyReturns" value="true"/>
     </module>
     <module name="ForbidInstantiation">
-      <property name="forbiddenClassNames" value="NullPointerException"/>
+      <property name="forbiddenClasses" value="NullPointerException"/>
+    </module>
+    <module name="LineLengthExtended">
+      <property name="max" value="120"/>
+      <property name="tabWidth" value="4"/>
+    </module>
+    <module name="MagicNumber">
+      <property name="severity" value="warning"/>
+      <property name="ignoreHashCodeMethod" value="true"/>
+      <property name="ignoreAnnotation" value="true"/>
+    </module>
+    <module name="BooleanExpressionComplexity">
+      <property name="severity" value="info"/>
+      <property name="max" value="4"/>
     </module>
   </module>
   <module name="JavadocPackage">
-    <property name="severity" value="ignore"/>
-    <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="info"/>
-  </module>
-  <module name="NewlineAtEndOfFile">
     <property name="severity" value="ignore"/>
     <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="info"/>
   </module>

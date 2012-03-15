@@ -24,12 +24,12 @@ public class DSMModel {
         return labels;
     }
 
-    public void createModel(Dsm dsm)
+    public void createModel(final Dsm dsm)
     {
         rows = new ArrayList<Row>();
         labels = new ArrayList<Label>();
 
-        // получение имен всех классов
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         SortedSet<String> temp = new TreeSet<String>();
         for (DsmRow row : dsm.getRows())
         {
@@ -38,14 +38,15 @@ public class DSMModel {
             while (curPath.length() > 1) {
                 temp.add(curPath);
                 int index = curPath.lastIndexOf('.');
-                if (index >= 0)
+                if (index >= 0) {
                     curPath = curPath.substring(0, index);
-                else
+                } else {
                     break;
+                }
             }
         }
 
-        // создание подписей к матрице для всех внутренностей пакета
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         int pos = 0;
         for (String cur : temp) {
             String shortname = (cur.lastIndexOf('.') >= 0) ? cur.substring(cur.lastIndexOf('.') + 1) : cur;
@@ -54,16 +55,16 @@ public class DSMModel {
         }
         labels.trimToSize();
 
-        // расчет дерева
+        // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         buildTree(labels, 0, labels.size() - 1, -1);
 
         // selecting active indexes in labels (these ones, data for which was calculated by drangler)
         int[] active = new int[dsm.getRows().size()];
         rows.ensureCapacity(labels.size());
-        
+
         // TODO: Check is dtangler output DS-matrix is sorted by rows in natural order!
         for (int n = 0, m = 0; n < labels.size(); n++) {
-            // сразу создаем место под создание новой DSM
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ DSM
             ArrayList<Integer> row = new ArrayList<Integer>(labels.size());
             for (int h = 0; h < labels.size(); h++) {
                 row.add(0);
@@ -76,9 +77,9 @@ public class DSMModel {
         // scalling old dsm to new size
         for (int n = 0; n < active.length; n++) {
             for (int m = 0; m < active.length; m++) {
-                /* находим в исходной dsm ячейку с индексами [n, m]
-                 * копируем данные в новую dsm в место с индексом [active[n], active[m]]
-                 * то есть в те места новой dsm, где находятся объекты, которые существовали в исходной dsm
+                /* пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ dsm пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ [n, m]
+                 * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ dsm пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ [active[n], active[m]]
+                 * пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ dsm, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ dsm
                  */
                 int element = dsm.getRows().get(n).getCells().get(m).getDependencyWeight();
                 rows.get(active[n]).row.set(active[m], element);
@@ -91,10 +92,11 @@ public class DSMModel {
         int n = 0; // debug anchor
     }
 
-    private void buildTree(ArrayList<Label> array, int index, int last, int parent) {
+    private void buildTree(final ArrayList<Label> array, final int index, final int last, final int parent) {
         if (index >= array.size()) {
-            if (parent < array.size())
+            if (parent < array.size()) {
                 buildTree(array, parent + 2, last, parent + 1);
+            }
             return;
         }
         else if (parent == -1) {
@@ -115,8 +117,8 @@ public class DSMModel {
         }
     }
 
-    private void buildDSM(ArrayList<Row> rows, ArrayList<Label> labels, int stIdx, int edIdx) {
-        // TODO: заполнение пустых элементов, сейчас проверю null они в ArrayList или нет
+    private void buildDSM(final ArrayList<Row> rows, final ArrayList<Label> labels, final int stIdx, final int edIdx) {
+        // TODO: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ null пїЅпїЅпїЅ пїЅ ArrayList пїЅпїЅпїЅ пїЅпїЅпїЅ
     }
 
     protected class Label {
@@ -126,8 +128,8 @@ public class DSMModel {
         private String fullname;
         private String shortname;
 
-        public Label(int number, int fold, String fullname, String shortname, boolean folded)
-        {
+        public Label(final int number, final int fold, final String fullname,
+                final String shortname, final boolean folded) {
             this.number = number;
             this.folded = folded;
             this.fold = fold;
@@ -155,7 +157,7 @@ public class DSMModel {
             return folded;
         }
 
-        public void setFolded(boolean folded) {
+        public void setFolded(final boolean folded) {
             this.folded = folded;
         }
     }
@@ -164,7 +166,7 @@ public class DSMModel {
         int number;
         ArrayList<Integer> row;
 
-        public Row(int number, ArrayList<Integer> row)
+        public Row(final int number, final ArrayList<Integer> row)
         {
             this.number = number;
             this.row = row;

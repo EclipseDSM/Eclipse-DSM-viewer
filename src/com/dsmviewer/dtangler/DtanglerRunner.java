@@ -51,6 +51,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void selectionChanged(final IAction action, final ISelection selectionData) {
         selection = (IStructuredSelection) selectionData;
         logger.debug("Package Explorer selection was changed to "
@@ -62,6 +63,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * 
      * {@inheritDoc}
      */
+    @Override
     public void run(final IAction action) {
 
         try {
@@ -94,7 +96,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * @throws MissingArgumentsException
      *             if the request parameters are incorrect.
      */
-    public DSMModel computeModel(Arguments arguments) {
+    public DSMModel computeModel(final Arguments arguments) {
 
         DSMModel dsmModel;
 
@@ -136,7 +138,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      *            - the resource.
      * @return the full path of the given resource.
      */
-    private String getFullPath(IResource resource) {
+    private String getFullPath(final IResource resource) {
         return resource.getLocationURI().getPath().toString();
     }
 
@@ -147,7 +149,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      *            - selected resources.
      * @return the list of paths that will be passed to Dtangler Analyzer.
      */
-    private List<String> getPathList(IStructuredSelection selection) {
+    private List<String> getPathList(final IStructuredSelection selection) {
         List<String> pathList = new ArrayList<String>();
         @SuppressWarnings("unchecked")
         List<Object> selectedResources = selection.toList();
@@ -169,7 +171,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      *            the Dependencies.
      * @return the analysis result
      */
-    private AnalysisResult getAnalysisResult(Arguments arguments, Dependencies dependencies) {
+    private AnalysisResult getAnalysisResult(final Arguments arguments, final Dependencies dependencies) {
         return new ConfigurableDependencyAnalyzer(arguments).analyze(dependencies);
     }
 
@@ -181,7 +183,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * @param analysisResult
      *            the Analysis result.
      */
-    private void printDsmAndViolations(DependencyGraph dependencies, AnalysisResult analysisResult) {
+    private void printDsmAndViolations(final DependencyGraph dependencies, final AnalysisResult analysisResult) {
         Writer writer = new SysoutWriter();
         DSMWriter textUI = new DSMWriter(writer);
         textUI.printDsm(new DsmEngine(dependencies).createDsm(), analysisResult);

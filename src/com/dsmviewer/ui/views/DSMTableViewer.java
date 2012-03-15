@@ -29,11 +29,11 @@ public class DSMTableViewer extends TableViewer {
     
     private List<TableViewerColumn> columns = new ArrayList<TableViewerColumn>();
 
-    public DSMTableViewer(Composite parent, int style) {
+    public DSMTableViewer(final Composite parent, final int style) {
         super(parent, style);
     }
 
-    public void showModel(DSMModel dsmModel) {
+    public void showModel(final DSMModel dsmModel) {
         removeAllColumns();
 
         composeColumns(dsmModel.getLabels());
@@ -49,13 +49,13 @@ public class DSMTableViewer extends TableViewer {
         this.getControl().addControlListener(new ControlListener() {
 
             @Override
-            public void controlResized(ControlEvent arg0) {
+            public void controlResized(final ControlEvent arg0) {
                 tableControl.pack();
                 logger.debug("DS-Matrix resized.");
             }
 
             @Override
-            public void controlMoved(ControlEvent arg0) {
+            public void controlMoved(final ControlEvent arg0) {
                 logger.debug("DS-Matrix moved.");
             }
         });
@@ -68,7 +68,7 @@ public class DSMTableViewer extends TableViewer {
         columns.clear();
     }
 
-    private void composeColumns(ArrayList<DSMModel.Label> label) {
+    private void composeColumns(final ArrayList<DSMModel.Label> label) {
         for (int n = 0; n < label.size(); n++) {
             TableViewerColumn matrixColumn = createTableViewerColumn(Integer.toString(label.get(n).getNumber()),
                     DS_MATRIX_COLUMN_SIZE, false);
@@ -78,10 +78,10 @@ public class DSMTableViewer extends TableViewer {
         }
     }
 
-    private TableViewerColumn setColumnLabelProvider(TableViewerColumn column, final int columnNumber) {
+    private TableViewerColumn setColumnLabelProvider(final TableViewerColumn column, final int columnNumber) {
         column.setLabelProvider(new ColumnLabelProvider() {
             @Override
-            public String getText(Object element) {
+            public String getText(final Object element) {
                 final DSMModel.Row row = (DSMModel.Row) element;
                 int weight = row.row.get(columnNumber);
                 String result = row.number == columnNumber ? "--" : Integer.toString(weight);
@@ -89,7 +89,7 @@ public class DSMTableViewer extends TableViewer {
             }
 
             @Override
-            public Color getBackground(Object element) {
+            public Color getBackground(final Object element) {
                 final DSMModel.Row row = (DSMModel.Row) element;
                 if (row.number == columnNumber) {
                     return new Color(Display.getCurrent(), 200, 200, 200); // diagonal
@@ -102,7 +102,7 @@ public class DSMTableViewer extends TableViewer {
         return column;
     }
 
-    private TableViewerColumn createTableViewerColumn(String title, int bound, boolean isResizable) {
+    private TableViewerColumn createTableViewerColumn(final String title, final int bound, final boolean isResizable) {
         final TableViewerColumn viewerColumn = new TableViewerColumn(this, SWT.NONE);
         final TableColumn column = viewerColumn.getColumn();
         column.setText(title);

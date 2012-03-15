@@ -8,8 +8,6 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
@@ -78,7 +76,7 @@ public class DSMView extends ViewPart {
         }
     }
 
-    private void createTableViewer(Composite parent) {
+    private void createTableViewer(final Composite parent) {
 
         tableViewer = new DSMTableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL
                 | SWT.FULL_SELECTION | SWT.BORDER);
@@ -115,7 +113,7 @@ public class DSMView extends ViewPart {
         MenuManager menuMgr = new MenuManager("#PopupMenu");
         menuMgr.setRemoveAllWhenShown(true);
         menuMgr.addMenuListener(new IMenuListener() {
-            public void menuAboutToShow(IMenuManager manager) {
+            public void menuAboutToShow(final IMenuManager manager) {
                 DSMView.this.fillContextMenu(manager);
             }
         });
@@ -130,18 +128,18 @@ public class DSMView extends ViewPart {
         fillLocalToolBar(bars.getToolBarManager());
     }
 
-    private void fillLocalPullDown(IMenuManager manager) {
+    private void fillLocalPullDown(final IMenuManager manager) {
         manager.add(action1);
         // manager.add(new Separator());
     }
 
-    private void fillContextMenu(IMenuManager manager) {
+    private void fillContextMenu(final IMenuManager manager) {
         manager.add(action1);
         // Other plug-ins can contribute there actions here
         manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
     }
 
-    private void fillLocalToolBar(IToolBarManager manager) {
+    private void fillLocalToolBar(final IToolBarManager manager) {
         manager.add(action1);
     }
 
@@ -164,7 +162,7 @@ public class DSMView extends ViewPart {
      * @param message
      *            the message
      */
-    public static void showInfoMessage(String message) {
+    public static void showInfoMessage(final String message) {
         MessageDialog.openInformation(
                 Display.getDefault().getActiveShell(),
                 DSM_VIEW_ID,
@@ -177,7 +175,7 @@ public class DSMView extends ViewPart {
      * @param message
      *            the message
      */
-    public static void showErrorMessage(String message) {
+    public static void showErrorMessage(final String message) {
         MessageDialog.openError(
                 Display.getDefault().getActiveShell(),
                 DSM_VIEW_ID,

@@ -6,7 +6,7 @@ public class DSMViewController {
 
     private Table table;
 
-    public DSMViewController(Table table) {
+    public DSMViewController(final Table table) {
         this.table = table;
     }
 

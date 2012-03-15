@@ -5,7 +5,7 @@ import org.eclipse.swt.widgets.Composite;
 
 public class DSMTreeViewer extends TreeViewer {
 
-    public DSMTreeViewer(Composite parent, int style) {
+    public DSMTreeViewer(final Composite parent, final int style) {
         super(parent, style);
         // TODO Auto-generated constructor stub
 
