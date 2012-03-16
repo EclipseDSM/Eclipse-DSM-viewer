@@ -4,18 +4,14 @@ Bundle-Name: DSM-viewer
 Bundle-SymbolicName: com.dsm.viewer;singleton:=true
 Bundle-Version: 0.0.1
 Bundle-Activator: com.dsmviewer.Activator
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- org.apache.log4j;bundle-version="1.2.13",
- org.junit4;bundle-version="4.8.1",
- org.eclipse.core.resources;bundle-version="3.7.100"
+Require-Bundle: org.eclipse.ui;bundle-version="3.6.0",
+ org.eclipse.core.resources;bundle-version="3.6.0",
+ org.eclipse.core.runtime;bundle-version="3.6.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: SevNTU Students
-Bundle-ClassPath: lib/junit-4.8.1.jar,
- lib/log4j-1.2.16.jar,
+Bundle-ClassPath: lib/log4j-1.2.16.jar,
  lib/slf4j-api-1.6.2.jar,
  lib/slf4j-log4j12-1.6.2.jar,
- lib/dtangler-core_v_2.0.0.jar,
- dsmviewer.jar
+ lib/dtangler-core_v_2.0.0.jar
 Eclipse-RegisterBuddy: org.apache.log4j
