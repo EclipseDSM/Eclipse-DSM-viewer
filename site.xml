@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
    <description name="DSM-viewer update site" url="http://eclipsedsm.github.com/Eclipse-DSM-viewer/">
-      DSM viewer plugin for Eclipse update site.
+      DSM viewer plugin for Eclipse (update site).
    </description>
    <feature url="features/com.dsmviewer.feature_0.0.1.jar" id="com.dsmviewer.feature" version="0.0.1" nl="en_GB,en_US">
       <category name="Eclipse DSM viewer"/>
