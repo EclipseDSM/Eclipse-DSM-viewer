@@ -52,13 +52,13 @@
 
 
    <!-- Popupmenu action to check selected projects on demand in packages scope -->
-	<extension point="org.eclipse.ui.popupMenus">
+<extension point="org.eclipse.ui.popupMenus">
         <objectContribution objectClass="org.eclipse.core.resources.IResource"
             adaptable="true"
             id="Run DSM on project">
 
             <visibility>
-                <objectClass  name="org.eclipse.core.resources.IProject"/>
+                <objectClass name="org.eclipse.core.resources.IProject"/>
             </visibility>
 
             <menu
@@ -71,7 +71,7 @@
                 label="Show packages DS-Matrix"
                 class="com.dsmviewer.dtangler.DtanglerRunner"
                 enablesFor="+"
-                menubarPath="additions"         
+                menubarPath="additions"
                 tooltip="packages"
                 id="Run DSM on resource"/>
         </objectContribution>
@@ -83,7 +83,7 @@
             id="Run DSM on project">
             
             <visibility>
-                <objectClass  name="org.eclipse.core.resources.IProject"/>
+                <objectClass name="org.eclipse.core.resources.IProject"/>
             </visibility>
 
             <menu
@@ -96,53 +96,53 @@
                 label="Show classes DS-Matrix"
                 class="com.dsmviewer.dtangler.DtanglerRunner"
                 enablesFor="+"
-                menubarPath="additions"         
+                menubarPath="additions"
                 tooltip="classes"
                 id="Run DSM on resource"/>
         </objectContribution>
         
                 
         <!-- Popupmenu action to check selected jars on demand -->
-	<objectContribution objectClass="org.eclipse.core.resources.IFile" adaptable="true" id="1">
-		<visibility>
-			<or>
-				<objectClass name="org.eclipse.jdt.core.ICompilationUnit"/>
-				<objectClass name="org.eclipse.jdt.core.IType"/>
-				<and>
-					<objectClass name="org.eclipse.core.resources.IFile"/>
-					<objectState name="extension" value="jar"/>
-				</and>
-			</or>
-		</visibility>
-		
-		<action label="Show library classes DS matrix" class="com.dsmviewer.dtangler.DtanglerRunner"
-			enablesFor="1"
-    		menubarPath="additions"
-    		tooltip="classes"
-    		id="jarFile DtanglerRunner">
-    		<selection name="*.jar" class="org.eclipse.core.resources.IFile"/>
-		</action>
-	</objectContribution>
+<objectContribution objectClass="org.eclipse.core.resources.IFile" adaptable="true" id="1">
+<visibility>
+<or>
+<objectClass name="org.eclipse.jdt.core.ICompilationUnit"/>
+<objectClass name="org.eclipse.jdt.core.IType"/>
+<and>
+<objectClass name="org.eclipse.core.resources.IFile"/>
+<objectState name="extension" value="jar"/>
+</and>
+</or>
+</visibility>
+
+<action label="Show library classes DS matrix" class="com.dsmviewer.dtangler.DtanglerRunner"
+enablesFor="1"
+     menubarPath="additions"
+     tooltip="classes"
+     id="jarFile DtanglerRunner">
+     <selection name="*.jar" class="org.eclipse.core.resources.IFile"/>
+</action>
+</objectContribution>
     
-    	<objectContribution objectClass="org.eclipse.core.resources.IFile" adaptable="true" id="2">
-		<visibility>
-			<or>
-				<objectClass name="org.eclipse.jdt.core.ICompilationUnit"/>
-				<objectClass name="org.eclipse.jdt.core.IType"/>
-				<and>
-					<objectClass name="org.eclipse.core.resources.IFile"/>
-					<objectState name="extension" value="jar"/>
-				</and>
-			</or>
-		</visibility>
-		<action label="Show library packages DS matrix" class="com.dsmviewer.dtangler.DtanglerRunner"
-			enablesFor="1"
-    		menubarPath="additions"
-    		tooltip="packages"
-    		id="jarFile DtanglerRunner">
-    		<selection name="*.jar" class="org.eclipse.core.resources.IFile"/>
-		</action>
-	</objectContribution>
+     <objectContribution objectClass="org.eclipse.core.resources.IFile" adaptable="true" id="2">
+<visibility>
+<or>
+<objectClass name="org.eclipse.jdt.core.ICompilationUnit"/>
+<objectClass name="org.eclipse.jdt.core.IType"/>
+<and>
+<objectClass name="org.eclipse.core.resources.IFile"/>
+<objectState name="extension" value="jar"/>
+</and>
+</or>
+</visibility>
+<action label="Show library packages DS matrix" class="com.dsmviewer.dtangler.DtanglerRunner"
+enablesFor="1"
+     menubarPath="additions"
+     tooltip="packages"
+     id="jarFile DtanglerRunner">
+     <selection name="*.jar" class="org.eclipse.core.resources.IFile"/>
+</action>
+</objectContribution>
                
     </extension>
 
