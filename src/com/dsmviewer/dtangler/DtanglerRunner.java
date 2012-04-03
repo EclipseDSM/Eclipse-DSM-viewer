@@ -78,7 +78,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             Arguments arguments = DtanglerArguments.build(pathList, scope, false);
 
             DSMModel dsmModel = computeTableModel(arguments);
-            DSMView.showDSModel(dsmModel, scope);  
+            DSMView.showDSModel(dsmModel, scope);
 
         } catch (MissingArgumentsException e) {
             e.printStackTrace(); // wrong arguments

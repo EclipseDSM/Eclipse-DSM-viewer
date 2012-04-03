@@ -58,6 +58,8 @@ public class DSMView extends ViewPart {
     private Table table;
 
     private Action action1;
+    
+    private Action action2;
 
     private ViewLyfeCycleListener lifeCycleListener;    
     
@@ -199,31 +201,43 @@ public class DSMView extends ViewPart {
     }
 
     private void fillLocalPullDown(final IMenuManager manager) {
-        manager.add(action1);
-        // manager.add(new Separator());
+        manager.add(action1);        
+        manager.add(new Separator());
+        manager.add(action2);
     }
 
     private void fillContextMenu(final IMenuManager manager) {
         manager.add(action1);
         // Other plug-ins can contribute there actions here
         manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+        manager.add(action2);
     }
 
     private void fillLocalToolBar(final IToolBarManager manager) {
         manager.add(action1);
+        manager.add(action2);
     }
 
     private void makeActions() {
         action1 = new Action() {
             @Override
             public void run() {
-                // 
-                
+                showInfoMessage("DSMatrix was written to the text file.");
             }
         };
-        action1.setText("Write DS-Matrix to graphic file");
-        action1.setToolTipText("Prints DSM to graphics file.");
-        action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+        action1.setText("Write DS-Matrix to the text file");
+        action1.setToolTipText("Prints DSM to the text file.");
+//        action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+//                getImageDescriptor(ISharedImages.IMG_ETOOL_PRINT_EDIT));
+        action2 = new Action() {
+            @Override
+            public void run() {
+                showInfoMessage("DSMatrix was written to the graphical file.");  
+            }
+        };
+        action2.setText("Write DS-Matrix to the graphic file");
+        action2.setToolTipText("Prints DSM to the graphic file.");
+        action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
                 getImageDescriptor(ISharedImages.IMG_ETOOL_PRINT_EDIT));
         
     }

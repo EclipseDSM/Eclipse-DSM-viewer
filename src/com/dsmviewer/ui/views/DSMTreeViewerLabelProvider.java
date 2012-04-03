@@ -1,8 +1,6 @@
 package com.dsmviewer.ui.views;
 
-
 import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 
@@ -39,7 +37,7 @@ public class DSMTreeViewerLabelProvider extends ColumnLabelProvider {
 
     @Override
     public String getText(Object element) {
-        Label label = (Label)element;        
+        Label label = (Label)element;
         return (label.getNumber() + 1) + ": " + label.getFullname();
     }
 
