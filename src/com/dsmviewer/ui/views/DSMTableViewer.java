@@ -34,7 +34,7 @@ public class DSMTableViewer extends TableViewer {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     // TODO: fixed sizes !
-    private final static int DS_MATRIX_COLUMN_SIZE = 30;
+    private final static int DS_MATRIX_COLUMN_SIZE = 33;
 
     private List<TableViewerColumn> columns = new ArrayList<TableViewerColumn>();
 
@@ -228,9 +228,8 @@ public class DSMTableViewer extends TableViewer {
 
             setCellColor(oldRowIndex, newColIndex, selectionColor);
 
-            // selected cell colorizing
-            Color darkSelection = Colors.getLighterColor(Colors.SELECTION, 25);
-            setCellColor(newRowIndex, newColIndex, darkSelection);
+            // selected cell colorizing            
+            setCellColor(newRowIndex, newColIndex, Colors.SELECTION);
             
             DSMView.highlightTreeItem();
             logger.debug("Selected cell: ["+newRowIndex+"; "+newColIndex+"].");
@@ -248,7 +247,7 @@ public class DSMTableViewer extends TableViewer {
                 }
                 else {
                     if (i == row && j == column) {
-                        cellsColors[i][j] = Colors.getLighterColor(selectionColor, 25);
+                        cellsColors[i][j] = Colors.SELECTION;
                         DSMView.highlightTreeItem();
                         logger.debug("Selected cell: [" + i + "; " + j + "].");
                     } else {
@@ -269,7 +268,7 @@ public class DSMTableViewer extends TableViewer {
         selectCell(row, column, defaultColor, selectionColor);
     }
     
-    public int getSize(){
+    public int getSize() {
         return this.doGetItemCount();
     }
 

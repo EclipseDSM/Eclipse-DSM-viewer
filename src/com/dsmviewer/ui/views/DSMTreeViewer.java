@@ -71,8 +71,8 @@ public class DSMTreeViewer extends TreeViewer {
             treeColumn.setText("Classes:");
             treeColumn.setToolTipText("Classes:");
         }
-        treeColumn.setWidth(100);
-        treeColumn.setResizable(false);
+        treeColumn.setWidth(150);
+        treeColumn.setResizable(true);
     }
 
     public int getSelectionIndex() {

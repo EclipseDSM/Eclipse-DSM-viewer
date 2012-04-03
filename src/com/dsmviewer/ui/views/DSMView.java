@@ -148,7 +148,7 @@ public class DSMView extends ViewPart {
                 int tableViewerSelection = tableViewer.getSelectionIndex();
                 if (tableViewerSelection != index) {
                     tableViewer.setSelectionIndex(index);
-                    tableViewer.selectCell(index, Colors.DEFAULT, Colors.SELECTION);
+                    tableViewer.selectCell(index, Colors.DEFAULT, Colors.DARK_SELECTION);
                 }
             }
         });
