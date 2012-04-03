@@ -6,11 +6,11 @@ import org.eclipse.swt.graphics.Color;
 
 import com.dsmviewer.ui.utils.Colors;
 
-public class DSMTableViewerCellFocusHighlighter extends FocusCellOwnerDrawHighlighter {
+public class DSMTableViewerCellHighlighter extends FocusCellOwnerDrawHighlighter {
 
     DSMTableViewer tableViewer;
     
-    public DSMTableViewerCellFocusHighlighter(DSMTableViewer tableViewer) {
+    public DSMTableViewerCellHighlighter(DSMTableViewer tableViewer) {
         super(tableViewer);
         this.tableViewer = tableViewer;
     }
@@ -19,8 +19,7 @@ public class DSMTableViewerCellFocusHighlighter extends FocusCellOwnerDrawHighli
         return false;
     }
 
-    protected Color getSelectedCellBackgroundColor(ViewerCell cell) {
-        //return null;        
+    protected Color getSelectedCellBackgroundColor(ViewerCell cell) {   
         return cell.getControl().getDisplay().getSystemColor(SWT.COLOR_DARK_BLUE);
     }
 
@@ -33,13 +32,13 @@ public class DSMTableViewerCellFocusHighlighter extends FocusCellOwnerDrawHighli
     }
 
     protected Color getSelectedCellBackgroundColorNoFocus(ViewerCell cell) {
-        //return null;
         return cell.getControl().getDisplay().getSystemColor(SWT.COLOR_DARK_BLUE);
     }
 
     protected void focusCellChanged(ViewerCell newCell, ViewerCell oldCell) {
-        super.focusCellChanged(newCell, oldCell);        
-        tableViewer.setSelection(newCell, oldCell, Colors.WHITE, Colors.SELECTION);
+        super.focusCellChanged(newCell, oldCell);
+            tableViewer.selectCell(newCell, oldCell, Colors.WHITE, Colors.SELECTION);
     }
+
 
 }

@@ -26,7 +26,7 @@ import com.dsmviewer.ui.views.DSMModel.Row;
 
 public class DSMTableViewer extends TableViewer {
 
-    private Color [][] columnsColors; 
+    private Color [][] cellsColors; 
 
     /**
      * The logger.
@@ -39,6 +39,8 @@ public class DSMTableViewer extends TableViewer {
     private List<TableViewerColumn> columns = new ArrayList<TableViewerColumn>();
 
     private Table table;
+    
+    private int selectedColumnIndex = -1;
 
     public DSMTableViewer(final Composite parent) {
         super(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
@@ -60,18 +62,18 @@ public class DSMTableViewer extends TableViewer {
         List<Label> labels = dsmModel.getLabels();
         
         int dsMatrixSize = labels.size();
-        columnsColors = new Color [dsMatrixSize][dsMatrixSize];
+        cellsColors = new Color [dsMatrixSize][dsMatrixSize];
 
         for(int i=0;i<dsMatrixSize; i++){
             for(int j=0; j<dsMatrixSize; j++){
-                columnsColors[i][j] = Colors.WHITE;
+                cellsColors[i][j] = Colors.WHITE;
             }
         }
         composeColumns(labels);
         setInput(dsmModel.getRows());
 
         // table.pack();
-        // TODO: notify resize listeners to fire scrollbars!    
+        // TODO: notify resize listeners to fire scrollbars!   
     }
 
     private void addControlListener(final Control tableControl) {
@@ -134,7 +136,7 @@ public class DSMTableViewer extends TableViewer {
                     return Colors.LIGHT_GRAY;
                 }
                 else {
-                    return columnsColors[row.number][columnNumber];
+                    return cellsColors[row.number][columnNumber];
                 }
             }
         });
@@ -169,8 +171,8 @@ public class DSMTableViewer extends TableViewer {
     }
     
     public int getRowIndex(ViewerCell cell) {
-        Row row = (Row) cell.getElement();
         int result = 0;
+        Row row = (Row) cell.getElement();
         for (int i = 0; i < this.doGetItemCount(); i++) {
             if (this.getElementAt(i).equals(row)) {
                 result = i;
@@ -181,24 +183,24 @@ public class DSMTableViewer extends TableViewer {
     }
 
     public void setCellColor(int rowindex, int columnIndex, Color color) {
-        columnsColors [rowindex][columnIndex] = color;
+        cellsColors [rowindex][columnIndex] = color;
     }
 
     public void setRowColor(int rowIndex, Color color) {
         for(int j=0; j<table.getItemCount(); j++) {
-            columnsColors[rowIndex][j] = color;
+            cellsColors[rowIndex][j] = color;
         }
     }
 
     public void setColumnColor(int columnIndex, Color color) {
         for (int i = 0; i < table.getItemCount(); i++) {
-            columnsColors[i][columnIndex] = color;
+            cellsColors[i][columnIndex] = color;
         }
     }
 
-    public void setSelection(ViewerCell newCell, ViewerCell oldCell,
+    public void selectCell(ViewerCell newCell, ViewerCell oldCell,
             Color defaultColor, Color selectionColor) {
-        
+
         if (oldCell != null && !oldCell.equals(newCell)) {
             
             final int oldColIndex = oldCell.getVisualIndex();
@@ -212,6 +214,7 @@ public class DSMTableViewer extends TableViewer {
             if (columnChanged) {
                 setColumnColor(oldColIndex, defaultColor);
                 setColumnColor(newColIndex, selectionColor);
+                selectedColumnIndex = newColIndex;
             } else {
                 setCellColor(oldRowIndex, oldColIndex, selectionColor); 
             }
@@ -224,17 +227,54 @@ public class DSMTableViewer extends TableViewer {
             }   
 
             setCellColor(oldRowIndex, newColIndex, selectionColor);
-                        
+
             // selected cell colorizing
             Color darkSelection = Colors.getLighterColor(Colors.SELECTION, 25);
             setCellColor(newRowIndex, newColIndex, darkSelection);
+            
+            DSMView.highlightTreeItem();
             logger.debug("Selected cell: ["+newRowIndex+"; "+newColIndex+"].");
         }
         this.refresh();
+    }
+
+    
+    public void selectCell(int row, int column, Color defaultColor, Color selectionColor) {
+
+        for (int i = 0; i < this.getSize(); i++) {
+            for (int j = 0; j < this.getSize(); j++) {
+                if (i == row || j == column) {
+                    cellsColors[i][j] = selectionColor;
+                }
+                else {
+                    if (i == row && j == column) {
+                        cellsColors[i][j] = Colors.getLighterColor(selectionColor, 25);
+                        DSMView.highlightTreeItem();
+                        logger.debug("Selected cell: [" + i + "; " + j + "].");
+                    } else {
+                        cellsColors[i][j] = defaultColor;
+                    }
+                }
+            }
+        }
+        this.refresh();
+    }
+    
+    /**
+     * Selects a cell with given row number in selected column or select [row;row] cell if there are no selected column
+     * in table.
+     */
+    public void selectCell(int row, Color defaultColor, Color selectionColor) {
+        int column = (selectedColumnIndex==-1)? row: selectedColumnIndex;
+        selectCell(row, column, defaultColor, selectionColor);
     }
     
     public int getSize(){
         return this.doGetItemCount();
     }
 
+    public int getSelectedColumnIndex(){
+        return selectedColumnIndex;
+    }
+    
 }

@@ -1,5 +1,6 @@
 package com.dsmviewer.dtangler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +45,10 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
     /** Current Eclipse Project Explorer selection. */
     private IStructuredSelection selection;
+
+    private DependencyGraph dependencyGraph;
+
+    private AnalysisResult analysisResult;
 
     public void setActivePart(final IAction arg0, final IWorkbenchPart arg1) {
     }
@@ -105,15 +110,28 @@ public class DtanglerRunner implements IObjectActionDelegate {
             DependencyEngine engine = new JavaDependencyEngine();
             // engine.setDependencyEngineId("java");
 
-            Dependencies dependencies = engine.getDependencies(arguments);
-            DependencyGraph dependencyGraph = dependencies.getDependencyGraph();
-
-            AnalysisResult analysisResult = getAnalysisResult(arguments, dependencies);
+            Dependencies dependencies = engine.getDependencies(arguments);            
+            dependencyGraph = dependencies.getDependencyGraph();
+            
+            analysisResult = getAnalysisResult(arguments, dependencies);
             Dsm dsm = new DsmEngine(dependencyGraph).createDsm();
+            
             dsmModel = new DSMModel();
             dsmModel.createModel(dsm);
 
-            printDsmAndViolations(dependencyGraph, analysisResult);
+            // TODO: fixed filePath!
+            String filePath = "C:\\DSM_and_Violations.txt";
+            MyFileWriter writer = new MyFileWriter(filePath);
+
+            // print to file
+            printDsmAndViolations(dependencyGraph, analysisResult, writer);
+            if (writer.fw != null) {
+                logger.debug("DSM and violation were written to: " + filePath);
+                writer.close();
+            }
+
+            // print to console
+            printDsmAndViolations(dependencyGraph, analysisResult, new SysoutWriter());
 
             if (analysisResult.isValid()) {
                 logger.info("Dtangler analisys stopped. Analysis result is valid.");
@@ -126,7 +144,6 @@ public class DtanglerRunner implements IObjectActionDelegate {
         } catch (DtException e) {
             throw e;
         }
-
         return dsmModel;
     }
 
@@ -137,7 +154,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      *            - the resource.
      * @return the full path of the given resource.
      */
-    private String getFullPath(final IResource resource) {
+    private static String getFullPath(final IResource resource) {
         return resource.getLocationURI().getPath().toString();
     }
 
@@ -148,7 +165,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      *            - selected resources.
      * @return the list of paths that will be passed to Dtangler Analyzer.
      */
-    private List<String> getPathList(final IStructuredSelection selection) {
+    private static List<String> getPathList(final IStructuredSelection selection) {
         List<String> pathList = new ArrayList<String>();
         @SuppressWarnings("unchecked")
         List<Object> selectedResources = selection.toList();
@@ -156,7 +173,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             IResource resource = (IResource) selectedResource;
             String resourcePath = getFullPath(resource);
             pathList.add(resourcePath);
-            logger.debug("Added to analysis:" + resourcePath);
+//            logger.debug("Added to analysis:" + resourcePath);
         }
         return pathList;
     }
@@ -170,7 +187,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      *            the Dependencies.
      * @return the analysis result
      */
-    private AnalysisResult getAnalysisResult(final Arguments arguments, final Dependencies dependencies) {
+    private static AnalysisResult getAnalysisResult(final Arguments arguments, final Dependencies dependencies) {
         return new ConfigurableDependencyAnalyzer(arguments).analyze(dependencies);
     }
 
@@ -182,8 +199,8 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * @param analysisResult
      *            the Analysis result.
      */
-    private void printDsmAndViolations(final DependencyGraph dependencies, final AnalysisResult analysisResult) {
-        Writer writer = new SysoutWriter();
+    private static void printDsmAndViolations(final DependencyGraph dependencies,
+            final AnalysisResult analysisResult, Writer writer) {
         DSMWriter textUI = new DSMWriter(writer);
         textUI.printDsm(new DsmEngine(dependencies).createDsm(), analysisResult);
         ViolationWriter violationWriter = new ViolationWriter(writer);

@@ -12,7 +12,7 @@ public final class Colors {
     public static final Color WHITE = SWTResourceManager.getColor(SWT.COLOR_WHITE);
     public static final Color LIGHT_GRAY = new Color(Display.getDefault(),200,200,200);
     public static final Color BLACK = SWTResourceManager.getColor(SWT.COLOR_BLACK);
-    
+    public static final Color TREE_ITEM_HIGHLIGHT = new Color(Display.getDefault(),228,205,105);
     
     public static Color getLighterColor(Color inputColor, int intesity) {
         return new Color(Display.getDefault(), Colors.SELECTION.getRed() + intesity,

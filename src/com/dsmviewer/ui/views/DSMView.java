@@ -19,6 +19,7 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -32,6 +33,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.dsmviewer.Activator;
+import com.dsmviewer.dtangler.MyFileWriter;
+import com.dsmviewer.ui.utils.Colors;
 
 /**
  * 
@@ -55,6 +60,9 @@ public class DSMView extends ViewPart {
     private Action action1;
 
     private ViewLyfeCycleListener lifeCycleListener;    
+    
+    private static final Image SAVE_ICON = Activator.getImageDescriptor(
+            "icons/save.gif").createImage();
 
     public void createPartControl(final Composite parent) {
         try {
@@ -121,7 +129,6 @@ public class DSMView extends ViewPart {
         tableVerticalScroll.addSelectionListener(listener2);
         //:~
 
-
         // selection mirroring
         tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged(SelectionChangedEvent arg0) {
@@ -139,13 +146,15 @@ public class DSMView extends ViewPart {
                 int tableViewerSelection = tableViewer.getSelectionIndex();
                 if (tableViewerSelection != index) {
                     tableViewer.setSelectionIndex(index);
+                    tableViewer.selectCell(index, Colors.DEFAULT, Colors.SELECTION);
                 }
             }
         });
         //:~
 
         // cell selection enabling. Table editing avoided.
-        TableViewerFocusCellManager focusCellManager = new TableViewerFocusCellManager(tableViewer,new DSMTableViewerCellFocusHighlighter(tableViewer));
+        TableViewerFocusCellManager focusCellManager = new TableViewerFocusCellManager(tableViewer,
+                new DSMTableViewerCellHighlighter(tableViewer));
         ColumnViewerEditorActivationStrategy actSupport = new ColumnViewerEditorActivationStrategy(tableViewer) {
             protected boolean isEditorActivationEvent(ColumnViewerEditorActivationEvent event) {
                 return false;
@@ -155,10 +164,10 @@ public class DSMView extends ViewPart {
         TableViewerEditor.create(tableViewer, focusCellManager, actSupport, ColumnViewerEditor.DEFAULT);
         //:~
     }
-    
-    public static void clearDSMView() {
-        tableViewer.getTable().removeAll();
-        treeViewer.getTree().removeAll();
+
+    public static void highlightTreeItem() {
+        int itemIndex = tableViewer.getSelectedColumnIndex();
+        treeViewer.colorizeTreeItem(itemIndex, Colors.TREE_ITEM_HIGHLIGHT);
     }
 
     /**
@@ -208,22 +217,22 @@ public class DSMView extends ViewPart {
         action1 = new Action() {
             @Override
             public void run() {
-                // action code here..
+                // 
+                
             }
         };
-        action1.setText("Action 1");
-        action1.setToolTipText("Action 1 tooltip");
+        action1.setText("Write DS-Matrix to graphic file");
+        action1.setToolTipText("Prints DSM to graphics file.");
         action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
                 getImageDescriptor(ISharedImages.IMG_ETOOL_PRINT_EDIT));
-
+        
     }
 
     public static void showDSModel(final DSMModel dsmModel, String scope) {
-        clearDSMView();
         tableViewer.setDSMatrix(dsmModel);
         treeViewer.setLabels(dsmModel.getLabels(), scope);
     }
-
+    
     public static void showInfoMessage(final String message) {
         MessageDialog.openInformation(
                 Display.getDefault().getActiveShell(),

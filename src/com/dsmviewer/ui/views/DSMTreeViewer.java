@@ -1,5 +1,6 @@
 package com.dsmviewer.ui.views;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -7,6 +8,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Tree;
@@ -35,6 +37,8 @@ public class DSMTreeViewer extends TreeViewer {
 
     private TreeColumn treeColumn;
 
+    private Color [] itemsColors;
+    
     public DSMTreeViewer(final Composite parent) {        
         super(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 
@@ -50,22 +54,22 @@ public class DSMTreeViewer extends TreeViewer {
     }
 
     public void setLabels(final List<Label> labels, String scope) {
+        itemsColors = new Color [labels.size()];
         composeColumn(scope);
         this.setInput(labels);
-
     }
 
     private void composeColumn(String scope) {        
-        itemsColumn.setLabelProvider(new DSMTreeViewerLabelProvider(scope));
+        itemsColumn.setLabelProvider(new DSMTreeViewerLabelProvider(this, scope));
         treeColumn = itemsColumn.getColumn();
 
         if ("packages".equals(scope)) {
-            treeColumn.setText("Packages");
-            treeColumn.setToolTipText("Packages");
+            treeColumn.setText("Packages:");
+            treeColumn.setToolTipText("Packages:");
         }
         else if ("classes".equals(scope)) {
-            treeColumn.setText("Classes");
-            treeColumn.setToolTipText("Classes");
+            treeColumn.setText("Classes:");
+            treeColumn.setToolTipText("Classes:");
         }
         treeColumn.setWidth(100);
         treeColumn.setResizable(false);
@@ -86,6 +90,16 @@ public class DSMTreeViewer extends TreeViewer {
         this.setSelection(new StructuredSelection(elementToselect));
     }
 
+    public void colorizeTreeItem(int index, Color color){
+        Arrays.fill(itemsColors, null);
+        itemsColors [index] = color;
+        this.refresh();
+    }
+    
+    public Color getItemColor(int index){
+        return itemsColors [index];
+    }
+    
     public ScrollBar getTreeVerticalBar(){
         return tree.getVerticalBar();
     }
