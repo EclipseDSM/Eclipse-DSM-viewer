@@ -7,10 +7,23 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.ColumnViewerEditor;
+import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
+import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TableViewerEditor;
+import org.eclipse.jface.viewers.TableViewerFocusCellManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
@@ -26,6 +39,8 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class DSMView extends ViewPart {
+    public DSMView() {
+    }    
 
     private static final String DSM_VIEW_ID = "DSM View";
 
@@ -33,75 +48,121 @@ public class DSMView extends ViewPart {
 
     private static DSMTableViewer tableViewer;
 
+    private static DSMTreeViewer treeViewer;
+    
     private Table table;
 
     private Action action1;
 
-    private final DSMViewController dsmViewController = new DSMViewController(table);
-
-    private ViewLyfeCycleListener lifeCycleListener;
-
-    public DSMViewController getDsmViewController() {
-        return dsmViewController;
-    }
-
-    public Table getTable() {
-        return table;
-    }
-
-    public static DSMTableViewer getTableViewer() {
-        return tableViewer;
-    }
+    private ViewLyfeCycleListener lifeCycleListener;    
 
     public void createPartControl(final Composite parent) {
         try {
+            
+            this.addLifeCycleListener();
+            parent.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-            Composite childComposite = new Composite(parent, SWT.DOUBLE_BUFFERED);
+            // not used. I`m use separate tree/table scrollbars instead.
+//            ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.BORDER);
+//            scrolledComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-            addLifeCycleListener();
+            SashForm sashForm = new SashForm(parent, SWT.NONE);
 
-            createTableViewer(childComposite);
+            Composite treeComposite = new Composite(sashForm, SWT.BORDER);
+            Composite tableComposite = new Composite(sashForm, SWT.BORDER);
+            
+            treeComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+            treeViewer = new DSMTreeViewer(treeComposite);
 
-            createTable();
+            tableComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+            tableViewer = new DSMTableViewer(tableComposite);  
+            
+            getSite().setSelectionProvider(tableViewer);
+
+            sashForm.setWeights(new int[] {1, 3});
 
             // Create the help context id for the viewer's control
             PlatformUI.getWorkbench().getHelpSystem().setHelp(tableViewer.getControl(), "DSM-viewer.viewer");
+ 
 
             makeActions();
             hookContextMenu();
             contributeToActionBars();
+
         } catch (RuntimeException e) {
             logger.error("Cannot create control part: " + e.getMessage());
             showErrorMessage("Cannot create control part: " + e.getMessage());
         }
+        
+        finally {
+            setupListeners();
+        }
     }
 
-    private void createTableViewer(final Composite parent) {
+    private void setupListeners() {
 
-        tableViewer = new DSMTableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL
-                | SWT.FULL_SELECTION | SWT.BORDER);
+        // scrollbars mirroring
+        final ScrollBar tableVerticalScroll = tableViewer.getTableVerticalBar();
+        final ScrollBar treeVerticalScroll = treeViewer.getTreeVerticalBar();
 
-        tableViewer.setUseHashlookup(true);
-        tableViewer.setContentProvider(new DSMViewContentProvider());
+        SelectionListener listener1 = new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                tableVerticalScroll.setSelection(treeVerticalScroll.getSelection());
+            }
+        };
+        
+        SelectionListener listener2 = new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                treeVerticalScroll.setSelection(tableVerticalScroll.getSelection());
+            }
+        };
+        
+        treeVerticalScroll.addSelectionListener(listener1);
+        tableVerticalScroll.addSelectionListener(listener2);
+        //:~
 
-        // Selection provider for the view.
-        getSite().setSelectionProvider(tableViewer);
+
+        // selection mirroring
+        tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+            public void selectionChanged(SelectionChangedEvent arg0) {
+                int index = tableViewer.getSelectionIndex();
+                int treeViewerSelection = treeViewer.getSelectionIndex();
+                if (treeViewerSelection != index) {
+                    treeViewer.setSelectionIndex(index);
+                }
+            }
+        });
+        
+        treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+            public void selectionChanged(SelectionChangedEvent arg0) {
+                int index = treeViewer.getSelectionIndex();
+                int tableViewerSelection = tableViewer.getSelectionIndex();
+                if (tableViewerSelection != index) {
+                    tableViewer.setSelectionIndex(index);
+                }
+            }
+        });
+        //:~
+
+        // cell selection enabling. Table editing avoided.
+        TableViewerFocusCellManager focusCellManager = new TableViewerFocusCellManager(tableViewer,new DSMTableViewerCellFocusHighlighter(tableViewer));
+        ColumnViewerEditorActivationStrategy actSupport = new ColumnViewerEditorActivationStrategy(tableViewer) {
+            protected boolean isEditorActivationEvent(ColumnViewerEditorActivationEvent event) {
+                return false;
+            }
+        };
+        
+        TableViewerEditor.create(tableViewer, focusCellManager, actSupport, ColumnViewerEditor.DEFAULT);
+        //:~
     }
-
-    private void createTable() {
-        table = tableViewer.getTable();
-        table.setHeaderVisible(true);
-        table.setLinesVisible(true);
-        table.setToolTipText("DS-Matrix");
-    }
-
-    public void clearDSMTable() {
-        table.removeAll();
-        logger.debug("DSM table was cleared.");
+    
+    public static void clearDSMView() {
+        tableViewer.getTable().removeAll();
+        treeViewer.getTree().removeAll();
     }
 
     /**
-     * Adds necessary listeners to DSM View.
+     * Adds a lyfecycle listener to DSM View.
      */
     private void addLifeCycleListener() {
         lifeCycleListener = new ViewLyfeCycleListener();
@@ -145,6 +206,7 @@ public class DSMView extends ViewPart {
 
     private void makeActions() {
         action1 = new Action() {
+            @Override
             public void run() {
                 // action code here..
             }
@@ -156,12 +218,12 @@ public class DSMView extends ViewPart {
 
     }
 
-    /**
-     * Shows the info message.
-     * 
-     * @param message
-     *            the message
-     */
+    public static void showDSModel(final DSMModel dsmModel, String scope) {
+        clearDSMView();
+        tableViewer.setDSMatrix(dsmModel);
+        treeViewer.setLabels(dsmModel.getLabels(), scope);
+    }
+
     public static void showInfoMessage(final String message) {
         MessageDialog.openInformation(
                 Display.getDefault().getActiveShell(),
@@ -169,12 +231,6 @@ public class DSMView extends ViewPart {
                 message);
     }
 
-    /**
-     * Shows the error message.
-     * 
-     * @param message
-     *            the message
-     */
     public static void showErrorMessage(final String message) {
         MessageDialog.openError(
                 Display.getDefault().getActiveShell(),
@@ -190,6 +246,7 @@ public class DSMView extends ViewPart {
         logger.info("View lifecycle: DSM view is in focus.");
     }
 
+    @Override
     public void dispose() {
         // Remove lifecycle listener from view
         getViewSite().getPage().removePartListener(lifeCycleListener);

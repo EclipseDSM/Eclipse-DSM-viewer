@@ -29,7 +29,6 @@ public class DSMModel {
         rows = new ArrayList<Row>();
         labels = new ArrayList<Label>();
 
-        // ��������� ���� ���� �������
         SortedSet<String> temp = new TreeSet<String>();
         for (DsmRow row : dsm.getRows())
         {
@@ -46,7 +45,6 @@ public class DSMModel {
             }
         }
 
-        // �������� �������� � ������� ��� ���� ������������� ������
         int pos = 0;
         for (String cur : temp) {
             String shortname = (cur.lastIndexOf('.') >= 0) ? cur.substring(cur.lastIndexOf('.') + 1) : cur;
@@ -55,7 +53,6 @@ public class DSMModel {
         }
         labels.trimToSize();
 
-        // ������ ������
         buildTree(labels, 0, labels.size() - 1, -1);
 
         // selecting active indexes in labels (these ones, data for which was calculated by drangler)
@@ -64,7 +61,6 @@ public class DSMModel {
 
         // TODO: Check is dtangler output DS-matrix is sorted by rows in natural order!
         for (int n = 0, m = 0; n < labels.size(); n++) {
-            // ����� ������� ����� ��� �������� ����� DSM
             ArrayList<Integer> row = new ArrayList<Integer>(labels.size());
             for (int h = 0; h < labels.size(); h++) {
                 row.add(0);
@@ -77,12 +73,8 @@ public class DSMModel {
         // scalling old dsm to new size
         for (int n = 0; n < active.length; n++) {
             for (int m = 0; m < active.length; m++) {
-                /* ������� � �������� dsm ������ � ��������� [n, m]
-                 * �������� ������ � ����� dsm � ����� � �������� [active[n], active[m]]
-                 * �� ���� � �� ����� ����� dsm, ��� ��������� �������, ������� ������������ � �������� dsm
-                 */
                 int element = dsm.getRows().get(n).getCells().get(m).getDependencyWeight();
-                rows.get(active[n]).row.set(active[m], element);
+                rows.get(active[n]).getRow().set(active[m], element);
             }
         }
 
@@ -118,7 +110,6 @@ public class DSMModel {
     }
 
     private void buildDSM(final ArrayList<Row> rows, final ArrayList<Label> labels, final int stIdx, final int edIdx) {
-        // TODO: ���������� ������ ���������, ������ ������� null ��� � ArrayList ��� ���
     }
 
     protected class Label {
@@ -164,12 +155,16 @@ public class DSMModel {
 
     protected class Row {
         int number;
-        ArrayList<Integer> row;
+        private ArrayList<Integer> row;
 
         public Row(final int number, final ArrayList<Integer> row)
         {
             this.number = number;
             this.row = row;
+        }
+
+        public ArrayList<Integer> getRow() {
+            return row;
         }
     }
 }

@@ -48,34 +48,32 @@ public class DtanglerRunner implements IObjectActionDelegate {
     public void setActivePart(final IAction arg0, final IWorkbenchPart arg1) {
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void selectionChanged(final IAction action, final ISelection selectionData) {
-        selection = (IStructuredSelection) selectionData;
-        logger.debug("Package Explorer selection was changed to "
-                + ((IResource) selection.getFirstElement()).getClass().toString());
+        if (selectionData != null) {
+            selection = (IStructuredSelection) selectionData;
+
+            if (selection.getFirstElement() != null) {
+                String selectedResource = ((IResource) selection.getFirstElement()).getClass().toString();
+                logger.debug("Package Explorer selection was changed to " + selectedResource);
+            }
+        }
     }
 
     /**
      * Runs Dtangler library when "Package Explorer" context menu action called.
-     * 
-     * {@inheritDoc}
      */
     @Override
-    public void run(final IAction action) {
-
+    public void run(final IAction action) {        
         try {
-
             List<String> pathList = getPathList(selection);
 
             String scope = action.getDescription(); // "classes" / "packages"
 
             Arguments arguments = DtanglerArguments.build(pathList, scope, false);
 
-            DSMModel dsmModel = computeModel(arguments);
-            DSMView.getTableViewer().showModel(dsmModel);
+            DSMModel dsmModel = computeTableModel(arguments);
+            DSMView.showDSModel(dsmModel, scope);  
 
         } catch (MissingArgumentsException e) {
             e.printStackTrace(); // wrong arguments
@@ -84,6 +82,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             e.printStackTrace(); // wrong DTangler operation
             DSMView.showErrorMessage("DTangler cannot process your request.");
         }
+
     }
 
     /**
@@ -96,7 +95,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * @throws MissingArgumentsException
      *             if the request parameters are incorrect.
      */
-    public DSMModel computeModel(final Arguments arguments) {
+    public DSMModel computeTableModel(final Arguments arguments) {
 
         DSMModel dsmModel;
 
