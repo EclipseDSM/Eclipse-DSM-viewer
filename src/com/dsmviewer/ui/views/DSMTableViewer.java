@@ -3,6 +3,7 @@ package com.dsmviewer.ui.views;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
@@ -20,9 +21,10 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dsmviewer.model.Model;
+import com.dsmviewer.model.Label;
+import com.dsmviewer.model.Row;
 import com.dsmviewer.ui.utils.Colors;
-import com.dsmviewer.ui.views.DSMModel.Label;
-import com.dsmviewer.ui.views.DSMModel.Row;
 
 public class DSMTableViewer extends TableViewer {
 
@@ -45,7 +47,7 @@ public class DSMTableViewer extends TableViewer {
     public DSMTableViewer(final Composite parent) {
         super(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
         this.setUseHashlookup(true);
-        this.setContentProvider(new DSMViewContentProvider());
+        this.setContentProvider(new ArrayContentProvider());
 
         addControlListener(getControl());
 
@@ -57,7 +59,7 @@ public class DSMTableViewer extends TableViewer {
         logger.debug("DSMTableViewer was composed.");
     }
 
-    public void setDSMatrix(final DSMModel dsmModel) {
+    public void setDSMatrix(final Model dsmModel) {
         removeAllColumns();
         Label[] labels = dsmModel.getLabels();
         
@@ -124,19 +126,19 @@ public class DSMTableViewer extends TableViewer {
             @Override
             public String getText(final Object element) {
                 final Row row = (Row) element;
-                int weight = row.getRow()[columnNumber];
-                String result = row.number == columnNumber ? "--" : Integer.toString(weight);
+                int weight = row.getCellAt(columnNumber).getWeight();
+                String result = row.getNumber() == columnNumber ? "--" : weight == 0 ? "" : Integer.toString(weight);
                 return result;
             }
 
             @Override
             public Color getBackground(final Object element) {
                 final Row row = (Row) element;
-                if (row.number == columnNumber) { // set main diagonal cells color
+                if (row.getNumber() == columnNumber) { // set main diagonal cells color
                     return Colors.LIGHT_GRAY;
                 }
                 else {
-                    return cellsColors[row.number][columnNumber];
+                    return cellsColors[row.getNumber()][columnNumber];
                 }
             }
         });

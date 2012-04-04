@@ -16,7 +16,8 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dsmviewer.ui.views.DSMModel.Label;
+import com.dsmviewer.model.Label;
+
 
 public class DSMTreeViewer extends TreeViewer {
 
