@@ -54,8 +54,6 @@ public class DSMView extends ViewPart {
     private static DSMTableViewer tableViewer;
 
     private static DSMTreeViewer treeViewer;
-    
-    private Table table;
 
     private Action action1;
     
@@ -68,7 +66,7 @@ public class DSMView extends ViewPart {
 
     public void createPartControl(final Composite parent) {
         try {
-            
+
             this.addLifeCycleListener();
             parent.setLayout(new FillLayout(SWT.HORIZONTAL));
 

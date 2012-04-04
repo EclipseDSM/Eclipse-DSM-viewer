@@ -1,9 +1,9 @@
 package com.dsmviewer.ui.views;
 
-import java.util.List;
-
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+
+import com.dsmviewer.ui.views.DSMModel.Label;
 
 public class DSMTreeViewerContentProvider implements ITreeContentProvider {
 
@@ -11,8 +11,8 @@ public class DSMTreeViewerContentProvider implements ITreeContentProvider {
 
     @Override
     public Object[] getElements(Object inputElement) {
-        if (inputElement instanceof List)
-            return ((List) inputElement).toArray();
+        if (inputElement instanceof Label[])
+            return (Label[]) inputElement;
         else
             return EMPTY_ARRAY;
     }
