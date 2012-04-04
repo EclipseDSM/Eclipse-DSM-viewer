@@ -25,6 +25,7 @@ import com.dsmviewer.model.Model;
 import com.dsmviewer.model.Label;
 import com.dsmviewer.model.Row;
 import com.dsmviewer.ui.utils.Colors;
+import com.dsmviewer.ui.utils.SWTResourceManager;
 
 public class DSMTableViewer extends TableViewer {
 
@@ -136,6 +137,8 @@ public class DSMTableViewer extends TableViewer {
                 final Row row = (Row) element;
                 if (row.getNumber() == columnNumber) { // set main diagonal cells color
                     return Colors.LIGHT_GRAY;
+                } else if (row.getCellAt(columnNumber).isViolated()) {
+                    return SWTResourceManager.getColor(SWT.COLOR_RED);
                 }
                 else {
                     return cellsColors[row.getNumber()][columnNumber];
