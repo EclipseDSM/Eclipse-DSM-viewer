@@ -3,7 +3,8 @@ package com.dsmviewer.ui.views;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
-import com.dsmviewer.ui.views.DSMModel.Label;
+import com.dsmviewer.model.Label;
+
 
 public class DSMTreeViewerContentProvider implements ITreeContentProvider {
 

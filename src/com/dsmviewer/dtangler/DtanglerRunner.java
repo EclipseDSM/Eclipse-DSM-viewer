@@ -28,7 +28,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dsmviewer.ui.views.DSMModel;
+import com.dsmviewer.model.Model;
 import com.dsmviewer.ui.views.DSMView;
 
 /**
@@ -77,7 +77,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
             Arguments arguments = DtanglerArguments.build(pathList, scope, false);
 
-            DSMModel dsmModel = computeTableModel(arguments);
+            Model dsmModel = computeTableModel(arguments);
             DSMView.showDSModel(dsmModel, scope);
 
         } catch (MissingArgumentsException e) {
@@ -100,9 +100,9 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * @throws MissingArgumentsException
      *             if the request parameters are incorrect.
      */
-    public DSMModel computeTableModel(final Arguments arguments) {
+    public Model computeTableModel(final Arguments arguments) {
 
-        DSMModel dsmModel;
+        Model dsmModel;
 
         try {
             logger.info("Dtangler analisys started.");
@@ -116,7 +116,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             analysisResult = getAnalysisResult(arguments, dependencies);
             Dsm dsm = new DsmEngine(dependencyGraph).createDsm();
             
-            dsmModel = new DSMModel();
+            dsmModel = new Model();
             dsmModel.createModel(dsm);
 
             // TODO: fixed filePath!

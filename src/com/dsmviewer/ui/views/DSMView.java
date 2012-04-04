@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.dsmviewer.Activator;
 import com.dsmviewer.dtangler.MyFileWriter;
+import com.dsmviewer.model.Model;
 import com.dsmviewer.ui.utils.Colors;
 
 /**
@@ -240,7 +241,7 @@ public class DSMView extends ViewPart {
         
     }
 
-    public static void showDSModel(final DSMModel dsmModel, String scope) {
+    public static void showDSModel(final Model dsmModel, String scope) {
         tableViewer.setDSMatrix(dsmModel);
         treeViewer.setLabels(dsmModel.getLabels(), scope);
     }
