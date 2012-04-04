@@ -1,4 +1,4 @@
-package com.dsmviewer.ui.views;
+package com.dsmviewer.model;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -13,7 +13,7 @@ import org.dtangler.core.dsm.DsmRow;
  * @author <a href="mailto:klaus.tannnenberg@gmail.com">Grigorov Aleksey</a>
  * 
  */
-public class DSMModel {
+public class Model {
     private Row[] rows;
     private Label[] labels;
 
@@ -59,8 +59,12 @@ public class DSMModel {
         buildTree(labels, 0, labels.length - 1, -1);
 
         int[] active = new int[tanglerOrder.size()];
-        for (int n = 0; n < labels.length; n++) {
-            rows[n] = new Row(n, new int[rows.length]);
+        for (int n = 0; n < rows.length; n++) {
+            rows[n] = new Row(n, new Cell[rows.length]);
+            for (int m = 0; m < rows.length; m++) {
+                rows[n].setCellAt(m, new Cell());
+            }
+            
             int mapping = tanglerOrder.indexOf(labels[n].fullname);
             if(mapping != -1) {
                 active[mapping] = n;
@@ -68,12 +72,14 @@ public class DSMModel {
         }
         for (int n = 0; n < active.length; n++) {
             for (int m = 0; m < active.length; m++) {
-                int element = dsm.getRows().get(n).getCells().get(m).getDependencyWeight();
-                rows[active[n]].getRow()[active[m]] =  element;
+                int weight = dsm.getRows().get(n).getCells().get(m).getDependencyWeight();
+                boolean isValid = dsm.getRows().get(n).getCells().get(m).isValid();
+                rows[active[n]].getCells()[active[m]] = new Cell(weight, isValid, "");
             }
         }
         tanglerOrder.clear();
-
+        
+        
         buildDSM(rows, labels, 0, labels.length - 1);
 
         @SuppressWarnings("unused")
@@ -107,66 +113,5 @@ public class DSMModel {
 
     private void buildDSM(final Row[] rows, final Label[] labels, final int stIdx, final int edIdx) {
         
-    }
-
-    protected class Label {
-        private int number;
-        private int fold;
-        private boolean folded;
-        private String fullname;
-        private String shortname;
-
-        public Label(final int number, final int fold, final String fullname,
-                final String shortname, final boolean folded) {
-            this.number = number;
-            this.folded = folded;
-            this.fold = fold;
-            this.fullname = fullname;
-            this.shortname = shortname;
-        }
-
-        public int getNumber() {
-            return number;
-        }
-
-        public int getFold() {
-            return fold;
-        }
-
-        public String getFullname() {
-            return fullname;
-        }
-
-        public String getShortname() {
-            return shortname;
-        }
-
-        public boolean isFolded() {
-            return folded;
-        }
-
-        public void setFolded(final boolean folded) {
-            this.folded = folded;
-        }
-        
-        public String toString()
-        {
-            return number + ": " + fullname;
-        }
-    }
-
-    protected class Row {
-        int number;
-        private int[] row;
-
-        public Row(final int number, final int[] row)
-        {
-            this.number = number;
-            this.row = row;
-        }
-
-        public int[] getRow() {
-            return row;
-        }
     }
 }

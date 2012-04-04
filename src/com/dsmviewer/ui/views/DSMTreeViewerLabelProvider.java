@@ -5,7 +5,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 
 import com.dsmviewer.Activator;
-import com.dsmviewer.ui.views.DSMModel.Label;
+import com.dsmviewer.model.Label;
 
 public class DSMTreeViewerLabelProvider extends ColumnLabelProvider {
 
