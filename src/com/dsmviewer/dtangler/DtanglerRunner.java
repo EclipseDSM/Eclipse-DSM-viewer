@@ -117,7 +117,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             Dsm dsm = new DsmEngine(dependencyGraph).createDsm();
             
             dsmModel = new Model();
-            dsmModel.createModel(dsm);
+            dsmModel.createModel(dsm, analysisResult);
 
             // TODO: fixed filePath!
             String filePath = "C:\\DSM_and_Violations.txt";

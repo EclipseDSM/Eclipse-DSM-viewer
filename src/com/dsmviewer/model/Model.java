@@ -2,9 +2,13 @@ package com.dsmviewer.model;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.dtangler.core.analysisresult.AnalysisResult;
+import org.dtangler.core.analysisresult.Violation;
+import org.dtangler.core.dependencies.Dependency;
 import org.dtangler.core.dsm.Dsm;
 import org.dtangler.core.dsm.DsmRow;
 
@@ -25,7 +29,7 @@ public class Model {
         return labels;
     }
 
-    public void createModel(final Dsm dsm)
+    public void createModel(final Dsm dsm, AnalysisResult violations)
     {
         SortedSet<String> naturalOrder = new TreeSet<String>();
         LinkedList<String> tanglerOrder = new LinkedList<String>();
@@ -73,12 +77,12 @@ public class Model {
         for (int n = 0; n < active.length; n++) {
             for (int m = 0; m < active.length; m++) {
                 int weight = dsm.getRows().get(n).getCells().get(m).getDependencyWeight();
-                boolean isValid = dsm.getRows().get(n).getCells().get(m).isValid();
-                rows[active[n]].getCells()[active[m]] = new Cell(weight, isValid, "");
+                Dependency dependency = dsm.getRows().get(n).getCells().get(m).getDependency();
+                boolean isValid = violations.hasViolations(dependency);
+                rows[active[n]].getCells()[active[m]] = new Cell(weight, isValid, violations.getViolations(dependency));
             }
         }
         tanglerOrder.clear();
-        
         
         buildDSM(rows, labels, 0, labels.length - 1);
 

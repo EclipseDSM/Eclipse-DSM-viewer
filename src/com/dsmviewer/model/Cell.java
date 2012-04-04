@@ -1,18 +1,22 @@
 package com.dsmviewer.model;
 
+import java.util.Set;
+
+import org.dtangler.core.analysisresult.Violation;
+
 public class Cell {
     private int weight;
     private boolean violated;
-    private String violation;
+    private Set<Violation> violation;
     
     public Cell() {
-        this(0, false, "N/A");
+        this(0, false, null);
     }
     
-    public Cell(int weight, boolean violated, String violation) {
+    public Cell(int weight, boolean violated, Set<Violation> set) {
         this.weight = weight;
         this.violated = violated;
-        this.violation = violation;
+        this.violation = set;
     }
 
     public int getWeight() {
@@ -27,10 +31,10 @@ public class Cell {
     public void setViolated(boolean violated) {
         this.violated = violated;
     }
-    public String getViolation() {
+    public Set<Violation> getViolation() {
         return violation;
     }
-    public void setViolation(String violation) {
+    public void setViolation(Set<Violation> violation) {
         this.violation = violation;
     }
 }
