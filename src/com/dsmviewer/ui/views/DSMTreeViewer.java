@@ -53,8 +53,8 @@ public class DSMTreeViewer extends TreeViewer {
         logger.debug("DSMTreeViewer was composed.");
     }
 
-    public void setLabels(final List<Label> labels, String scope) {
-        itemsColors = new Color [labels.size()];
+    public void setLabels(final Label[] labels, String scope) {
+        itemsColors = new Color [labels.length];
         composeColumn(scope);
         this.setInput(labels);
     }
@@ -86,7 +86,7 @@ public class DSMTreeViewer extends TreeViewer {
     }
 
     public void setSelectionIndex(int index) {
-        Label elementToselect = ((List<Label>) this.getInput()).get(index);
+        Label elementToselect = ((Label[]) this.getInput())[index];
         this.setSelection(new StructuredSelection(elementToselect));
     }
 

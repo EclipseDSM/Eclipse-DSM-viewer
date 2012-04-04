@@ -59,9 +59,9 @@ public class DSMTableViewer extends TableViewer {
 
     public void setDSMatrix(final DSMModel dsmModel) {
         removeAllColumns();
-        List<Label> labels = dsmModel.getLabels();
+        Label[] labels = dsmModel.getLabels();
         
-        int dsMatrixSize = labels.size();
+        int dsMatrixSize = labels.length;
         cellsColors = new Color [dsMatrixSize][dsMatrixSize];
 
         for(int i=0;i<dsMatrixSize; i++){
@@ -98,9 +98,9 @@ public class DSMTableViewer extends TableViewer {
         columns.clear();
     }
 
-    private void composeColumns(List<Label> labels) {
-        for (int n = 0; n < labels.size(); n++) {
-            TableViewerColumn matrixColumn = createTableViewerColumn(Integer.toString(labels.get(n).getNumber()+1),
+    private void composeColumns(Label[] labels) {
+        for (int n = 0; n < labels.length; n++) {
+            TableViewerColumn matrixColumn = createTableViewerColumn(Integer.toString(labels[n].getNumber()+1),
                     DS_MATRIX_COLUMN_SIZE, false);
             matrixColumn.getColumn().setAlignment(SWT.CENTER);
             setColumnLabelProvider(matrixColumn, n);
@@ -124,7 +124,7 @@ public class DSMTableViewer extends TableViewer {
             @Override
             public String getText(final Object element) {
                 final Row row = (Row) element;
-                int weight = row.getRow().get(columnNumber);
+                int weight = row.getRow()[columnNumber];
                 String result = row.number == columnNumber ? "--" : Integer.toString(weight);
                 return result;
             }
