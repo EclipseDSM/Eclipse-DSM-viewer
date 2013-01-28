@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/eclipse.dsm.feature_1.0.0.201301290048.jar" id="eclipse.dsm.feature" version="1.0.0.201301290048">
+      <category name="Eclipse DSM Viewer"/>
+   </feature>
+   <category-def name="Eclipse DSM Viewer" label="Eclipse DSM Viewer"/>
+</site>
