@@ -2,8 +2,6 @@ package com.dsmviewer.ui.views;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.dtangler.core.dependencies.Dependable;
 import org.dtangler.core.dsm.DsmRow;
@@ -23,13 +21,14 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import com.dsmviewer.dtangler.DSMatrix;
+import com.dsmviewer.logging.Logger;
 
 public class DSMTableViewer extends TableViewer {
 
     /**
      * The logger.
      */
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = Logger.getLogger(DSMTableViewer.class);
 
     // fixed sizes !
     private static final int DS_MATRIX_COLUMN_SIZE = 30;
@@ -60,12 +59,12 @@ public class DSMTableViewer extends TableViewer {
             @Override
             public void controlResized(ControlEvent arg0) {
                 tableControl.pack();
-				logger.log(Level.INFO, "DS-Matrix resized.");
+				logger.info("DS-Matrix resized.");
             }
 
             @Override
             public void controlMoved(ControlEvent arg0) {
-				logger.log(Level.INFO, "DS-Matrix moved.");
+				logger.info("DS-Matrix moved.");
             }
         });
     }

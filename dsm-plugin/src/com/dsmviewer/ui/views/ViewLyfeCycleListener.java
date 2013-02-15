@@ -1,21 +1,20 @@
 package com.dsmviewer.ui.views;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 
 import com.dsmviewer.Activator;
+import com.dsmviewer.logging.Logger;
 
 /**
  * The listener for DSM View events such as: close/open view, activate/deactivate view, etc. *
  * 
  * @see IPartListener
  */
-class ViewLyfeCycleListener implements IPartListener {
+public class ViewLyfeCycleListener implements IPartListener {
 
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = Logger.getLogger(ViewLyfeCycleListener.class);
 
     @Override
     public void partActivated(final IWorkbenchPart part) {
@@ -24,7 +23,7 @@ class ViewLyfeCycleListener implements IPartListener {
 
     @Override
     public void partBroughtToTop(final IWorkbenchPart part) {
-		logger.log(Level.INFO, "View lifecycle: DSM view was brought to top.");
+		logger.info("View lifecycle: DSM view was brought to top.");
     }
 
     @Override
@@ -35,7 +34,7 @@ class ViewLyfeCycleListener implements IPartListener {
 
         if (dsmViewID.equals(closedViewID)) {
             if (part instanceof DSMView) {
-				logger.log(Level.INFO, "View lifecycle: DSM view was closed.");
+				logger.info("View lifecycle: DSM view was closed.");
             }
         }
     }
@@ -53,7 +52,7 @@ class ViewLyfeCycleListener implements IPartListener {
 
         if (dsmViewID.equals(openedViewID)) {
             if (part instanceof DSMView) {
-				logger.log(Level.INFO, "View lifecycle: DSM view was opened.");
+				logger.info("View lifecycle: DSM View was opened.");
             }
         }
     }

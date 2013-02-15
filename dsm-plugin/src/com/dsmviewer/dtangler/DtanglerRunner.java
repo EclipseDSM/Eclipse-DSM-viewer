@@ -2,8 +2,6 @@ package com.dsmviewer.dtangler;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.dtangler.core.MissingArgumentsException;
 import org.dtangler.core.analysis.configurableanalyzer.ConfigurableDependencyAnalyzer;
@@ -26,6 +24,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 
+import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.views.DSMView;
 
 /**
@@ -35,10 +34,7 @@ import com.dsmviewer.ui.views.DSMView;
  */
 public class DtanglerRunner implements IObjectActionDelegate {
 
-    /**
-     * The logger.
-     */
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = Logger.getLogger(DtanglerRunner.class);
 
     /** Current Eclipse Project Explorer selection. */
     private IStructuredSelection selection;
@@ -53,7 +49,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
     @Override
 	public void selectionChanged(final IAction action, final ISelection selectionData) {
         selection = (IStructuredSelection) selectionData;
-		logger.log(Level.INFO, "Package Explorer selection was changed to "
+		logger.info("Package Explorer selection was changed to "
 				+ ((IResource) selection.getFirstElement()).getClass().toString());
     }
 
@@ -154,7 +150,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             IResource resource = (IResource) selectedResource;
             String resourcePath = getFullPath(resource);
             pathList.add(resourcePath);
-			logger.log(Level.INFO, "Added to analysis:" + resourcePath);
+			logger.info("Added to analysis:" + resourcePath);
         }
         return pathList;
     }
