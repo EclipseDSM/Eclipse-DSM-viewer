@@ -1,8 +1,5 @@
 package com.dsmviewer.ui.views;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -21,6 +18,8 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import com.dsmviewer.logging.Logger;
+
 /**
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
@@ -30,7 +29,7 @@ public class DSMView extends ViewPart {
 
     private static final String DSM_VIEW_ID = "DSM View";
 
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = Logger.getLogger(DSMView.class);
 
     private static DSMTableViewer tableViewer;
 
@@ -73,7 +72,7 @@ public class DSMView extends ViewPart {
             hookContextMenu();
             contributeToActionBars();
         } catch (RuntimeException e) {
-			logger.throwing(getClass().getName(), "createPartControl", e);
+			logger.error("Cannot create control part: ", e);
             showErrorMessage("Cannot create control part: " + e.getMessage());
         }
     }
@@ -100,7 +99,7 @@ public class DSMView extends ViewPart {
 
     public void clearDSMTable() {
         table.removeAll();
-		logger.log(Level.INFO, "DSM table was cleared.");
+		logger.info("DSM table was cleared.");
     }
 
     /**
@@ -109,7 +108,7 @@ public class DSMView extends ViewPart {
     private void addLifeCycleListener() {
         lifeCycleListener = new ViewLyfeCycleListener();
         getViewSite().getPage().addPartListener(lifeCycleListener);
-		logger.log(Level.INFO, "View lifecycle listener was added to DSM View");
+		logger.info("View lifecycle listener was added to DSM View");
     }
 
     private void hookContextMenu() {
@@ -200,7 +199,7 @@ public class DSMView extends ViewPart {
 	public void dispose() {
         // Remove lifecycle listener from view
         getViewSite().getPage().removePartListener(lifeCycleListener);
-		logger.log(Level.INFO, "Lifecycle listener was removed from DSM view");
+		logger.info("Lifecycle listener was removed from DSM view");
     }
 
 }

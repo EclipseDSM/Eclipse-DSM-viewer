@@ -1,6 +1,5 @@
 package com.dsmviewer.ui.preferences;
 
-import java.util.logging.Logger;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -10,6 +9,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.dsmviewer.Activator;
+import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.views.DSMView;
 
 /**
@@ -20,7 +20,7 @@ import com.dsmviewer.ui.views.DSMView;
 public class PreferencePage extends FieldEditorPreferencePage implements
         IWorkbenchPreferencePage {
     
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = Logger.getLogger(PreferencePage.class);
 
     private IPreferenceStore store;
     
@@ -44,7 +44,7 @@ public class PreferencePage extends FieldEditorPreferencePage implements
             
         } catch (RuntimeException e) {
             e.printStackTrace();
-			logger.throwing(getClass().getName(), "createFieldEditors", e);
+			logger.error("Exception occured: ", e);
             DSMView.showErrorMessage("Exception occured: " + e.getMessage());  
         }
     }
