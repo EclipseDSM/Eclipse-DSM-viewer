@@ -1,6 +1,5 @@
 package com.dsmviewer.ui.views;
 
-
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 
@@ -14,46 +13,44 @@ import com.dsmviewer.logging.Logger;
  */
 public class ViewLyfeCycleListener implements IPartListener {
 
-	private final Logger logger = Logger.getLogger(ViewLyfeCycleListener.class);
+    private final Logger logger = Activator.getLogger(ViewLyfeCycleListener.class);
 
-    @Override
-    public void partActivated(final IWorkbenchPart part) {
-        //logger.debug("View lifecycle: DSM view was activated.");
-    }
+	@Override
+	public void partActivated(final IWorkbenchPart part) {
+//	    logger.debug("View lifecycle: DSM view was activated.");
+	}
 
-    @Override
-    public void partBroughtToTop(final IWorkbenchPart part) {
-		logger.info("View lifecycle: DSM view was brought to top.");
-    }
+	@Override
+	public void partBroughtToTop(final IWorkbenchPart part) {
+//		logger.debug("View lifecycle: DSM view was brought to top.");
+	}
 
-    @Override
-    public void partClosed(final IWorkbenchPart part) {
+	@Override
+	public void partClosed(final IWorkbenchPart part) {
+		String dsmViewId = Activator.getInstance().getPluginId();
+		String closedViewId = part.getSite().getPluginId();
 
-        String dsmViewID = Activator.getInstance().getPluginId();
-        String closedViewID = part.getSite().getPluginId();
+		if (dsmViewId.equals(closedViewId)) {
+			if (part instanceof DSMView) {
+				logger.debug("View lifecycle: DSM view was closed.");
+			}
+		}
+	}
 
-        if (dsmViewID.equals(closedViewID)) {
-            if (part instanceof DSMView) {
-				logger.info("View lifecycle: DSM view was closed.");
-            }
-        }
-    }
+	@Override
+	public void partDeactivated(final IWorkbenchPart part) {
+//			logger.debug("View lifecycle: DSM view was deactivated.");
+	}
 
-    @Override
-    public void partDeactivated(final IWorkbenchPart part) {
-        //logger.debug("View lifecycle: DSM view was deactivated.");
-    }
+	@Override
+	public void partOpened(final IWorkbenchPart part) {
+		String dsmViewId = Activator.getInstance().getPluginId();
+		String openedViewId = part.getSite().getPluginId();
 
-    @Override
-    public void partOpened(final IWorkbenchPart part) {
-
-        String dsmViewID = Activator.getInstance().getPluginId();
-        String openedViewID = part.getSite().getPluginId();
-
-        if (dsmViewID.equals(openedViewID)) {
-            if (part instanceof DSMView) {
-				logger.info("View lifecycle: DSM View was opened.");
-            }
-        }
-    }
+		if (dsmViewId.equals(openedViewId)) {
+			if (part instanceof DSMView) {
+				logger.debug("View lifecycle: DSM View was opened.");
+			}
+		}
+	}
 }

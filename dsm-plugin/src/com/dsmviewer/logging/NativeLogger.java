@@ -1,6 +1,6 @@
 package com.dsmviewer.logging;
 
-import java.text.MessageFormat;
+import static java.text.MessageFormat.format;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
@@ -8,72 +8,139 @@ import org.eclipse.core.runtime.Status;
 
 import com.dsmviewer.Activator;
 
-public final class Logger {
+/**
+ * This class is an adapter to Eclipse native logging. It adds a 'DEBUG' level and log messages formatting by pattern.
+ * There are 2 modes for this adapter, between which you can switch using '-Ddsmviewer.debugMode' JVM property: 1. Debug
+ * mode. 2. Production mode. Logger shows only logs with level higher or equal of 'INFO'
+ * 
+ * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
+ */
+public final class NativeLogger implements Logger {
 
-	private static final String LOGGING_PATTERN = "[{0}][{1}]: {2}";
+    private static final String LOGGING_PATTERN = "[{0}][{1}]: {2}";
 
-	private final ILog logger = Activator.getInstance().getLog();
+    private final ILog logger = Activator.getInstance().getLog();
 
-	private String className;
+    private String className;
 
-	private Logger() {
-		// no code
-	}
+    private boolean isDebugMode;
 
-	private <T> Logger(Class<T> clazz) {
-		this.className = clazz.getSimpleName();
-	}
+    // Show all logs by default
+    private int ignoreLevel = IStatus.INFO;
 
-	private Logger(String className) {
-		this.className = className;
-	}
+    private NativeLogger() {
+    }
 
+    private <T> NativeLogger(Class<T> clazz, boolean isDebugMode) {
+        this.className = clazz.getSimpleName();
+        this.isDebugMode = isDebugMode;
+    }
 
-	public static Logger getLogger(String classname) {
-		Logger logger = new Logger(classname);
-		return logger;
-	}
+    private NativeLogger(String className, boolean isDebugMode) {
+        this.className = className;
+        this.isDebugMode = isDebugMode;
+    }
 
-	public static <T> Logger getLogger(Class<T> clazz) {
-		Logger logger = new Logger(clazz);
-		return logger;
-	}
+    protected static NativeLogger getLogger(String classname, boolean isDebugMode) {
+        return new NativeLogger(classname, isDebugMode);
+    }
 
-	public void info(String message) {
-		int status = IStatus.INFO;
-		logger.log(new Status(status, Activator.PLUGIN_ID, formatMsg(status, message)));
-	}
+    protected static <T> NativeLogger getLogger(Class<T> clazz, boolean isDebugMode) {
+        return new NativeLogger(clazz, isDebugMode);
+    }
 
-	public void warn(String message) {
-		int status = IStatus.WARNING;
-		logger.log(new Status(status, Activator.PLUGIN_ID, formatMsg(status, message)));
-	}
+    // Hack to support 'debug' level which doesn`t supported at all by Eclipse native logging 
+    @Override
+    public void debug(String message) {
+        if (IStatus.INFO >= ignoreLevel) {
+            if (isDebugMode) {
+                String formattedMessage = formatMsg("DEBUG", message);
+                logger.log(buildMessage(IStatus.INFO, formattedMessage));
+            } else {
+                logger.log(buildMessage(IStatus.INFO, message));
+            }
+        }
+    }
 
-	public void warn(String message, Throwable e) {
-		int status = IStatus.WARNING;
-		logger.log(new Status(status, Activator.PLUGIN_ID, formatMsg(status, message + e.getMessage()), e));
-	}
+    @Override
+    public void info(String message) {
+        if (IStatus.INFO >= ignoreLevel) {
+            log(IStatus.INFO, message);
+        }
+    }
 
-	public void error(String message, Throwable e) {
-		int status = IStatus.ERROR;
-		logger.log(new Status(status, Activator.PLUGIN_ID, formatMsg(status, message + e.getMessage()), e));
-	}
+    @Override
+    public void warn(String message) {
+        if (IStatus.WARNING >= ignoreLevel) {
+            log(IStatus.WARNING, message);
+        }
+    }
 
-	private String formatMsg(int level, String message) {
-		return MessageFormat.format(LOGGING_PATTERN, this.className, statusToString(level), message);
-	}
+    @Override
+    public void warn(String message, Throwable e) {
+        if (IStatus.WARNING >= ignoreLevel) {
+            log(IStatus.WARNING, message, e);
+        }
+    }
 
-	private static String statusToString(int level) {
-		switch (level) {
-		case IStatus.INFO:
-			return "INFO";
-		case IStatus.WARNING:
-			return "INFO";
-		case IStatus.ERROR:
-			return "INFO";
-		default:
-			return "INFO";
+    @Override
+    public void error(String message, Throwable e) {
+        if (IStatus.ERROR >= ignoreLevel) {
+            log(IStatus.ERROR, message, e);
+        }
+    }
+
+    private void log(int status, String message, Throwable e) {
+        String errorMessage = format("{0}: {1}", message, e.getMessage());
+        log(status, errorMessage);
+    }
+
+    private void log(int status, String message) {
+        if (isDebugMode) {
+            String formattedMessage = formatMsg(status, message);
+            logger.log(buildMessage(status, formattedMessage));
+        } else {
+            logger.log(buildMessage(status, message));
+        }
+    }
+
+    private static Status buildMessage(int status, String message) {
+        return new Status(status, Activator.PLUGIN_ID, message);
+    }
+
+    private String formatMsg(int severity, String message) {
+        return formatMsg(severityToString(severity), message);
+    }
+
+    private String formatMsg(String status, String message) {
+        return format(LOGGING_PATTERN, this.className, status, message);
+    }
+
+    private static String severityToString(int severity) {
+        // @formatter:off
+		switch (severity) {
+			case IStatus.INFO: return "INFO";
+			case IStatus.WARNING: return "WARNING";
+			case IStatus.ERROR: return "ERROR";
+		    default: return "<UNKNOWN_LEVEL>";
 		}
-	}
+		// @formatter:on
+    }
+
+    public boolean isDebugMode() {
+        return isDebugMode;
+    }
+
+    public void setDebugMode(boolean isDebugMode) {
+        this.isDebugMode = isDebugMode;
+    }
+
+    public int getIgnoreLevel() {
+        return ignoreLevel;
+    }
+
+    public void setIgnoreLevel(int ignoreLevel) {
+        this.ignoreLevel = ignoreLevel;
+    }
 
 }

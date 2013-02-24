@@ -20,15 +20,16 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
+import com.dsmviewer.Activator;
 import com.dsmviewer.dtangler.DSMatrix;
 import com.dsmviewer.logging.Logger;
 
-public class DSMTableViewer extends TableViewer {
+public class DsmTableViewer extends TableViewer {
 
     /**
      * The logger.
      */
-	private final Logger logger = Logger.getLogger(DSMTableViewer.class);
+    private final Logger logger = Activator.getLogger(DsmTableViewer.class);
 
     // fixed sizes !
     private static final int DS_MATRIX_COLUMN_SIZE = 30;
@@ -36,15 +37,15 @@ public class DSMTableViewer extends TableViewer {
 
     private List<TableViewerColumn> columns = new ArrayList<TableViewerColumn>();
 
-    public DSMTableViewer(Composite parent, int style) {
+    public DsmTableViewer(Composite parent, int style) {
         super(parent, style);
     }
 
     public void showDSMatrix(DSMatrix dsMatrix) {
         removeAllColumns();
-        
+
         composeColumns(dsMatrix);
-        
+
         setInput(dsMatrix.getRows());
 
         Control tableControl = this.getControl();

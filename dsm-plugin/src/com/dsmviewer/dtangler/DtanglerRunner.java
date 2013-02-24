@@ -24,6 +24,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 
+import com.dsmviewer.Activator;
 import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.views.DSMView;
 
@@ -34,7 +35,7 @@ import com.dsmviewer.ui.views.DSMView;
  */
 public class DtanglerRunner implements IObjectActionDelegate {
 
-	private final Logger logger = Logger.getLogger(DtanglerRunner.class);
+    private final Logger logger = Activator.getLogger(DtanglerRunner.class);
 
     /** Current Eclipse Project Explorer selection. */
     private IStructuredSelection selection;
@@ -49,7 +50,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
     @Override
 	public void selectionChanged(final IAction action, final ISelection selectionData) {
         selection = (IStructuredSelection) selectionData;
-		logger.info("Package Explorer selection was changed to "
+		logger.debug("Package Explorer selection was changed to "
 				+ ((IResource) selection.getFirstElement()).getClass().toString());
     }
 
@@ -73,11 +74,12 @@ public class DtanglerRunner implements IObjectActionDelegate {
             DSMView.getTableViewer().showDSMatrix(dsMatrix);
 
         } catch (MissingArgumentsException e) {
-            e.printStackTrace(); // wrong arguments
-            DSMView.showErrorMessage(e.getMessage());
+            logger.error(e.getMessage(), e);
+            Activator.showErrorMessage(e.getMessage());
         } catch (DtException e) {
-            e.printStackTrace(); // wrong DTangler operation
-            DSMView.showErrorMessage("DTangler cannot process your request.");
+            String errorMessage = "DTangler cannot process this request";
+            logger.error(errorMessage, e);
+            Activator.showErrorMessage(errorMessage + ": " + e.getMessage());
         }
     }
 
@@ -110,11 +112,13 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
             printDsmAndViolations(dependencyGraph, analysisResult);
 
+			String message;
             if (analysisResult.isValid()) {
-                logger.info("Dtangler analisys stopped. Analysis result is valid.");
+				message = "Analysis result is valid.";
             } else {
-                logger.info("Dtangler analisys stopped. Analysis result is not valid.");
+				message = "Analysis result is not valid.";
             }
+			logger.info("Dtangler analisys stopped." + message);
 
         } catch (MissingArgumentsException e) {
             throw e;
@@ -150,7 +154,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             IResource resource = (IResource) selectedResource;
             String resourcePath = getFullPath(resource);
             pathList.add(resourcePath);
-			logger.info("Added to analysis:" + resourcePath);
+			logger.debug("Added to analysis:" + resourcePath);
         }
         return pathList;
     }
