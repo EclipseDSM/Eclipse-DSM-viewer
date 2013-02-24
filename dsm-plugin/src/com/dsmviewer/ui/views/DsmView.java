@@ -24,23 +24,20 @@ import com.dsmviewer.logging.Logger;
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
  * 
  */
-public class DSMView extends ViewPart {
+public class DsmView extends ViewPart {
 
-    private static final String DSM_VIEW_ID = "DSM View";
-
-    private final Logger logger = Activator.getLogger(DSMView.class);
+    private final Logger logger = Activator.getLogger(DsmView.class);
 
     private static DsmTableViewer tableViewer;
 
     private Table table;
+    private DsmViewController dsmViewController = new DsmViewController(table);
 
     private Action action1;
 
-    private final DSMViewController dsmViewController = new DSMViewController(table);
-
     private ViewLyfeCycleListener lifeCycleListener;
 
-    public DSMViewController getDsmViewController() {
+    public DsmViewController getDsmViewController() {
         return dsmViewController;
     }
 
@@ -58,9 +55,19 @@ public class DSMView extends ViewPart {
 
             Composite childComposite = new Composite(parent, SWT.DOUBLE_BUFFERED);
 
-            createTableViewer(childComposite);
+            tableViewer = new DsmTableViewer(childComposite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL
+                    | SWT.FULL_SELECTION | SWT.BORDER);
 
-            createTable();
+            tableViewer.setUseHashlookup(true);
+//          tableViewer.setContentProvider(new DsmViewContentProvider());
+
+            // Selection provider for the view.
+            getSite().setSelectionProvider(tableViewer);
+
+            table = tableViewer.getTable();
+            table.setHeaderVisible(true);
+            table.setLinesVisible(true);
+            table.setToolTipText("DS-Matrix");
 
             // Create the help context id for the viewer's control
             PlatformUI.getWorkbench().getHelpSystem().setHelp(tableViewer.getControl(), "DSM-viewer.viewer");
@@ -68,35 +75,16 @@ public class DSMView extends ViewPart {
             makeActions();
             hookContextMenu();
             contributeToActionBars();
-        } catch (RuntimeException e) {
+
+            addLifeCycleListener();
+        } catch (Exception e) {
             String errorMessage = "Cannot create control part";
             logger.error(errorMessage, e);
             Activator.showErrorMessage(errorMessage + ": " + e.getMessage());
         }
-
-        addLifeCycleListener();
     }
 
-    private void createTableViewer(Composite parent) {
-
-        tableViewer = new DsmTableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION
-                | SWT.BORDER);
-
-        tableViewer.setUseHashlookup(true);
-        tableViewer.setContentProvider(new DSMViewContentProvider());
-
-        // Selection provider for the view.
-        getSite().setSelectionProvider(tableViewer);
-    }
-
-    private void createTable() {
-        table = tableViewer.getTable();
-        table.setHeaderVisible(true);
-        table.setLinesVisible(true);
-        table.setToolTipText("DS-Matrix");
-    }
-
-    public void clearDSMTable() {
+    public void clearDsmTable() {
         table.removeAll();
         logger.debug("DSM table was cleared.");
     }
@@ -116,7 +104,7 @@ public class DSMView extends ViewPart {
         menuMgr.addMenuListener(new IMenuListener() {
             @Override
             public void menuAboutToShow(IMenuManager manager) {
-                DSMView.this.fillContextMenu(manager);
+                DsmView.this.fillContextMenu(manager);
             }
         });
         Menu menu = menuMgr.createContextMenu(tableViewer.getControl());

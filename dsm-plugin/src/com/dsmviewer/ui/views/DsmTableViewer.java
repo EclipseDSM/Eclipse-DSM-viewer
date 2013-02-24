@@ -21,7 +21,7 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import com.dsmviewer.Activator;
-import com.dsmviewer.dtangler.DSMatrix;
+import com.dsmviewer.dtangler.DsMatrix;
 import com.dsmviewer.logging.Logger;
 
 public class DsmTableViewer extends TableViewer {
@@ -41,7 +41,7 @@ public class DsmTableViewer extends TableViewer {
         super(parent, style);
     }
 
-    public void showDSMatrix(DSMatrix dsMatrix) {
+    public void showDsMatrix(DsMatrix dsMatrix) {
         removeAllColumns();
 
         composeColumns(dsMatrix);
@@ -77,12 +77,12 @@ public class DsmTableViewer extends TableViewer {
         columns.clear();
     }
 
-    private void composeColumns(DSMatrix dsMatrix) {
+    private void composeColumns(DsMatrix dsMatrix) {
 
         TableViewerColumn nameColumn = createTableViewerColumn("Names: ", NAME_COLUMN_SIZE, true);
         setNameColumnLabelProvider(nameColumn);
         // nameColumn.getColumn().pack();
-        
+
         columns.add(nameColumn); // add column to list
 
         for (int i = 1; i <= dsMatrix.getSize(); i++) {
@@ -93,7 +93,7 @@ public class DsmTableViewer extends TableViewer {
             matrixColumn.getColumn().setAlignment(SWT.CENTER);
 
             setMatrixColumnLabelProvider(matrixColumn, i);  
-            
+
             //matrixColumn.getColumn().pack();
             columns.add(matrixColumn); // add column to list
         }
@@ -113,7 +113,7 @@ public class DsmTableViewer extends TableViewer {
             public Color getBackground(Object element) {
                 return new Color(Display.getCurrent(), 240, 220, 240);
             }
-            
+
             @Override
 			public Image getImage(Object obj) {
                 return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_DEF_PERSPECTIVE);
@@ -123,28 +123,8 @@ public class DsmTableViewer extends TableViewer {
         return column;
     }
 
-	private static TableViewerColumn setMatrixColumnLabelProvider(TableViewerColumn column, final int columnNumber) {
-        column.setLabelProvider(new ColumnLabelProvider() {
-            @Override
-            public String getText(Object element) {
-                DsmRow dsmRow = (DsmRow) element;
-                int dependencyWeight = dsmRow.getCells().get(columnNumber - 1).getDependencyWeight();
-                String result = (dependencyWeight == 0) ? "" : Integer.toString(dependencyWeight);
-                return result;
-            }
-
-            @Override
-            public Color getBackground(Object element) {
-                final DsmRow dsmRow = (DsmRow) element;
-                final Dependable dep = dsmRow.getDependee();
-                if (dep.getContentCount() == columnNumber) { // main 
-                    return new Color(Display.getCurrent(), 200, 200, 200);
-                }
-                else {
-                    return null;
-                }
-            }
-        });
+    private static TableViewerColumn setMatrixColumnLabelProvider(TableViewerColumn column, int columnNumber) {
+        column.setLabelProvider(new MyColumnLabelProvider(columnNumber));
         return column;
     }
 

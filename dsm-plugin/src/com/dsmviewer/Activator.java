@@ -16,23 +16,21 @@ import com.dsmviewer.logging.LoggerFactory;
 /**
  * The Activator Class.
  * 
- * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
+ * @author Roman Ivanov
  */
 public class Activator extends AbstractUIPlugin {
+
+    public static final String PLUGIN_ID = "DSM-Viewer"; //$NON-NLS-1$
+
+    private static Activator pluginInstance;
 
     private static LoggerFactory loggerFactory;
     private static Logger logger;
 
-    /** The plug-in ID. */
-    public static final String PLUGIN_ID = "DSM-Viewer"; //$NON-NLS-1$
-
-    /** The plugin shared instance. */
-    private static Activator plugin;
-
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
-        plugin = this;
+        pluginInstance = this;
         loggerFactory = new LoggerFactory();
         logger = loggerFactory.getLogger(getClass());
         logger.info("DSM-viewer plugin started");
@@ -40,7 +38,7 @@ public class Activator extends AbstractUIPlugin {
 
     @Override
     public void stop(BundleContext context) throws Exception {
-        plugin = null;
+        pluginInstance = null;
         super.stop(context);
         loggerFactory.getLogger(getClass()).info("DSM-viewer plugin stopped");
         loggerFactory = null; // closes all plugin loggers
@@ -52,16 +50,16 @@ public class Activator extends AbstractUIPlugin {
      * @return the current shared plugin instance.
      */
     public static Activator getInstance() {
-        return plugin;
+        return pluginInstance;
     }
 
     /**
      * Gets the plugin id.
      * 
-     * @return the plugin id.
+     * @return the plugin id (symbolic name of current bundle).
      */
     public String getPluginId() {
-        return plugin.getBundle().getSymbolicName();
+        return pluginInstance.getBundle().getSymbolicName();
     }
 
     /**
@@ -73,7 +71,7 @@ public class Activator extends AbstractUIPlugin {
      */
     public static String getAbsolutePath(final String filePath) {
         String result = null;
-        URL confUrl = plugin.getBundle().getEntry(filePath);
+        URL confUrl = pluginInstance.getBundle().getEntry(filePath);
         try {
             result = FileLocator.toFileURL(confUrl).getFile();
         } catch (IOException e) {

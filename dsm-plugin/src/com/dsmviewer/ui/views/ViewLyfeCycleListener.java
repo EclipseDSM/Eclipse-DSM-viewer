@@ -7,9 +7,9 @@ import com.dsmviewer.Activator;
 import com.dsmviewer.logging.Logger;
 
 /**
- * The listener for DSM View events such as: close/open view, activate/deactivate view, etc. *
+ * The listener for DSM View events such as: close/open view, activate/deactivate view, etc.
  * 
- * @see IPartListener
+ * @author Roman Ivanov
  */
 public class ViewLyfeCycleListener implements IPartListener {
 
@@ -31,7 +31,7 @@ public class ViewLyfeCycleListener implements IPartListener {
 		String closedViewId = part.getSite().getPluginId();
 
 		if (dsmViewId.equals(closedViewId)) {
-			if (part instanceof DSMView) {
+			if (part instanceof DsmView) {
 				logger.debug("View lifecycle: DSM view was closed.");
 			}
 		}
@@ -39,7 +39,7 @@ public class ViewLyfeCycleListener implements IPartListener {
 
 	@Override
 	public void partDeactivated(final IWorkbenchPart part) {
-//			logger.debug("View lifecycle: DSM view was deactivated.");
+//		logger.debug("View lifecycle: DSM view was deactivated.");
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class ViewLyfeCycleListener implements IPartListener {
 		String openedViewId = part.getSite().getPluginId();
 
 		if (dsmViewId.equals(openedViewId)) {
-			if (part instanceof DSMView) {
+			if (part instanceof DsmView) {
 				logger.debug("View lifecycle: DSM View was opened.");
 			}
 		}
