@@ -51,7 +51,7 @@ public final class NativeLogger implements Logger {
 
     // Hack to support 'debug' level which doesn`t supported at all by Eclipse native logging 
     @Override
-    public void debug(String message) {
+    public synchronized void debug(String message) {
         if (IStatus.INFO >= ignoreLevel) {
             if (isDebugMode) {
                 String formattedMessage = formatMsg("DEBUG", message);
@@ -63,28 +63,28 @@ public final class NativeLogger implements Logger {
     }
 
     @Override
-    public void info(String message) {
+    public synchronized void info(String message) {
         if (IStatus.INFO >= ignoreLevel) {
             log(IStatus.INFO, message);
         }
     }
 
     @Override
-    public void warn(String message) {
+    public synchronized void warn(String message) {
         if (IStatus.WARNING >= ignoreLevel) {
             log(IStatus.WARNING, message);
         }
     }
 
     @Override
-    public void warn(String message, Throwable e) {
+    public synchronized void warn(String message, Throwable e) {
         if (IStatus.WARNING >= ignoreLevel) {
             log(IStatus.WARNING, message, e);
         }
     }
 
     @Override
-    public void error(String message, Throwable e) {
+    public synchronized void error(String message, Throwable e) {
         if (IStatus.ERROR >= ignoreLevel) {
             log(IStatus.ERROR, message, e);
         }
@@ -105,7 +105,7 @@ public final class NativeLogger implements Logger {
     }
 
     private static Status buildMessage(int status, String message) {
-        return new Status(status, Activator.PLUGIN_ID, message);
+        return new Status(status, Activator.getPluginId(), message);
     }
 
     private String formatMsg(int severity, String message) {

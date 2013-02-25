@@ -9,7 +9,7 @@ import com.dsmviewer.logging.Logger;
 /**
  * The listener for DSM View events such as: close/open view, activate/deactivate view, etc.
  * 
- * @author Roman Ivanov
+ * @author Daniil Yaroslavtsev
  */
 public class ViewLyfeCycleListener implements IPartListener {
 
@@ -17,12 +17,12 @@ public class ViewLyfeCycleListener implements IPartListener {
 
 	@Override
 	public void partActivated(final IWorkbenchPart part) {
-//	    logger.debug("View lifecycle: DSM view was activated.");
+//	    logStatus("View lifecycle: DSM view was activated.");
 	}
 
 	@Override
 	public void partBroughtToTop(final IWorkbenchPart part) {
-//		logger.debug("View lifecycle: DSM view was brought to top.");
+//		logStatus("View lifecycle: DSM view was brought to top.");
 	}
 
 	@Override
@@ -32,14 +32,14 @@ public class ViewLyfeCycleListener implements IPartListener {
 
 		if (dsmViewId.equals(closedViewId)) {
 			if (part instanceof DsmView) {
-				logger.debug("View lifecycle: DSM view was closed.");
+                logStatus("DSM view was closed.");
 			}
 		}
 	}
 
 	@Override
 	public void partDeactivated(final IWorkbenchPart part) {
-//		logger.debug("View lifecycle: DSM view was deactivated.");
+//		logStatus("DSM view was deactivated.");
 	}
 
 	@Override
@@ -49,8 +49,12 @@ public class ViewLyfeCycleListener implements IPartListener {
 
 		if (dsmViewId.equals(openedViewId)) {
 			if (part instanceof DsmView) {
-				logger.debug("View lifecycle: DSM View was opened.");
+                logStatus("DSM View was opened.");
 			}
 		}
 	}
+
+    public void logStatus(String status) {
+        logger.debug(status);
+    }
 }
