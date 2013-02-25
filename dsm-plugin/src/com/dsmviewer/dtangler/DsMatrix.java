@@ -7,24 +7,28 @@ import org.dtangler.core.dsm.Dsm;
 import org.dtangler.core.dsm.DsmRow;
 import org.dtangler.core.dsmengine.DsmEngine;
 
-public class DSMatrix {
+/**
+ * 
+ * @author Roman Ivanov
+ */
+public class DsMatrix {
 
     private Dsm dsm;
 
-    public DSMatrix(DependencyGraph dependencyGraph) {
-       dsm = new DsmEngine(dependencyGraph).createDsm();
+    public DsMatrix(DependencyGraph dependencyGraph) {
+        dsm = new DsmEngine(dependencyGraph).createDsm();
     }
 
     public Dsm getDsm() {
         return dsm;
     }
-    
-    public List<DsmRow> getRows(){
+
+    public List<DsmRow> getRows() {
         return dsm.getRows();
     }
 
-    public int getSize(){
+    public int getSize() {
         return dsm.getRows().size();
     }
-    
+
 }

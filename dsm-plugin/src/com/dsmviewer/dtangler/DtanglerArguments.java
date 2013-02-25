@@ -6,10 +6,10 @@ import org.dtangler.core.configuration.Arguments;
 import org.dtangler.core.input.ArgumentBuilder;
 
 /**
-*
-* @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
-*
-*/
+ * 
+ * @author Roman Ivanov
+ * 
+ */
 public class DtanglerArguments extends Arguments {
 
     /**

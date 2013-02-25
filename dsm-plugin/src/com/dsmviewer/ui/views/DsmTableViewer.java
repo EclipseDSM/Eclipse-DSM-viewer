@@ -20,15 +20,16 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
-import com.dsmviewer.dtangler.DSMatrix;
+import com.dsmviewer.Activator;
+import com.dsmviewer.dtangler.DsMatrix;
 import com.dsmviewer.logging.Logger;
 
-public class DSMTableViewer extends TableViewer {
+public class DsmTableViewer extends TableViewer {
 
     /**
      * The logger.
      */
-	private final Logger logger = Logger.getLogger(DSMTableViewer.class);
+    private final Logger logger = Activator.getLogger(DsmTableViewer.class);
 
     // fixed sizes !
     private static final int DS_MATRIX_COLUMN_SIZE = 30;
@@ -36,15 +37,15 @@ public class DSMTableViewer extends TableViewer {
 
     private List<TableViewerColumn> columns = new ArrayList<TableViewerColumn>();
 
-    public DSMTableViewer(Composite parent, int style) {
+    public DsmTableViewer(Composite parent, int style) {
         super(parent, style);
     }
 
-    public void showDSMatrix(DSMatrix dsMatrix) {
+    public void showDsMatrix(DsMatrix dsMatrix) {
         removeAllColumns();
-        
+
         composeColumns(dsMatrix);
-        
+
         setInput(dsMatrix.getRows());
 
         Control tableControl = this.getControl();
@@ -76,12 +77,12 @@ public class DSMTableViewer extends TableViewer {
         columns.clear();
     }
 
-    private void composeColumns(DSMatrix dsMatrix) {
+    private void composeColumns(DsMatrix dsMatrix) {
 
         TableViewerColumn nameColumn = createTableViewerColumn("Names: ", NAME_COLUMN_SIZE, true);
         setNameColumnLabelProvider(nameColumn);
         // nameColumn.getColumn().pack();
-        
+
         columns.add(nameColumn); // add column to list
 
         for (int i = 1; i <= dsMatrix.getSize(); i++) {
@@ -92,7 +93,7 @@ public class DSMTableViewer extends TableViewer {
             matrixColumn.getColumn().setAlignment(SWT.CENTER);
 
             setMatrixColumnLabelProvider(matrixColumn, i);  
-            
+
             //matrixColumn.getColumn().pack();
             columns.add(matrixColumn); // add column to list
         }
@@ -112,7 +113,7 @@ public class DSMTableViewer extends TableViewer {
             public Color getBackground(Object element) {
                 return new Color(Display.getCurrent(), 240, 220, 240);
             }
-            
+
             @Override
 			public Image getImage(Object obj) {
                 return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ETOOL_DEF_PERSPECTIVE);
@@ -122,28 +123,8 @@ public class DSMTableViewer extends TableViewer {
         return column;
     }
 
-	private static TableViewerColumn setMatrixColumnLabelProvider(TableViewerColumn column, final int columnNumber) {
-        column.setLabelProvider(new ColumnLabelProvider() {
-            @Override
-            public String getText(Object element) {
-                DsmRow dsmRow = (DsmRow) element;
-                int dependencyWeight = dsmRow.getCells().get(columnNumber - 1).getDependencyWeight();
-                String result = (dependencyWeight == 0) ? "" : Integer.toString(dependencyWeight);
-                return result;
-            }
-
-            @Override
-            public Color getBackground(Object element) {
-                final DsmRow dsmRow = (DsmRow) element;
-                final Dependable dep = dsmRow.getDependee();
-                if (dep.getContentCount() == columnNumber) { // main 
-                    return new Color(Display.getCurrent(), 200, 200, 200);
-                }
-                else {
-                    return null;
-                }
-            }
-        });
+    private static TableViewerColumn setMatrixColumnLabelProvider(TableViewerColumn column, int columnNumber) {
+        column.setLabelProvider(new MyColumnLabelProvider(columnNumber));
         return column;
     }
 

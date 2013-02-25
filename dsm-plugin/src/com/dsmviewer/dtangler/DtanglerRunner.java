@@ -24,19 +24,20 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 
+import com.dsmviewer.Activator;
 import com.dsmviewer.logging.Logger;
-import com.dsmviewer.ui.views.DSMView;
+import com.dsmviewer.ui.views.DsmView;
 
 /**
  * 
- * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
+ * @author Roman Ivanov
  * 
  */
 public class DtanglerRunner implements IObjectActionDelegate {
 
-	private final Logger logger = Logger.getLogger(DtanglerRunner.class);
+    private final Logger logger = Activator.getLogger(DtanglerRunner.class);
 
-    /** Current Eclipse Project Explorer selection. */
+    /** Current Eclipse Project/Package Explorer selection. */
     private IStructuredSelection selection;
 
     @Override
@@ -49,7 +50,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
     @Override
 	public void selectionChanged(final IAction action, final ISelection selectionData) {
         selection = (IStructuredSelection) selectionData;
-		logger.info("Package Explorer selection was changed to "
+		logger.debug("Package Explorer selection was changed to "
 				+ ((IResource) selection.getFirstElement()).getClass().toString());
     }
 
@@ -69,31 +70,29 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
             Arguments arguments = DtanglerArguments.build(pathList, scope, false);
 
-            DSMatrix dsMatrix = computeDsMatrix(arguments);
-            DSMView.getTableViewer().showDSMatrix(dsMatrix);
+            DsMatrix dsMatrix = computeDsMatrix(arguments);
+            DsmView.getTableViewer().showDsMatrix(dsMatrix);
 
         } catch (MissingArgumentsException e) {
-            e.printStackTrace(); // wrong arguments
-            DSMView.showErrorMessage(e.getMessage());
+            logger.error(e.getMessage(), e);
+            Activator.showErrorMessage(e.getMessage());
         } catch (DtException e) {
-            e.printStackTrace(); // wrong DTangler operation
-            DSMView.showErrorMessage("DTangler cannot process your request.");
+            String errorMessage = "DTangler cannot process this request";
+            logger.error(errorMessage, e);
+            Activator.showErrorMessage(errorMessage + ": " + e.getMessage());
         }
     }
 
     /**
      * Run Dtangler analysis with given Arguments.
      * 
-     * @param arguments
-     *            - the arguments
-     * @throws DtException
-     *             when DTangler cannot process current request.
-     * @throws MissingArgumentsException
-     *             if the request parameters are incorrect.
+     * @param arguments - the arguments
+     * @throws DtException when DTangler cannot process current request.
+     * @throws MissingArgumentsException if the request parameters are incorrect.
      */
-    public DSMatrix computeDsMatrix(Arguments arguments) {
+    public DsMatrix computeDsMatrix(Arguments arguments) {
 
-        DSMatrix dsMatrix;
+        DsMatrix dsMatrix;
 
         try {
             logger.info("Dtangler analisys started.");
@@ -106,15 +105,17 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
             AnalysisResult analysisResult = getAnalysisResult(arguments, dependencies);
 
-            dsMatrix = new DSMatrix(dependencyGraph);
+            dsMatrix = new DsMatrix(dependencyGraph);
 
             printDsmAndViolations(dependencyGraph, analysisResult);
 
+			String message;
             if (analysisResult.isValid()) {
-                logger.info("Dtangler analisys stopped. Analysis result is valid.");
+				message = "Analysis result is valid.";
             } else {
-                logger.info("Dtangler analisys stopped. Analysis result is not valid.");
+				message = "Analysis result is not valid.";
             }
+			logger.info("Dtangler analisys stopped." + message);
 
         } catch (MissingArgumentsException e) {
             throw e;
@@ -128,8 +129,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
     /**
      * Gets the full path of the given Eclipse Project Explorer resource (Project/File/Folder etc).
      * 
-     * @param resource
-     *            - the resource.
+     * @param resource - the resource.
      * @return the full path of the given resource.
      */
 	private static String getFullPath(IResource resource) {
@@ -139,8 +139,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
     /**
      * Gets the list of paths for resources that are selected in Package Explorer.
      * 
-     * @param selection
-     *            - selected resources.
+     * @param selection - selected resources.
      * @return the list of paths that will be passed to Dtangler Analyzer.
      */
     private List<String> getPathList(IStructuredSelection selection) {
@@ -150,7 +149,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             IResource resource = (IResource) selectedResource;
             String resourcePath = getFullPath(resource);
             pathList.add(resourcePath);
-			logger.info("Added to analysis:" + resourcePath);
+			logger.debug("Added to analysis:" + resourcePath);
         }
         return pathList;
     }
