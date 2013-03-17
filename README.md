@@ -1,4 +1,4 @@
-# Project Summary
+h3. Project Summary
 
 Eclipse DSM-Viewer plugin is a simple (but very powerful) tool for counting, analysing and displaying of all kinds of dependencies which can be determined within the Java code.
 
@@ -6,26 +6,26 @@ In simple words, it founds and counts any relationships between the components o
 
 Our idea is to create native to Eclipse plugin with free license to let all Eclipse developers to encorporate DSM analysis during development but not as "after commit" analysis as this can be done using Maven-DSM-plugin. In first milestones we will focus on UI presentation, DSM structure will be taken from opensource library dtangler, additionally we will focus on convenience to use in Eclipse (especially on navigation from matrix to real code). Usage of dtangler library was already succesfuly tested in our DSM-Maven-plugin.
 
-## Dependencies:
+h3. Dependencies:
 
 "DTangler": http://web.sysart.fi/dtangler/
 "Nat Table (Nebula widgets)": http://www.eclipse.org/nattable/
 
-## Author
+h3. Author
 
 Daniil Yaroslavtsev (https://github.com/daniilyar)
 
-## Curator
+h3. Curator
 
 Roman Ivanov (https://github.com/romani) 
 
-## Frequently Asked Questions
+h3. Frequently Asked Questions
 
-### What is "relationship" (or "dependency") in terms of Java?
+1. What is "relationship" (or "dependency") in terms of Java?
 
 All programming systems are written on Java consists of standard components (projects, packages, classes, methods, and so on). All these components can be dependent one from another with many kinds of relationships. For example, all situations below establishing unidirectional relationships (i.e. dependencies) between the components of Java code:
 
-Object creation. By writing "Object s = new MyObj();" within the Java class, you'll create the new dependency (dependency between creator class and created object).
+Object creation. By writing "Object s = new MyObj();" within the Java class, you`ll create the new dependency (dependency between creator class and created object).
 
 Method calls. "SomeClass.callSomething()" is written within the Java class body
 establishes the relationship between current class (method caller) and callee class. Same for non-static method calls.
@@ -34,7 +34,7 @@ Inheritance. The line "Sometype extends anotherType" also establishes a relation
 And so on (implementing Java interfaces, accessing static fields, accessing external classes with “ClassName.class”, etc.)
 Hereby, whenever you getting access to the one component of Java code from another, you creating the unidirectional relationship between these components. We call all such relationships as "dependencies".
 
-### Why do we need the such kinds of dependency measuring / visualization tools?
+2. Why do we need the such kinds of dependency measuring / visualization tools?
 
 Large set of dependencies between the modules of the program systems (espesially complex dependencies and cyclic dependencies between them) makes the code of these modules more difficult to understand or refactor because of high coupling level between the separate modules. So, the idea of high-cohesion inside a system modules and low-coupling between these modules is a "new trend" and very popular in nowadays. 
 
@@ -42,23 +42,19 @@ But if you cannot measure and display dependencies correctly, it is hard to get 
 
 There are two popular ways to display dependencies between the components of program systems (and, sure, Java programming systems).
 
-The first and the most commonly used way is to present them in the form of an oriented graph(s). In this way, system's components becomes the graph's nodes meanwhile the number/types of dependencies becomes the weights on graph's edges.
+The first and the most commonly used way is to present them in the form of an oriented graph(s). In this way, system`s components becomes the graph`s nodes meanwhile the number/types of dependencies becomes the weights on graph`s edges.
 
 The second approach is to display dependencies as a special kinds of incidence matrices is called DSMs or Dependency Structure Matrices.
 
-### What is a "Dependency Structure Matrix" and why this format is useful for dependencies displaying/analyzing?
+3. What is a "Dependency Structure Matrix" and why this format is useful for dependencies displaying/analyzing?
 
 DSM is a simple and compact visual representation of a system or project. It is a square matrix such as below:
-<p align = "center">
-<img src="https://raw.github.com/EclipseDSM/Eclipse-DSM-viewer/gh-pages/images/exampleDSM.png" alt="Example DSM">
-</p>
+![Example DSM](https://raw.github.com/daniilyar/Eclipse-DSM-viewer/gh-pages/images/exampleDSM.png)
 
 This example DSM is drawn for imaginary system (or project) which consists of three modules: A, B and C. Moreover, we can see that it is a second module (B) consits of three submodules: D, E and F. Green cells in this table displays the dependencies. 
-We can see on given DSM that the example system consists of Module A, Module B and Module C. Module A is dependent only from module C (see the first matrix line) and the module B is fully-independent as it has only internal dependencies. In the same way, the 2 submodules of B (E and F) are dependent from the third it's submodule (D).
+We can see on given DSM that the example system consists of Module A, Module B and Module C. Module A is dependent only from module C (see the first matrix line) and the module B is fully-independent as it has only internal dependencies. In the same way, the 2 submodules of B (E and F) are dependent from the third it`s submodule (D).
 Above you can see the graph representation of our example system:
-<p align = "center">
-<img src="https://raw.github.com/EclipseDSM/Eclipse-DSM-viewer/gh-pages/images/exampleGRAPH.png" alt="Example Graph">
-</p>
+
 
 As we can see, both graphs and DSMs are useful for displaying code dependencies, but there are some nuances:
 If you want to analyze dependencies between components of the simple programming systems, graph representation is more clear and intuitive. Otherwise, if you want to analyze dependencies for more complex systems, displaying them in form of a graph is not so clear and comfortable. When the number of graph nodes and edges grows, the graph representation becomes very complex for understanding. The graph with more than 50 nodes (and 200+edges) becomes almost unreadable for an average person.
