@@ -54,7 +54,7 @@ DSM is a simple and compact visual representation of a system or project. It is 
 This example DSM is drawn for imaginary system (or project) which consists of three modules: A, B and C. Moreover, we can see that it is a second module (B) consits of three submodules: D, E and F. Green cells in this table displays the dependencies. 
 We can see on given DSM that the example system consists of Module A, Module B and Module C. Module A is dependent only from module C (see the first matrix line) and the module B is fully-independent as it has only internal dependencies. In the same way, the 2 submodules of B (E and F) are dependent from the third it`s submodule (D).
 Above you can see the graph representation of our example system:
-
+![Example Graph](https://raw.github.com/daniilyar/Eclipse-DSM-viewer/gh-pages/images/exampleGRAPH.png)
 
 As we can see, both graphs and DSMs are useful for displaying code dependencies, but there are some nuances:
 If you want to analyze dependencies between components of the simple programming systems, graph representation is more clear and intuitive. Otherwise, if you want to analyze dependencies for more complex systems, displaying them in form of a graph is not so clear and comfortable. When the number of graph nodes and edges grows, the graph representation becomes very complex for understanding. The graph with more than 50 nodes (and 200+edges) becomes almost unreadable for an average person.
