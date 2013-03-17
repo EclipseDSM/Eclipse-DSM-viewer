@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head profile="http://www.w3.org/2005/10/profile">
-<meta charset='utf-8'>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
 
 <title>Eclipse DSM-viewer plugin project site</title>
-
 <link rel="icon" type="image/ico" href="favicon.ico"/>
+
+<script type="text/Javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
 
 <style type="text/css">
 body {
@@ -45,7 +46,24 @@ h3 {
 }
 
 a {
-  color: #ECEDF9;
+	
+  /* Remiv underline on links */
+  
+	
+  color:#E8F2FC;
+  -o-transition:.5s;
+  -ms-transition:.5s;
+  -moz-transition:.5s;
+  -webkit-transition:.5s;
+  transition:.5s;
+  
+  /* Micro shadow in all sides */
+  text-shadow: 0 0 1px #5D6369;
+  transform: scale(1.05);
+}
+
+a:hover {	
+  color: #FFFFFF;
 }
 
 .description {
@@ -74,11 +92,72 @@ hr {
   padding-top: 30px;
   font-style: italic;
 }
+
+div.spoiler {
+	cursor: pointer;
+}
+
+div.spoiler div.text {
+	display: none;
+}
+
+img.jumpingImage {
+    float: left;
+    margin-top: 5px;
+    -webkit-transition: margin 0.2s ease-out;
+    -moz-transition: margin 0.2s ease-out;
+    -o-transition: margin 0.2s ease-out;
+}
+ 
+img.jumpingImage:hover {
+    margin-top: 3px;
+}
+
 </style>
 </head>
 
 <body>
-  <a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer"><img
+	
+	<script type="text/Javascript">
+		$(document).ready(function() {
+
+			// Configure spoilers
+			$("div.spoiler div.name span").toggle(
+			function() {				
+				$(this).parent("div.name").parent("div.spoiler").children("div.text").fadeIn();
+			}
+			,function() {
+				$(this).parent("div.name").parent("div.spoiler").children("div.text").fadeOut();		
+			});
+
+
+			$("div.spoiler div.name span").mouseover(function() {	
+
+			    var openOnHover = $(this).parent("div.name").parent("div.spoiler").hasClass("openOnHower");
+		        var colorOnHover = $(this).parent("div.name").parent("div.spoiler").hasClass("colorOnHover");
+		    
+				if (colorOnHover) {
+				    $(this).children().css("color", "#1D4875");
+			    }			
+				if (openOnHover) {
+					 $(this).parent("div.name").parent("div.spoiler").children("div.text").fadeIn();
+				}
+
+			}).mouseout(function() {
+				
+				var colorOnHover = $(this).parent("div.name").parent("div.spoiler").hasClass("colorOnHover");
+				
+				if (colorOnHover) {
+					$(this).children().css("color", "#242630");
+			    }
+			    
+			});
+			
+			// End configure spoilers
+		});
+	</script>
+	
+ <a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer"><img
     style="position: absolute; top: 0; right: 0; border: 0;"
     src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"
     alt="Fork me on GitHub" /></a>
@@ -86,7 +165,9 @@ hr {
   <div id="container">
 
     <div class="download">
-      <a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer/zipball/master"><img border="0" width="80" src="https://github.com/images/modules/download/zip.png"></a><a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer/tarball/master"><img border="0" width="80" src="https://github.com/images/modules/download/tar.png"></a>
+      <a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer/zipball/master">	  
+		  <img class="jumpingImage" border="0" width="85" src="https://github.com/images/modules/download/zip.png"></a><a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer/tarball/master"><img class="jumpingImage" border="0" width="85" src="https://github.com/images/modules/download/tar.png">
+	  </a>
     </div>
 
     <h1>
@@ -94,7 +175,8 @@ hr {
       <!-- <br><span class="small">By ...</span> -->
     </h1>
 
-    <h2>Project description:</h2>    
+    <h2>Project description:</h2> 
+     
       DSM-Viewer Eclipse plugin  is used to display Java code dependencies in behavior of Dependency Matrices,  
       or DSM`s (see <a href="http://en.wikipedia.org/wiki/Design_structure_matrix">DS-matrices</a>).  
       <br>It  will also provide several kinds of Eclipse integration such as code navigation, help pages, etc.
@@ -133,11 +215,14 @@ hr {
       <pre style="border-bottom-style: dashed; border-top-style: dashed; border-left-color: #79a6f2; border-top-color: #79a6f2; border-left-style: dashed; border-right-color: #79a6f2; border-right-style: dashed; border-bottom-color: #79a6f2; border-bottom-width: medium; border-right-width: medium; border-left-width: medium; border-top-width: medium">$ git clone git://github.com/EclipseDSM/Eclipse-DSM-viewer</pre>
     </li>
  </dl>
-    <h2>Visit another SevNTU Team projects:</h2>
-    <p>
-      <a href="https://github.com/sevntu-checkstyle">SevNTU-Checkstyle
-        project</a>
-    </p>
+ 
+ 		<div class="spoiler openOnHower colorOnHover" style="color">
+		<div class="name"><span><h2>Visit another SevNTU Team projects:</h2></span></div>
+		<div class="text">
+			<p><a href="https://github.com/sevntu-checkstyle/sevntu.checkstyle">SevNTU-Checkstyle project</a></p>
+			<p><a href="https://github.com/sevntu-checkstyle/dsm-maven-plugin">DSM Maven plugin</a></p>
+		</div>
+		</div>
 
   </div>
 
