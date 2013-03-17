@@ -93,8 +93,11 @@ hr {
   font-style: italic;
 }
 
-div.spoiler {
+div.spoiler div.name {
 	cursor: pointer;
+    height:auto;
+    /* TODO:HACK!!! */
+    width:400px;
 }
 
 div.spoiler div.text {
@@ -116,21 +119,29 @@ img.jumpingImage:hover {
 </style>
 </head>
 
-<body>
-	
+<body>	
 	<script type="text/Javascript">
 		$(document).ready(function() {
+			
+			// Configure spoilers. Spoilers are configured by their classes: 
+			// openOnHover colorOnHover preOpenedSpoiler
+			var fadeTime = 300;
 
-			// Configure spoilers
+			// Set the toggle operarions (spoilers fading)
+			//$(".spoiler").click(function(){
+            //    $(this).children('.text').toggle(fadeTime);
+            //});
+
+			// Set the toggle operarions (spoilers fading)
 			$("div.spoiler div.name span").toggle(
-			function() {				
-				$(this).parent("div.name").parent("div.spoiler").children("div.text").fadeIn();
+			function() {
+				$(this).parent("div.name").parent("div.spoiler").children("div.text").fadeIn(fadeTime);
 			}
 			,function() {
-				$(this).parent("div.name").parent("div.spoiler").children("div.text").fadeOut();		
+				$(this).parent("div.name").parent("div.spoiler").children("div.text").fadeOut(fadeTime);	
 			});
 
-
+			// Set mouseOver operations (coloring/opening on hover)
 			$("div.spoiler div.name span").mouseover(function() {	
 
 			    var openOnHover = $(this).parent("div.name").parent("div.spoiler").hasClass("openOnHower");
@@ -140,19 +151,18 @@ img.jumpingImage:hover {
 				    $(this).children().css("color", "#1D4875");
 			    }			
 				if (openOnHover) {
-					 $(this).parent("div.name").parent("div.spoiler").children("div.text").fadeIn();
+					 $(this).parent("div.name").parent("div.spoiler").children("div.text").fadeIn(fadeTime);
 				}
 
-			}).mouseout(function() {
-				
+			}).mouseout(function() {			
 				var colorOnHover = $(this).parent("div.name").parent("div.spoiler").hasClass("colorOnHover");
-				
 				if (colorOnHover) {
 					$(this).children().css("color", "#242630");
-			    }
-			    
+	 		    }			    
 			});
 			
+		    // Open spoilers with 'pre-opened' class
+			$(".preOpenedSpoiler").children("div.text").fadeIn(fadeTime);
 			// End configure spoilers
 		});
 	</script>
@@ -164,60 +174,141 @@ img.jumpingImage:hover {
 
   <div id="container">
 
+<!--
     <div class="download">
       <a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer/zipball/master">	  
 		  <img class="jumpingImage" border="0" width="85" src="https://github.com/images/modules/download/zip.png"></a><a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer/tarball/master"><img class="jumpingImage" border="0" width="85" src="https://github.com/images/modules/download/tar.png">
 	  </a>
     </div>
+-->
+		<h1>
+		  <a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer"><b>Eclipse DSM-Viewer</b></a>
+		  <!-- <br><span class="small">By ...</span> -->
+		</h1>
 
-    <h1>
-      <a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer"><b>Eclipse DSM-Viewer</b></a>
-      <!-- <br><span class="small">By ...</span> -->
-    </h1>
+ 		<div class="spoiler colorOnHover preOpenedSpoiler">
+		<div class="name"><span class="small"><h2>Project description</h2></span></div>
+		<div class="text">
+			 <p>Eclipse DSM-Viewer plugin is a powerful tool for counting, analysing and displaying of all kinds of dependencies between the Java source code components.</p>     
+			 <p>In simple words, this is an SWT/JFace app which improves Eclipse code analisys functionality. It`s main tasks are:
+			 <ul>
+				  <li>To found and count all kinds of relationships between the components of Java programming systems are opened at Eclipse workspace (on all levels of their code hierarchy).</li>
+				  <li>To display these relationships using the special format of &quot;Design Structure Matrices&quot; or <a href="http://en.wikipedia.org/wiki/Design_structure_matrix">DSMs</a>.</li>
+			 </ul>
+			 <p>This application also provides all kinds of Eclipse integration: code navigation, context help, flexible settings customization, and so on.</p>
+			 Licensed with <a href="http://www.eclipse.org/legal/epl-v10.html">Eclipse Public License v1.0</a>
+		</div>
+		</div>
 
-    <h2>Project description:</h2> 
+ 		<div class="spoiler colorOnHover preOpenedSpoiler">
+		<div class="name"><span class="small"><h2>Detailed description</h2></span></div>
+		<div class="text">
+            <p>Currently graph representation is the most popular format when representing programming systems with their internal relationships:  <a href="https://developers.google.com/java-dev-tools/codepro/doc/features/dependencies/dependencies">example</a>. But if the graph contains more than 30 nodes (or 100+ edges), it becomes almost <a href="./images/huge_dependency_graph.png">unreadable</a> for an average person.</p>
+			<p>Modern Java applications contains thousands or even millions dependencies: 10.000 and more classes per Java application nowadays is really not a limit. 
+			DSMs solves such readability problems (you can see comparison for simple examples here <a href="">link!</a>).</p>
+			<p>DS-matrices remains human-readable in case of huge sets of code is being analysed because
+			DS-matrix can display the huge set of code dependencies in more intuitive way, than graphs.</p>
+			<p>In many cases DSM representation of systems is more convenient and useful for most commonly used dependency analysing tasks.</p>
+			<p>Since the proposed plugin is announced to support dependency counting/analising/displaying for large and complex programming systems, as the first thing we should be able to display dependencies between Java code components in form of DS-matrices, not in the form of graphs. </p>
+			<p>But we don&#96;t deny the further need to have ability to view the dependencies for some particles of result DSMs as graphs (We will return to this during the next plugin releases).</p>
+		</div>
+		</div>
+	 
+ 		<div class="spoiler colorOnHover preOpenedSpoiler">
+		<div class="name"><span class="small"><h2>Questions</h2></span></div>
+		<div class="text">
+			<ol>
+			 <li>What is "relationship" (or "dependency") in terms of Java code?
+			 <li>Why do we need the such kinds of dependency measuring / visualization tools?
+			 <li>What is a "Dependency Structure Matrix" and why this format is useful for dependencies displaying/analyzing?
+			</ol>
+		</div>
+		</div>
+	 
+	  	<div class="spoiler colorOnHover preOpenedSpoiler">
+		<div class="name"><span class="small"><h2>Main project goals</h2></span></div>
+		<div class="text">    
+			<nl>
+				<li><p>Create native to Eclipse plugin with free license to let all Eclipse developers to encorporate DSM analysis during development (not as &quot;after commit&quot; analysis). </p>	
+				<li>Implement such kinds of user-allowed operations:
+					<ul type="circle">
+					  <li>dependency counting / grouping / displaying;
+					  <li>cyclic dependencies detection / highlighting;
+					  <li>code navigation;
+					  <li>matrix clusterization with highlighting and proper displaying of strongly related system&#96;s modules;
+					</ul>
+					</p>
+				</li>
+				<li><p>Implement convenient UI presentation: make the result plugin as human-friendly as possible.
+				<li>Improve performance: force the result plugin to be as fast as possible even on large sets of input data.
+			</nl>	
+		</div>
+		</div>
+      
+      
+      	<div class="spoiler colorOnHover preOpenedSpoiler">
+		<div class="name"><span class="small"><h2>Versions history</h2></span></div>
+		<div class="text"> 
+			<ul type="square">
+				<li>
+				   <p>The first ready version of plugin (<a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer/issues/milestones?state=closed">0.0.1</a>) uses the <a href="http://web.sysart.fi/dtangler/">Dtangler</a> library to count dependencies. It displays the DS-Matrices for single scope from 2 allowed scopes: "Java packages" or "Java classes". This version detects the cyclic dependencies and marks appropriate matrix cells with the red color. It is the first test version to check <a href="http://web.sysart.fi/dtangler/">Dtangler</a> library possibilities. Operating screenshot is below:</p>
+				  
+				   <p><center>
+					   <a href="./images/DSM_operating_Screenshot.png">
+						  <img border="1" style="" width="410" src= "./images/DSM_operating_Screenshot.png">
+					   </a>
+				   </center></p>      
+				</li>
+				<li><p>We expect that the next version will use Eclipse AST instead of <a href="http://web.sysart.fi/dtangler/">Dtangler</a> for dependency searching purposes and provide huge set of additional options and improvements. Main of desired improvements:
+					  <ul type="circle">
+						  <li>Code navigation;</li>
+						  <li>Matrices clusterization (<a href="">link!</a>);
+						  <li>Performance improvement (the first version is unusable for DSMs with size larger than 200x200 cells as it dosn`t support matrix lazy-loading and virtuality);</li>
+						  <li>Implementation of wide on-the-fly help support (tooltips, help pages);
+						  <li>Implementation of flexible plugin settings (ability to manually set types of dependencies are desired to find, colors, fonts, etc.).
+					  </ul>
+				  </p>
+			   </li>
+			</ul>
+		</div>
+		</div>
+		
+		<div class="spoiler colorOnHover preOpenedSpoiler">
+		<div class="name"><span class="small"><h2>Contributor</h2></span></div>
+		<div class="text">
+		    <a href="https://github.com/daniilyar">Daniil Yaroslavtsev</a>: Daniil.Yaroslavtsev@gmail.com
+    	</div>
+		</div>
+
+		<div class="spoiler colorOnHover preOpenedSpoiler">
+		<div class="name"><span class="small"><h2>Curator</h2></span></div>
+		<div class="text">
+		    <a href="https://github.com/romani">Roman Ivanov</a>: ivanov-jr[*]mail[*]ru
+    	</div>
+		</div>
      
-      DSM-Viewer Eclipse plugin  is used to display Java code dependencies in behavior of Dependency Matrices,  
-      or DSM`s (see <a href="http://en.wikipedia.org/wiki/Design_structure_matrix">DS-matrices</a>).  
-      <br>It  will also provide several kinds of Eclipse integration such as code navigation, help pages, etc.
-      <p>The <a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer/issues/milestones?state=closed">first</a> ready version of plugin uses the <a href="http://web.sysart.fi/dtangler/">Dtangler</a> library to count dependencies.</p>
-      <p>We expect that the next version  will use Eclipse AST for that purposes and provide additional options:<nl>
-	      <li>cyclic dependencies detection</li>
-	      <li>code navigation</li>
-	      <li>matrices clusterization</li>
-	      </nl>
-      </p>
-      Licensed with <a href="http://www.eclipse.org/legal/epl-v10.html">Eclipse Public License v1.0</a>
 
-    <h2>Contributor:</h2>
-    <p>
-      <a href="https://github.com/daniilyar">Daniil Yaroslavtsev</a>: Daniil.Yaroslavtsev@gmail.com </p>
-
-    <h2>Curator:</h2>
-    <p>
-      <a href="https://github.com/romani">Roman Ivanov</a>: ivanov-jr[*]mail[*]ru
-    </p>
-
-    <h2>Download:</h2>
-    <dl>
-    <li>You can install the DSM-viewer plugin using the <a href="http://eclipsedsm.github.com/Eclipse-DSM-viewer/">link to this page</a> as Eclipse 3.7..4.2 update site.
-    </li>
-    <li>
-      You can download this project in either <a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer/zipball/master">zip</a>
-      or <a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer/tarball/master">tar</a> formats.
-    </li>
-    <li>
-      You can also see it`s source code on GitHub: <a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer">EclipseDSM/Eclipse-DSM-viewer</a>
-    </li>  
-    
-    <li>
-      And, finally, you can clone the project with <a href="http://git-scm.com">Git</a> by running:
-      <pre style="border-bottom-style: dashed; border-top-style: dashed; border-left-color: #79a6f2; border-top-color: #79a6f2; border-left-style: dashed; border-right-color: #79a6f2; border-right-style: dashed; border-bottom-color: #79a6f2; border-bottom-width: medium; border-right-width: medium; border-left-width: medium; border-top-width: medium">$ git clone git://github.com/EclipseDSM/Eclipse-DSM-viewer</pre>
-    </li>
- </dl>
+		<div class="spoiler colorOnHover preOpenedSpoiler">
+		<div class="name"><span class="small"><h2>Download</h2></span></div>
+		<div class="text">
+		        <li>You can install the DSM-viewer plugin using the <a href="http://eclipsedsm.github.com/Eclipse-DSM-viewer/">link to this page</a> as Eclipse update site.
+				</li>
+				<li>
+				  You can download this project in either <a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer/zipball/master">zip</a>
+				  or <a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer/tarball/master">tar</a> formats.
+				</li>
+				<li>
+				  You can also see it`s source code on GitHub: <a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer">EclipseDSM/Eclipse-DSM-viewer</a>
+				</li>
+				<li>
+				  And, finally, you can clone the project with <a href="http://git-scm.com">Git</a> by running:
+				  <pre style="border-bottom-style: dashed; border-top-style: dashed; border-left-color: #79a6f2; border-top-color: #79a6f2; border-left-style: dashed; border-right-color: #79a6f2; border-right-style: dashed; border-bottom-color: #79a6f2; border-bottom-width: medium; border-right-width: medium; border-left-width: medium; border-top-width: medium">$ git clone git://github.com/EclipseDSM/Eclipse-DSM-viewer</pre>
+				</li>
+    	</div>
+		</div>
  
- 		<div class="spoiler openOnHower colorOnHover" style="color">
-		<div class="name"><span><h2>Visit another SevNTU Team projects:</h2></span></div>
+ 		<div class="spoiler colorOnHover preOpenedSpoiler">
+		<div class="name"><span class="small"><h2>Another SevNTU Team projects:</h2></span></div>
 		<div class="text">
 			<p><a href="https://github.com/sevntu-checkstyle/sevntu.checkstyle">SevNTU-Checkstyle project</a></p>
 			<p><a href="https://github.com/sevntu-checkstyle/dsm-maven-plugin">DSM Maven plugin</a></p>
