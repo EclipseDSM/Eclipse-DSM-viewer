@@ -11,9 +11,9 @@
 <style type="text/css">
 body {
   margin-top: 1.0em;
-  background-color: #7aa9e1;
+  background-color: #E8F2FC;
   font-family: Helvetica, Arial, FreeSans, san-serif;
-  color: #242630;
+  color: #000;
 }
 
 #container {
@@ -22,9 +22,9 @@ body {
 }
 
 h1 {
-  font-size: 3.4em;
+  font-size: 3.1em;
   color: #242630;
-  margin-bottom: 3px;  
+  margin-bottom: 10px;
 }
 
 h1 .small {
@@ -36,7 +36,7 @@ h1 a {
 }
 
 h2 {
-  font-size: 1.5em;
+  font-size: 1.7em;
   color: #242630;
 }
 
@@ -46,24 +46,20 @@ h3 {
 }
 
 a {
-	
-  /* Remiv underline on links */
-  
-	
-  color:#E8F2FC;
-  -o-transition:.5s;
-  -ms-transition:.5s;
-  -moz-transition:.5s;
-  -webkit-transition:.5s;
-  transition:.5s;
+  color:#242630;
+  -o-transition:.2s;
+  -ms-transition:.2s;
+  -moz-transition:.2s;
+  -webkit-transition:.2s;
+  transition:.2s;
   
   /* Micro shadow in all sides */
   text-shadow: 0 0 1px #5D6369;
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
-a:hover {	
-  color: #FFFFFF;
+a:hover {
+  color: #242630;
 }
 
 .description {
@@ -96,7 +92,6 @@ hr {
 div.spoiler div.name {
 	cursor: pointer;
     height:auto;
-    /* TODO:HACK!!! */
     width:400px;
 }
 
@@ -106,7 +101,7 @@ div.spoiler div.text {
 
 img.jumpingImage {
     float: left;
-    margin-top: 5px;
+    margin-top: 4px;
     -webkit-transition: margin 0.2s ease-out;
     -moz-transition: margin 0.2s ease-out;
     -o-transition: margin 0.2s ease-out;
@@ -114,6 +109,16 @@ img.jumpingImage {
  
 img.jumpingImage:hover {
     margin-top: 3px;
+}
+
+img.shadowed {
+  /* Shadow in all sides */
+  box-shadow: 0 0 3px #3B3B3B;
+}
+
+img.darkShadowed {
+  /* Shadow in all sides */
+  box-shadow: 0 0 5px #0F0F0F;
 }
 
 </style>
@@ -187,21 +192,25 @@ img.jumpingImage:hover {
 		</h1>
 
  		<div class="spoiler colorOnHover preOpenedSpoiler">
-		<div class="name"><span class="small"><h2>Project description</h2></span></div>
+		<div class="name"><span><h2>Project description</h2></span></div>
 		<div class="text">
-			 <p>Eclipse DSM-Viewer plugin is a powerful tool for counting, analysing and displaying of all kinds of dependencies between the Java source code components.</p>     
+		   <p>
+			 <p>
+		     <img border="0" class = "shadowed" style ="float:left; margin-right:30px; margin-bottom:15px; margin-top:15px;" width="200" src="./images/exampleDSM_without_background.png">
+			 Eclipse DSM-Viewer plugin is a powerful tool for counting, analysing and displaying of all kinds of dependencies between the Java source code components.</p>     
 			 <p>In simple words, this is an SWT/JFace app which improves Eclipse code analisys functionality. It`s main tasks are:
 			 <ul>
 				  <li>To found and count all kinds of relationships between the components of Java programming systems are opened at Eclipse workspace (on all levels of their code hierarchy).</li>
 				  <li>To display these relationships using the special format of &quot;Design Structure Matrices&quot; or <a href="http://en.wikipedia.org/wiki/Design_structure_matrix">DSMs</a>.</li>
 			 </ul>
-			 <p>This application also provides all kinds of Eclipse integration: code navigation, context help, flexible settings customization, and so on.</p>
-			 Licensed with <a href="http://www.eclipse.org/legal/epl-v10.html">Eclipse Public License v1.0</a>
+		   </p>
+		   <p>This application also provides all kinds of Eclipse integration: code navigation, context help, flexible settings customization, and so on.</p>
+		   <p>Licensed with <a href="http://www.eclipse.org/legal/epl-v10.html">Eclipse Public License v1.0</a></p>
 		</div>
 		</div>
 
  		<div class="spoiler colorOnHover preOpenedSpoiler">
-		<div class="name"><span class="small"><h2>Detailed description</h2></span></div>
+		<div class="name"><span><h2>Detailed description</h2></span></div>
 		<div class="text">
             <p>Currently graph representation is the most popular format when representing programming systems with their internal relationships:  <a href="https://developers.google.com/java-dev-tools/codepro/doc/features/dependencies/dependencies">example</a>. But if the graph contains more than 30 nodes (or 100+ edges), it becomes almost <a href="./images/huge_dependency_graph.png">unreadable</a> for an average person.</p>
 			<p>Modern Java applications contains thousands or even millions dependencies: 10.000 and more classes per Java application nowadays is really not a limit. 
@@ -215,12 +224,12 @@ img.jumpingImage:hover {
 		</div>
 	 
  		<div class="spoiler colorOnHover preOpenedSpoiler">
-		<div class="name"><span class="small"><h2>Questions</h2></span></div>
+		<div class="name"><span><h2>Questions</h2></span></div>
 		<div class="text">
 			<ol>
-			 <li>What is "relationship" (or "dependency") in terms of Java code?
-			 <li>Why do we need the such kinds of dependency measuring / visualization tools?
-			 <li>What is a "Dependency Structure Matrix" and why this format is useful for dependencies displaying/analyzing?
+			 <li><a href="https://github.com/daniilyar/Eclipse-DSM-viewer/blob/master/README.md#what-is-relationship-or-dependency-in-terms-of-java">What is "relationship" (or "dependency") in terms of Java code?</a>
+			 <li><a href="https://github.com/daniilyar/Eclipse-DSM-viewer/blob/master/README.md#why-do-we-need-the-such-kinds-of-dependency-measuring--visualization-tools">Why do we need the such kinds of dependency measuring / visualization tools?</a>
+			 <li><a href="https://github.com/daniilyar/Eclipse-DSM-viewer/blob/master/README.md#what-is-a-dependency-structure-matrix-and-why-this-format-is-useful-for-dependencies-displayinganalyzing">What is a "Dependency Structure Matrix" and why this format is useful for dependencies displaying/analyzing?</a>
 			</ol>
 		</div>
 		</div>
@@ -247,17 +256,17 @@ img.jumpingImage:hover {
       
       
       	<div class="spoiler colorOnHover preOpenedSpoiler">
-		<div class="name"><span class="small"><h2>Versions history</h2></span></div>
+		<div class="name"><span><h2>Versions history</h2></span></div>
 		<div class="text"> 
 			<ul type="square">
 				<li>
 				   <p>The first ready version of plugin (<a href="https://github.com/EclipseDSM/Eclipse-DSM-viewer/issues/milestones?state=closed">0.0.1</a>) uses the <a href="http://web.sysart.fi/dtangler/">Dtangler</a> library to count dependencies. It displays the DS-Matrices for single scope from 2 allowed scopes: "Java packages" or "Java classes". This version detects the cyclic dependencies and marks appropriate matrix cells with the red color. It is the first test version to check <a href="http://web.sysart.fi/dtangler/">Dtangler</a> library possibilities. Operating screenshot is below:</p>
 				  
 				   <p><center>
-					   <a href="./images/DSM_operating_Screenshot.png">
-						  <img border="1" style="" width="410" src= "./images/DSM_operating_Screenshot.png">
+					   <a href="./images/operatingScreenshot.png">
+						  <img border="0" class = "darkShadowed" style="" width="410" src= "./images/operatingScreenshot.png">
 					   </a>
-				   </center></p>      
+				   </center></p>
 				</li>
 				<li><p>We expect that the next version will use Eclipse AST instead of <a href="http://web.sysart.fi/dtangler/">Dtangler</a> for dependency searching purposes and provide huge set of additional options and improvements. Main of desired improvements:
 					  <ul type="circle">
@@ -281,7 +290,7 @@ img.jumpingImage:hover {
 		</div>
 
 		<div class="spoiler colorOnHover preOpenedSpoiler">
-		<div class="name"><span class="small"><h2>Curator</h2></span></div>
+		<div class="name"><span><h2>Curator</h2></span></div>
 		<div class="text">
 		    <a href="https://github.com/romani">Roman Ivanov</a>: ivanov-jr[*]mail[*]ru
     	</div>
@@ -289,7 +298,7 @@ img.jumpingImage:hover {
      
 
 		<div class="spoiler colorOnHover preOpenedSpoiler">
-		<div class="name"><span class="small"><h2>Download</h2></span></div>
+		<div class="name"><span><h2>Download</h2></span></div>
 		<div class="text">
 		        <li>You can install the DSM-viewer plugin using the <a href="http://eclipsedsm.github.com/Eclipse-DSM-viewer/">link to this page</a> as Eclipse update site.
 				</li>
@@ -302,13 +311,13 @@ img.jumpingImage:hover {
 				</li>
 				<li>
 				  And, finally, you can clone the project with <a href="http://git-scm.com">Git</a> by running:
-				  <pre style="border-bottom-style: dashed; border-top-style: dashed; border-left-color: #79a6f2; border-top-color: #79a6f2; border-left-style: dashed; border-right-color: #79a6f2; border-right-style: dashed; border-bottom-color: #79a6f2; border-bottom-width: medium; border-right-width: medium; border-left-width: medium; border-top-width: medium">$ git clone git://github.com/EclipseDSM/Eclipse-DSM-viewer</pre>
+				  <pre style="border-bottom-style: dashed; border-top-style: dashed; border-left-color: #E8F2FC; border-top-color: #E8F2FC; border-left-style: dashed; border-right-color: #E8F2FC; border-right-style: dashed; border-bottom-color: #E8F2FC; border-bottom-width: medium; border-right-width: medium; border-left-width: medium; border-top-width: medium">$ git clone git://github.com/EclipseDSM/Eclipse-DSM-viewer</pre>
 				</li>
     	</div>
 		</div>
  
  		<div class="spoiler colorOnHover preOpenedSpoiler">
-		<div class="name"><span class="small"><h2>Another SevNTU Team projects:</h2></span></div>
+		<div class="name"><span><h2>Another SevNTU Team projects:</h2></span></div>
 		<div class="text">
 			<p><a href="https://github.com/sevntu-checkstyle/sevntu.checkstyle">SevNTU-Checkstyle project</a></p>
 			<p><a href="https://github.com/sevntu-checkstyle/dsm-maven-plugin">DSM Maven plugin</a></p>
