@@ -3,20 +3,21 @@ package com.dsmviewer.logging;
 import static java.text.MessageFormat.format;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Date;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 
+import com.dsmviewer.Activator;
+import com.dsmviewer.utils.CoreUtils;
+
 /**
  * This logger creates the plugin`s console in Developers Eclipse instance and logs to it.
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */
-public final class ConsoleLogger implements Logger {
+public final class TargetConsoleLogger implements Logger {
 
 	private static final String LOGGING_PATTERN = "[{0}][{1}][{2}]: {3}";
 
@@ -53,56 +54,52 @@ public final class ConsoleLogger implements Logger {
 		}
 	}
 
-	private <T> ConsoleLogger(Class<T> clazz) {
+	private <T> TargetConsoleLogger(Class<T> clazz) {
 		this.className = clazz.getSimpleName();
 	}
 
-	private ConsoleLogger(String className) {
+	private TargetConsoleLogger(String className) {
 		this.className = className;
 	}
 
-	protected static ConsoleLogger getLogger(String classname) {
-		ConsoleLogger logger = new ConsoleLogger(classname);
+	protected static TargetConsoleLogger getLogger(String classname) {
+		TargetConsoleLogger logger = new TargetConsoleLogger(classname);
 		return logger;
 	}
 
-	protected static <T> ConsoleLogger getLogger(Class<T> clazz) {
-		ConsoleLogger logger = new ConsoleLogger(clazz);
+	protected static <T> TargetConsoleLogger getLogger(Class<T> clazz) {
+		TargetConsoleLogger logger = new TargetConsoleLogger(clazz);
 		return logger;
 	}
 
 	@Override
-	public void debug(String message) {
+    public synchronized void debug(String message) {
 		appendMessage(LogLevel.DEBUG, message, true);
 	}
 
 	@Override
-	public void info(String message) {
+    public synchronized void info(String message) {
 		appendMessage(LogLevel.INFO, message, true);
 	}
 
 	@Override
-	public void warn(String message) {
+    public synchronized void warn(String message) {
 		appendMessage(LogLevel.WARN, message, true);
 	}
 
 	@Override
-	public void warn(String message, Throwable e) {
+    public synchronized void warn(String message, Throwable e) {
 		String errorMessage = format("{0}: {1}", message, e.getMessage());
 		appendMessage(LogLevel.WARN, errorMessage, true);
-		appendMessage(extractStackTrace(e), LOG_COLOR_WARN, true);
+        appendMessage(CoreUtils.extractStackTrace(e), LOG_COLOR_WARN, true);
 	}
 
 	@Override
-	public void error(String message, Throwable e) {
+    public synchronized void error(String message, Throwable e) {
 		String errorMessage = format("{0}: {1}", message, e.getMessage());
 		appendMessage(LogLevel.ERROR, errorMessage, true);
-		appendMessage(extractStackTrace(e), LOG_COLOR_ERROR, true);
+        appendMessage(CoreUtils.extractStackTrace(e), LOG_COLOR_ERROR, true);
 	}
-
-//	private static void appendMessage(String msg, boolean newLine) {
-//		appendMessage(msg, LOG_COLOR_DEFAULT, newLine);
-//	}
 
 	private void appendMessage(LogLevel level, String msg, boolean newLine) {
 		appendMessage(formatMessage(level, msg), level.getColor(), newLine);
@@ -125,19 +122,15 @@ public final class ConsoleLogger implements Logger {
 			try {
 				out.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+			    String message = "Error while closing the target ConsoleStream";
+                NativeLogger.getLogger(TargetConsoleLogger.class, false).error(message, e);
+                Activator.showErrorMessage(message, e);
 			}
 		}
 	}
 
 	private String formatMessage(LogLevel level, String message) {
 		return format(LOGGING_PATTERN, new Date(), level, className, message);
-	}
-
-	private static String extractStackTrace(Throwable e) {
-		StringWriter writer = new StringWriter();
-		e.printStackTrace(new PrintWriter(writer));
-		return writer.toString();
 	}
 
 }

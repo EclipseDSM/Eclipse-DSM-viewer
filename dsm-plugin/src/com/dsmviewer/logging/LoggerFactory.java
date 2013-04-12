@@ -53,7 +53,7 @@ public class LoggerFactory {
         Logger result;
         NativeLogger nativeLogger = NativeLogger.getLogger(className, isDebugMode);
         if (isDebugMode) {
-            ConsoleLogger consoleLogger = ConsoleLogger.getLogger(className);
+            TargetConsoleLogger consoleLogger = TargetConsoleLogger.getLogger(className);
             MultipleLogger multipleLogger = new MultipleLogger(nativeLogger, consoleLogger);
             loggers.put(className, multipleLogger);
             result = multipleLogger;
