@@ -21,57 +21,61 @@ import com.dsmviewer.Activator;
  */
 public class ConsoleStream {
 
-	private final MessageConsoleStream out;
-	private final MessageConsole console;
+    private final MessageConsoleStream out;
+    private final MessageConsole console;
 
-	public ConsoleStream() {
-		console = findEclipseConsole(Activator.PLUGIN_ID);
-		out = console.newMessageStream();
+
+    public ConsoleStream() {
+        console = findPluginsConsole(Activator.getPluginId(), true);
+        out = console.newMessageStream();
 //		out.setActivateOnWrite(true);
-	}
+    }
 
-	private static MessageConsole findEclipseConsole(String consoleName) {
-		ConsolePlugin plugin = ConsolePlugin.getDefault();
-		IConsoleManager conMan = plugin.getConsoleManager();
-		IConsole[] existing = conMan.getConsoles();
-		for (IConsole element : existing) {
-			if (consoleName.equals(element.getName())) {
-				return (MessageConsole) element;
-			}
-		}
-		// no Opened Eclipse Console found for current plugin, create a new one:
-		MessageConsole myConsole = new MessageConsole(consoleName, null);
-		conMan.addConsoles(new IConsole[] { myConsole });
-		return myConsole;
-	}
+    public static final MessageConsole findPluginsConsole(String consoleName, boolean createNewIfNecessary) {
+        ConsolePlugin plugin = ConsolePlugin.getDefault();
+        IConsoleManager conMan = plugin.getConsoleManager();
+        IConsole[] existing = conMan.getConsoles();
+        for (IConsole element : existing) {
+            if (consoleName.equals(element.getName())) {
+                return (MessageConsole) element;
+            }
+        }
+        if (createNewIfNecessary) {
+            // no Opened Eclipse Console found for current plugin, create a new one:
+            MessageConsole myConsole = new MessageConsole(consoleName, null);
+            conMan.addConsoles(new IConsole[] { myConsole });
+            return myConsole;
+        } else {
+            return null;
+        }
+    }
 
-	public void print(String message) {
-		out.print(message);
-	}
+    public void print(String message) {
+        out.print(message);
+    }
 
-	public void println(String message) {
-		out.println(message);
-	}
+    public void println(String message) {
+        out.println(message);
+    }
 
-	/**
-	 * Displays Eclipse console for current plugin (if it is currently not shown).
-	 * 
-	 * @param page
-	 *            current active workBench page
-	 * @throws PartInitException
-	 */
-	public void showConsole() throws PartInitException {
-		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		IConsoleView view = (IConsoleView) page.showView(IConsoleConstants.ID_CONSOLE_VIEW);
-		view.display((IConsole) console);
-	}
+    /**
+     * Displays Eclipse console for current plugin (if it is currently not shown).
+     * 
+     * @param page current active workBench page
+     * @throws PartInitException
+     */
+    public void showConsole() throws PartInitException {
+        IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        IConsoleView view = (IConsoleView) page.showView(IConsoleConstants.ID_CONSOLE_VIEW);
+        view.display((IConsole) console);
+    }
 
-	public void setColor(Color newColor) {
-		out.setColor(newColor);
-	}
+    public void setColor(Color newColor) {
+        out.setColor(newColor);
+    }
 
-	public void close() throws IOException {
-		out.close();
-	}
+    public void close() throws IOException {
+        out.close();
+    }
 
 }
