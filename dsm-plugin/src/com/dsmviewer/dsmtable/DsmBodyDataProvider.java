@@ -25,15 +25,14 @@ public class DsmBodyDataProvider implements IDataProvider {
     }
 
     @Override
-    public Object getDataValue(int i, int j) {
-        return dsMatrix == null ? EMPTY_STRING : getValue(i, j);
+    public Object getDataValue(int column, int row) {
+        return dsMatrix == null ? EMPTY_STRING : internalGetDataValue(row, column);
     }
 
-    private String getValue(int i, int j) {
-        DsmRow dsmRow = dsMatrix.getRows().get(i);
-        int dependencyWeight = dsmRow.getCells().get(j).getDependencyWeight();
-        String depWeight = (dependencyWeight == 0) ? EMPTY_STRING : Integer.toString(dependencyWeight);
-        return depWeight;
+    private String internalGetDataValue(int row, int column) {
+        DsmRow dsmRow = dsMatrix.getRow(row);
+        int dependencyWeight = dsmRow.getCells().get(column).getDependencyWeight();
+        return (dependencyWeight == 0) ? EMPTY_STRING : String.valueOf(dependencyWeight);
     }
 
     @Override

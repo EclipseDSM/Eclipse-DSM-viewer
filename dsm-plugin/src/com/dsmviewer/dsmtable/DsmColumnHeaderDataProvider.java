@@ -22,8 +22,8 @@ public class DsmColumnHeaderDataProvider implements IDataProvider {
     }
 
     @Override
-    public Object getDataValue(int i, int j) {
-        return dsMatrix == null ? "" : Integer.toString(i);
+    public Object getDataValue(int column, int row) {
+        return dsMatrix == null ? "" : Integer.toString(column + 1);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class DsmColumnHeaderDataProvider implements IDataProvider {
     }
 
     @Override
-    public void setDataValue(int i, int j, Object value) {
+    public void setDataValue(int column, int row, Object value) {
         // do nothing
     }
 

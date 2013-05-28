@@ -1,5 +1,6 @@
 package com.dsmviewer.dsmtable;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
@@ -30,8 +31,9 @@ public class DsmRowHeaderDataProvider implements IDataProvider {
     }
 
     @Override
-    public Object getDataValue(int i, int j) {
-        return dsMatrix == null ? "" : displayNames.get(j);
+    public Object getDataValue(int columnIndex, int rowIndex) {
+        return dsMatrix == null ? "" : MessageFormat.format("{0} {1}",
+                String.valueOf(rowIndex + 1), displayNames.get(rowIndex));
     }
 
     @Override

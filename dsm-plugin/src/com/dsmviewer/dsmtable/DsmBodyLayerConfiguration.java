@@ -22,10 +22,8 @@ import org.eclipse.nebula.widgets.nattable.util.GUIHelper;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 
-import com.dsmviewer.Activator;
-import com.dsmviewer.dsmtable.actions.DrillThroughPackageAction;
-import com.dsmviewer.dsmtable.actions.DrillThroughPackagesAction;
-import com.dsmviewer.logging.Logger;
+import com.dsmviewer.dsmtable.actions.DoubleClickOnGridAction;
+import com.dsmviewer.dsmtable.actions.DoubleClickOnRowHeaderAction;
 import com.dsmviewer.ui.UiHelper;
 
 /**
@@ -33,8 +31,6 @@ import com.dsmviewer.ui.UiHelper;
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */
 public class DsmBodyLayerConfiguration extends AbstractRegistryConfiguration {
-
-    private final Logger logger = Activator.getLogger(getClass());
 
     public static final int FONT_SIZE = UiHelper.DEFAULT_FONT_SIZE;
 
@@ -61,10 +57,10 @@ public class DsmBodyLayerConfiguration extends AbstractRegistryConfiguration {
     public void configureUiBindings(UiBindingRegistry uiBindingRegistry) {
         MouseEventMatcher mouseLeftOnRowHeader = new MouseEventMatcher(GridRegion.ROW_HEADER,
                 MouseEventMatcher.LEFT_BUTTON);
-        uiBindingRegistry.registerDoubleClickBinding(mouseLeftOnRowHeader, new DrillThroughPackageAction());
+        uiBindingRegistry.registerDoubleClickBinding(mouseLeftOnRowHeader, new DoubleClickOnRowHeaderAction());
 
         MouseEventMatcher mouseLeftOnGridBody = new MouseEventMatcher(GridRegion.BODY, MouseEventMatcher.LEFT_BUTTON);
-        uiBindingRegistry.registerDoubleClickBinding(mouseLeftOnGridBody, new DrillThroughPackagesAction());
+        uiBindingRegistry.registerDoubleClickBinding(mouseLeftOnGridBody, new DoubleClickOnGridAction());
     }
 
     @Override

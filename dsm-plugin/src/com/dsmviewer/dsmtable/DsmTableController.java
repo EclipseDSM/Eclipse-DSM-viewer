@@ -48,6 +48,8 @@ public class DsmTableController {
 
     public NatTable init(DsMatrix dsMatrix) {
 
+        logger.debug("Initialising with DS-matrix: " + dsMatrix);
+
         mainDataProvider = new DsmBodyDataProvider(dsMatrix);
         colHeaderDataProvider = new DsmColumnHeaderDataProvider(dsMatrix);
         rowHeaderDataProvider = new DsmRowHeaderDataProvider(dsMatrix);
@@ -74,6 +76,8 @@ public class DsmTableController {
             table.configure(); // apply all configuration tweaks to all table layers
         }
 
+        logger.debug("Initialisation complete");
+
         return table;
     }
 
@@ -90,17 +94,15 @@ public class DsmTableController {
                                 int columnPosition = cellSelectionEvent.getColumnPosition();
                                 if (rowHeaderLayer.getAdditionallySelectedRowIndex() != columnPosition) {
                                     rowHeaderLayer.setAdditionallySelectedRowIndex(columnPosition);
-//                                logger.warn(event.toString() + "  " + columnPosition);
                                 }
                             } else {
                                 rowHeaderLayer.setAdditionallySelectedRowIndex(-1);
                             }
-                        } else { // if not celll selected (row selection, etc.)
+                        } else { // if selection is not a cell (row selection, etc.)
                             rowHeaderLayer.setAdditionallySelectedRowIndex(-1);
                         }
                     }
-                }
-                );
+                });
 
     }
 
@@ -109,18 +111,20 @@ public class DsmTableController {
         rowHeaderDataProvider.setDsMatrix(dsMatrix);
         colHeaderDataProvider.setDsMatrix(dsMatrix);
 
-        int cellSize = computeMaxCellSize(dsMatrix);
+        int cellSize = 21; // computeMaxCellSize(dsMatrix);
 
-        // TODO: write the better solution
-        if (cellSize > 23) {
-            cellSize = 23;
-        }
+        // TODO: write the better solution instead of such ugly hardcoding!
+//        if (cellSize > 23 || cellSize < 18) {
+//            cellSize = 23;
+//        }
 
         Dimension cellDimension = new Dimension(cellSize, cellSize);
 
         bodyLayer.setCellSize(cellDimension);
         columnHeaderLayer.setCellSize(cellDimension);
-        rowHeaderLayer.setRowHeight(cellSize);
+
+        int rowHeight = (int) (cellSize * 1.25);
+        rowHeaderLayer.setRowHeight(rowHeight);
 
         int maximumHeaderWidth = computeMaximumRowHeaderWidth(dsMatrix);
         rowHeaderLayer.setHeaderWidth(maximumHeaderWidth);
@@ -142,7 +146,7 @@ public class DsmTableController {
                 maxLength = length;
             }
         }
-        return (int) (maxLength * UiHelper.DEFAULT_FONT_SIZE / 1.2) + ICON_SIZE;
+        return (int) (maxLength * UiHelper.DEFAULT_FONT_SIZE / 1.2) + 2 * ICON_SIZE;
     }
 
     private static int computeMaxCellSize(DsMatrix dsMatrix) {

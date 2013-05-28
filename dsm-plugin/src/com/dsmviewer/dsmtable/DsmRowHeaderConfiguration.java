@@ -21,7 +21,6 @@ import com.dsmviewer.ui.UiHelper;
  */
 public class DsmRowHeaderConfiguration extends DefaultRowHeaderStyleConfiguration {
 
-    private static final int FONT_SIZE = UiHelper.DEFAULT_FONT_SIZE;
     private static final int CELL_SPACING = 0;
 
     private static final TextPainter BASE_CELL_PAINTER = new TextPainter(true, true,
@@ -38,7 +37,7 @@ public class DsmRowHeaderConfiguration extends DefaultRowHeaderStyleConfiguratio
             ROW_INDEX_PAINTER);
 
     {
-        this.font = UiHelper.getSystemFont(FONT_SIZE);
+        this.font = UiHelper.getSystemFont();
         this.bgColor = UiHelper.COLOR_DSM_ROW_HEADER_BG;
         this.fgColor = UiHelper.COLOR_DSM_ROW_HEADER_FG;
         this.hAlign = HorizontalAlignmentEnum.LEFT;
