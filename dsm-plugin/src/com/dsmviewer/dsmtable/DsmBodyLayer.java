@@ -15,7 +15,7 @@ import org.eclipse.nebula.widgets.nattable.viewport.ViewportLayer;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 
-import com.dsmviewer.dsm.DsMatrix;
+import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.ui.UiHelper;
 
 /**
@@ -97,7 +97,7 @@ public class DsmBodyLayer extends AbstractLayerTransform {
         }
     }
 
-    public DsMatrix getDsMatrix() {
+    public DependencyMatrix getDsMatrix() {
         return dataProvider.getDsMatrix();
     }
 

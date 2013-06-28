@@ -20,12 +20,12 @@ import com.dsmviewer.utils.DtanglerUtils;
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */
-public class DsMatrix {
+public class DependencyMatrix {
 
     private AnalysisResult analysisResult;
     private List<DsmRow> rows;
 
-    public DsMatrix(DependencyGraph dependencyGraph, AnalysisResult analysisResult) {
+    public DependencyMatrix(DependencyGraph dependencyGraph, AnalysisResult analysisResult) {
         Dsm dsm = new DsmEngine(dependencyGraph).createDsm();
         this.rows = DtanglerUtils.transposeValues(dsm).getRows();
         this.analysisResult = analysisResult;

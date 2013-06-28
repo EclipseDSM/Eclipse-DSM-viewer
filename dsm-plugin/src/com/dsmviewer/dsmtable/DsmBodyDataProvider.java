@@ -3,7 +3,7 @@ package com.dsmviewer.dsmtable;
 import org.dtangler.core.dsm.DsmRow;
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
 
-import com.dsmviewer.dsm.DsMatrix;
+import com.dsmviewer.dsm.DependencyMatrix;
 
 /**
  * 
@@ -13,9 +13,9 @@ public class DsmBodyDataProvider implements IDataProvider {
 
     private static final String EMPTY_STRING = "";
 
-    private DsMatrix dsMatrix;
+    private DependencyMatrix dsMatrix;
 
-    public DsmBodyDataProvider(DsMatrix dsMatrix) {
+    public DsmBodyDataProvider(DependencyMatrix dsMatrix) {
         this.dsMatrix = dsMatrix;
     }
 
@@ -45,11 +45,11 @@ public class DsmBodyDataProvider implements IDataProvider {
         // do nothing
     }
 
-    public void setDsMatrix(DsMatrix dsMatrix) {
+    public void setDsMatrix(DependencyMatrix dsMatrix) {
         this.dsMatrix = dsMatrix;
     }
 
-    public DsMatrix getDsMatrix() {
+    public DependencyMatrix getDsMatrix() {
         return dsMatrix;
     }
 

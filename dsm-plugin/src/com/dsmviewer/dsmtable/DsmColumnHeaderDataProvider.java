@@ -2,7 +2,7 @@ package com.dsmviewer.dsmtable;
 
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
 
-import com.dsmviewer.dsm.DsMatrix;
+import com.dsmviewer.dsm.DependencyMatrix;
 
 /**
  * 
@@ -10,9 +10,9 @@ import com.dsmviewer.dsm.DsMatrix;
  */
 public class DsmColumnHeaderDataProvider implements IDataProvider {
 
-    private DsMatrix dsMatrix;
+    private DependencyMatrix dsMatrix;
 
-    public DsmColumnHeaderDataProvider(DsMatrix dsMatrix) {
+    public DsmColumnHeaderDataProvider(DependencyMatrix dsMatrix) {
         this.dsMatrix = dsMatrix;
     }
 
@@ -36,7 +36,7 @@ public class DsmColumnHeaderDataProvider implements IDataProvider {
         // do nothing
     }
 
-    public void setDsMatrix(DsMatrix dsMatrix) {
+    public void setDsMatrix(DependencyMatrix dsMatrix) {
         this.dsMatrix = dsMatrix;
     }
 

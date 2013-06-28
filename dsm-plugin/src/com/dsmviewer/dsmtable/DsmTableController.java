@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.dsmviewer.Activator;
 import com.dsmviewer.dsm.DependencyScope;
-import com.dsmviewer.dsm.DsMatrix;
+import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.UiHelper;
 
@@ -46,7 +46,7 @@ public class DsmTableController {
         this.parent = parent;
     }
 
-    public NatTable init(DsMatrix dsMatrix) {
+    public NatTable init(DependencyMatrix dsMatrix) {
 
         logger.debug("Initialising with DS-matrix: " + dsMatrix);
 
@@ -106,7 +106,7 @@ public class DsmTableController {
 
     }
 
-    public void setDsMatrix(DsMatrix dsMatrix, boolean refresh) {
+    public void setDsMatrix(DependencyMatrix dsMatrix, boolean refresh) {
         mainDataProvider.setDsMatrix(dsMatrix);
         rowHeaderDataProvider.setDsMatrix(dsMatrix);
         colHeaderDataProvider.setDsMatrix(dsMatrix);
@@ -137,7 +137,7 @@ public class DsmTableController {
 //        logger.info("DS-Matrix with size = " + dsMatrix.getSize() + " is shown successfully");
     }
 
-    private static int computeMaximumRowHeaderWidth(DsMatrix dsMatrix) {
+    private static int computeMaximumRowHeaderWidth(DependencyMatrix dsMatrix) {
         int maxLength = 0;
         List<String> displayNames = dsMatrix.getDisplayNames();
         for (int i = 0; i < displayNames.size(); i++) {
@@ -149,7 +149,7 @@ public class DsmTableController {
         return (int) (maxLength * UiHelper.DEFAULT_FONT_SIZE / 1.2) + 2 * ICON_SIZE;
     }
 
-    private static int computeMaxCellSize(DsMatrix dsMatrix) {
+    private static int computeMaxCellSize(DependencyMatrix dsMatrix) {
         int maxLength = 0;
         List<DsmRow> rows = dsMatrix.getRows();
         // indexed loops were used to avoid creation of many unnecessary Iterator objects

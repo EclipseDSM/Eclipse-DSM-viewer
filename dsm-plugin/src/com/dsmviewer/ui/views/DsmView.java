@@ -14,7 +14,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.dsmviewer.Activator;
-import com.dsmviewer.dsm.DsMatrix;
+import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.dsmtable.DsmTableController;
 import com.dsmviewer.logging.Logger;
 
@@ -123,7 +123,7 @@ public class DsmView extends ViewPart {
         getViewSite().getPage().removePartListener(lifeCycleListener);
     }
 
-    public static void showDsMatrix(DsMatrix dsMatrix) {
+    public static void showDsMatrix(DependencyMatrix dsMatrix) {
         dsmTableController.setDsMatrix(dsMatrix, true);
     }
 

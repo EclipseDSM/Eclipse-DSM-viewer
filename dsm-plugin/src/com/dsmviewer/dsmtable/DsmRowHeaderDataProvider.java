@@ -6,7 +6,7 @@ import java.util.List;
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
 
 import com.dsmviewer.Activator;
-import com.dsmviewer.dsm.DsMatrix;
+import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.logging.Logger;
 
 /**
@@ -18,10 +18,10 @@ public class DsmRowHeaderDataProvider implements IDataProvider {
     @SuppressWarnings("unused")
     private Logger logger = Activator.getLogger(getClass());
 
-    private DsMatrix dsMatrix;
+    private DependencyMatrix dsMatrix;
     private List<String> displayNames;
 
-    public DsmRowHeaderDataProvider(DsMatrix dsMatrix) {
+    public DsmRowHeaderDataProvider(DependencyMatrix dsMatrix) {
         this.dsMatrix = dsMatrix;
     }
 
@@ -46,12 +46,12 @@ public class DsmRowHeaderDataProvider implements IDataProvider {
         // do nothing
     }
 
-    public void setDsMatrix(DsMatrix dsMatrix) {
+    public void setDsMatrix(DependencyMatrix dsMatrix) {
         this.dsMatrix = dsMatrix;
         displayNames = dsMatrix.getDisplayNames();
     }
 
-    public DsMatrix getDsMatrix() {
+    public DependencyMatrix getDsMatrix() {
         return dsMatrix;
     }
 

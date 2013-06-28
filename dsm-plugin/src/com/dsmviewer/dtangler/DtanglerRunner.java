@@ -30,7 +30,7 @@ import org.eclipse.ui.PartInitException;
 
 import com.dsmviewer.Activator;
 import com.dsmviewer.dsm.DependencyScope;
-import com.dsmviewer.dsm.DsMatrix;
+import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.views.DsmView;
 import com.dsmviewer.utils.CoreUtils;
@@ -102,7 +102,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
                     String scope = action.getDescription(); // "classes" / "packages"
                     monitor.worked(1);
 
-                    DsMatrix dsMatrix = null;
+                    DependencyMatrix dsMatrix = null;
 
                     try {
                         monitor.subTask("Computing DS-Matrix for " + pathList.size() + " resource(s)");
@@ -153,14 +153,14 @@ public class DtanglerRunner implements IObjectActionDelegate {
         job.schedule();
     }
 
-    public static synchronized DsMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList,
+    public static synchronized DependencyMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList,
             DependencyScope scope, boolean allowCycles) {
         Arguments arguments = DtanglerArguments.build(getBinaryPathList(fullyQualifiedPathList),
                 scope.getDisplayName(), allowCycles);
         return computeDsMatrix(arguments);
     }
 
-    public static synchronized DsMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList,
+    public static synchronized DependencyMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList,
             DependencyScope scope) {
         Arguments arguments = DtanglerArguments.build(getBinaryPathList(fullyQualifiedPathList),
                 scope.getDisplayName(), false);
@@ -185,29 +185,29 @@ public class DtanglerRunner implements IObjectActionDelegate {
         return result;
     }
 
-    public static synchronized DsMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList, String scope) {
+    public static synchronized DependencyMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList, String scope) {
         Arguments arguments = DtanglerArguments.build(fullyQualifiedPathList, scope, false);
         return computeDsMatrix(arguments);
     }
 
-    public static synchronized DsMatrix computeDsMatrixFromBinaries(List<String> pathList, DependencyScope scope,
+    public static synchronized DependencyMatrix computeDsMatrixFromBinaries(List<String> pathList, DependencyScope scope,
             boolean allowCycles) {
         Arguments arguments = DtanglerArguments.build(pathList, scope.getDisplayName(), allowCycles);
         return computeDsMatrix(arguments);
     }
 
-    public static synchronized DsMatrix computeDsMatrixFromBinaries(List<String> pathList, DependencyScope scope) {
+    public static synchronized DependencyMatrix computeDsMatrixFromBinaries(List<String> pathList, DependencyScope scope) {
         Arguments arguments = DtanglerArguments.build(pathList, scope.getDisplayName(), false);
         return computeDsMatrix(arguments);
     }
 
-    public static synchronized DsMatrix computeDsMatrixFromBinaries(List<String> pathList, String scope,
+    public static synchronized DependencyMatrix computeDsMatrixFromBinaries(List<String> pathList, String scope,
             boolean allowCycles) {
         Arguments arguments = DtanglerArguments.build(pathList, scope, allowCycles);
         return computeDsMatrix(arguments);
     }
 
-    public static synchronized DsMatrix computeDsMatrixFromBinaries(List<String> pathList, String scope) {
+    public static synchronized DependencyMatrix computeDsMatrixFromBinaries(List<String> pathList, String scope) {
         Arguments arguments = DtanglerArguments.build(pathList, scope, false);
         return computeDsMatrix(arguments);
     }
@@ -219,9 +219,9 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * @throws DtException when DTangler cannot process current request.
      * @throws MissingArgumentsException if the request parameters are incorrect.
      */
-    public static synchronized DsMatrix computeDsMatrix(Arguments arguments) {
+    public static synchronized DependencyMatrix computeDsMatrix(Arguments arguments) {
 
-        DsMatrix dsMatrix = null;
+        DependencyMatrix dsMatrix = null;
 
         try {
 
@@ -234,7 +234,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             ConfigurableDependencyAnalyzer analyzer = new ConfigurableDependencyAnalyzer(arguments);
             AnalysisResult analysisResult = analyzer.analyze(dependencies);
 
-            dsMatrix = new DsMatrix(dependencyGraph, analysisResult);
+            dsMatrix = new DependencyMatrix(dependencyGraph, analysisResult);
 
         } catch (MissingArgumentsException e) {
             String message = "Wrong Dtangler arguments provided";
@@ -280,9 +280,9 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
     class ShowDsMatrixJob implements Runnable {
 
-        private DsMatrix dsMatrix;
+        private DependencyMatrix dsMatrix;
 
-        public ShowDsMatrixJob(DsMatrix dsMatrix) {
+        public ShowDsMatrixJob(DependencyMatrix dsMatrix) {
             this.dsMatrix = dsMatrix;
         }
 

@@ -16,7 +16,7 @@ import org.dtangler.core.textui.DSMWriter;
 import org.dtangler.core.textui.ViolationWriter;
 import org.dtangler.core.textui.Writer;
 
-import com.dsmviewer.dsm.DsMatrix;
+import com.dsmviewer.dsm.DependencyMatrix;
 
 public final class DtanglerUtils {
 
@@ -75,7 +75,7 @@ public final class DtanglerUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<DsmRow> sortInNaturalOrderByDisplayNames(final DsMatrix dsMatrix) {
+    public static List<DsmRow> sortInNaturalOrderByDisplayNames(final DependencyMatrix dsMatrix) {
 
         final List<DsmRow> rows = dsMatrix.getRows();
 
@@ -105,14 +105,14 @@ public final class DtanglerUtils {
         return rows;
     }
 
-    public static void quickSort(DsMatrix dsMatrix) {
+    public static void quickSort(DependencyMatrix dsMatrix) {
         int startIndex = 0;
         int endIndex = dsMatrix.getSize() - 1;
 
         doSort(dsMatrix, startIndex, endIndex);
     }
 
-    private static void doSort(DsMatrix dsMatrix, int start, int end) {
+    private static void doSort(DependencyMatrix dsMatrix, int start, int end) {
         if (start >= end) {
             return;
         }

@@ -12,7 +12,7 @@ import org.eclipse.swt.events.MouseEvent;
 
 import com.dsmviewer.Activator;
 import com.dsmviewer.dsm.DependencyScope;
-import com.dsmviewer.dsm.DsMatrix;
+import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.dsmtable.DsmBodyLayer;
 import com.dsmviewer.dtangler.DtanglerRunner;
 import com.dsmviewer.logging.Logger;
@@ -35,7 +35,7 @@ public class DoubleClickOnGridAction implements IMouseAction {
 //      Object valueUnderCursor = natTable.getDataValueByPosition(columnIndex, rowIndex);
 
         DsmBodyLayer bodyLayer = (DsmBodyLayer) ((GridLayer) natTable.getLayer()).getBodyLayer();
-        DsMatrix dsm = bodyLayer.getDsMatrix();
+        DependencyMatrix dsm = bodyLayer.getDsMatrix();
         DsmCell cellUnderCursor = dsm.getCell(columnIndex, rowIndex);
 
 //        logger.info("DoubleClick. Source: " + event.getSource()
@@ -60,7 +60,7 @@ public class DoubleClickOnGridAction implements IMouseAction {
             List<String> pathList = new LinkedList<String>();
             pathList.add(dependant.getFullyQualifiedName());
             pathList.add(dependee.getFullyQualifiedName());
-            DsMatrix dsMatrix = DtanglerRunner.computeDsMatrixFromSources(pathList, DependencyScope.CLASSES);
+            DependencyMatrix dsMatrix = DtanglerRunner.computeDsMatrixFromSources(pathList, DependencyScope.CLASSES);
             DsmView.showDsMatrix(dsMatrix);
         }
     }

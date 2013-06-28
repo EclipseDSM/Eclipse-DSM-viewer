@@ -14,7 +14,7 @@ import org.eclipse.ui.PartInitException;
 
 import com.dsmviewer.Activator;
 import com.dsmviewer.dsm.DependencyScope;
-import com.dsmviewer.dsm.DsMatrix;
+import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.dsmtable.DsmBodyLayer;
 import com.dsmviewer.dtangler.DtanglerRunner;
 import com.dsmviewer.logging.Logger;
@@ -36,7 +36,7 @@ public class DoubleClickOnRowHeaderAction implements IMouseAction {
         int rowIndex = natTable.getRowPositionByY(event.y) - 1;
 
         DsmBodyLayer bodyLayer = (DsmBodyLayer) ((GridLayer) natTable.getLayer()).getBodyLayer();
-        DsMatrix dsm = bodyLayer.getDsMatrix();
+        DependencyMatrix dsm = bodyLayer.getDsMatrix();
         DsmRow rowUnderCursor = dsm.getRows().get(rowIndex);
 
 //        logger.info("DoubleClick. Source: " + event.getSource()
@@ -56,7 +56,7 @@ public class DoubleClickOnRowHeaderAction implements IMouseAction {
 //            logger.warn("opening the sub-Dsm:");
             List<String> pathList = new LinkedList<String>();
             pathList.add(dependee.getFullyQualifiedName());
-            DsMatrix dsMatrix = DtanglerRunner.computeDsMatrixFromSources(pathList, DependencyScope.CLASSES);
+            DependencyMatrix dsMatrix = DtanglerRunner.computeDsMatrixFromSources(pathList, DependencyScope.CLASSES);
             DsmView.showDsMatrix(dsMatrix);
         } else if (dependee.getScope().getDisplayName().equals(DependencyScope.CLASSES.getDisplayName())) {
             // if we`ve clicked at 'class scope' matrix cell - open appropriate class in Project Explorer
