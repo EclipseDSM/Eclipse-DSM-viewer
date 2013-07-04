@@ -213,4 +213,8 @@ public class DependencyMatrix {
         }
     }
 
+    public DependencyMatrixOrdering getCurrentOrdering() {
+        return currentOrdering;
+    }
+
 }

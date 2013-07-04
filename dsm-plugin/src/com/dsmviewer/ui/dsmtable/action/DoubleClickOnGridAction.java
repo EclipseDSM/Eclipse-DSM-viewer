@@ -61,7 +61,7 @@ public class DoubleClickOnGridAction implements IMouseAction {
             DependencyMatrix dsMatrix = DtanglerRunner.computeDsMatrixFromSources(pathList,
                     DependencyScope.PACKAGES, DependencyScope.CLASSES,
                     DependencyMatrixOrdering.NATURAL_ORDERING);
-            DsmView.showDsMatrix(dsMatrix);
+            DsmView.getInstance().showDsMatrix(dsMatrix);
         }
     }
 

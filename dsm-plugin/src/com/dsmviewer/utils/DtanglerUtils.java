@@ -62,15 +62,15 @@ public final class DtanglerUtils {
 
         String[] splitted = fullyQualifiedName.split(": ");
         String resourceParentPath = splitted[0];
-        String resourceRelativePath = splitted[1].replaceAll("\\.", File.separator);
-
-        String resourceFullPath = resourceParentPath.concat(File.separator).concat(resourceRelativePath);
 
         switch (scope) {
         case PACKAGES:
+            String resourceRelativePath = splitted[1].replaceAll("\\.", File.separator);
+
+            String resourceFullPath = resourceParentPath.concat(File.separator).concat(resourceRelativePath);
             return resourceFullPath;
         case CLASSES:
-            return resourceFullPath.concat(".class");
+            return resourceParentPath;
         default:
             throw new IllegalArgumentException("Scope " + scope + " is not supported");
         }

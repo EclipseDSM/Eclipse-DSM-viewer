@@ -60,7 +60,7 @@ public class DoubleClickOnRowHeaderAction implements IMouseAction {
             DependencyMatrix dsMatrix = DtanglerRunner.computeDsMatrixFromSources(sourcesPaths,
                     DependencyScope.PACKAGES, DependencyScope.CLASSES,
                     DependencyMatrixOrdering.NATURAL_ORDERING);
-            DsmView.showDsMatrix(dsMatrix);
+            DsmView.getInstance().showDsMatrix(dsMatrix);
         } else if (dependee.getScope().getDisplayName().equals(DependencyScope.CLASSES.getDisplayName())) {
             // if we`ve clicked at 'class scope' matrix cell - open appropriate class in Project Explorer
             EclipseUtils.openInEditor(dependee);

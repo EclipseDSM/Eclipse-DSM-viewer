@@ -30,7 +30,8 @@ import com.dsmviewer.Activator;
 import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.dsm.DependencyMatrixOrdering;
 import com.dsmviewer.logging.Logger;
-import com.dsmviewer.ui.action.SortDependencyMatrixAction;
+import com.dsmviewer.ui.action.SortDependencyMatrixByInstabilityAction;
+import com.dsmviewer.ui.action.SortDependencyMatrixInNaturalAction;
 import com.dsmviewer.ui.dsmtable.DsmTableController;
 
 /**
@@ -46,10 +47,18 @@ public class DsmView extends ViewPart {
 
     private ViewLyfeCycleListener lifeCycleListener;
 
-    private static DsmTableController dsmTableController;
+    private DsmTableController dsmTableController;
+
+    private Action sortInNaturalOrderingAction;
+
+    private Action sortByInstabilityAction;
+
+    private static DsmView viewInstance;
 
     @Override
     public void createPartControl(final Composite parent) {
+
+        viewInstance = this;
 
         dsmTableController = new DsmTableController(parent);
 
@@ -142,32 +151,29 @@ public class DsmView extends ViewPart {
 
     }
 
-    private static void fillLocalToolBar(IToolBarManager manager) {
-        final Action sortByInstabilityAction = new SortDependencyMatrixAction(dsmTableController,
-                DependencyMatrixOrdering.BY_INSTABILITY);
+    private void fillLocalToolBar(IToolBarManager manager) {
+        sortInNaturalOrderingAction = new SortDependencyMatrixInNaturalAction(dsmTableController);
+        sortInNaturalOrderingAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+                getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+
+        sortByInstabilityAction = new SortDependencyMatrixByInstabilityAction(dsmTableController);
         sortByInstabilityAction.setToolTipText("Sort matrix by instability");
         sortByInstabilityAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
                 getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 
-        final Action sortInNaturalOrderingAction = new SortDependencyMatrixAction(dsmTableController,
-                DependencyMatrixOrdering.NATURAL_ORDERING);
-        sortInNaturalOrderingAction.setToolTipText("Sort matrix in natural ordering");
-        sortInNaturalOrderingAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-                getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-
         // first state
+        sortInNaturalOrderingAction.setChecked(false);
         sortByInstabilityAction.setChecked(false);
-        sortInNaturalOrderingAction.setChecked(true);
 
-        manager.add(sortByInstabilityAction);
         manager.add(sortInNaturalOrderingAction);
+        manager.add(sortByInstabilityAction);
 //        manager.add(new Separator());
 
         sortByInstabilityAction.addPropertyChangeListener(new IPropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent event) {
-                if ("checked".equals(event.getProperty())) {
-                    sortInNaturalOrderingAction.setChecked((Boolean) event.getOldValue());
+                if ("checked".equals(event.getProperty()) && event.getNewValue() == Boolean.TRUE) {
+                    sortInNaturalOrderingAction.setChecked(false);
                 }
             }
         });
@@ -175,8 +181,8 @@ public class DsmView extends ViewPart {
         sortInNaturalOrderingAction.addPropertyChangeListener(new IPropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent event) {
-                if ("checked".equals(event.getProperty())) {
-                    sortByInstabilityAction.setChecked((Boolean) event.getOldValue());
+                if ("checked".equals(event.getProperty()) && event.getNewValue() == Boolean.TRUE) {
+                    sortByInstabilityAction.setChecked(false);
                 }
             }
         });
@@ -210,13 +216,43 @@ public class DsmView extends ViewPart {
     @Override
     public void dispose() {
         dsmTableController = null;
+
         // Remove lifecycle listener from view
         logger.info("Removing lifecycle listener from DSM view");
         getViewSite().getPage().removePartListener(lifeCycleListener);
+
+        viewInstance = null;
     }
 
-    public static void showDsMatrix(DependencyMatrix dsMatrix) {
+    public void showDsMatrix(DependencyMatrix dsMatrix) {
         dsmTableController.setDependencyMatrix(dsMatrix, true);
+        updateSortActionsState(dsMatrix.getCurrentOrdering());
+    }
+
+    private void updateSortActionsState(DependencyMatrixOrdering currentDsmOrdering) {
+        setSortActionsEnabled(true);
+
+        switch (currentDsmOrdering) {
+        case BY_INSTABILITY:
+            sortByInstabilityAction.setChecked(true);
+            sortInNaturalOrderingAction.setChecked(false);
+            break;
+        case NATURAL_ORDERING:
+            sortByInstabilityAction.setChecked(false);
+            sortInNaturalOrderingAction.setChecked(true);
+            break;
+        default:
+            throw new IllegalArgumentException("Ordering " + currentDsmOrdering + " is not supported");
+        }
+    }
+
+    private void setSortActionsEnabled(boolean enabled) {
+        sortInNaturalOrderingAction.setEnabled(enabled);
+        sortByInstabilityAction.setEnabled(enabled);
+    }
+
+    public static DsmView getInstance() {
+        return viewInstance;
     }
 
 }

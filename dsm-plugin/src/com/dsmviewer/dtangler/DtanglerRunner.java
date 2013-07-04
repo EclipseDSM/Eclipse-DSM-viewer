@@ -276,7 +276,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
         @Override
         public void run() {
-            DsmView.showDsMatrix(dsMatrix);
+            DsmView.getInstance().showDsMatrix(dsMatrix);
             String message = "\n" + (dsMatrix.getAnalysisResult().isValid() ? "Analysis result is valid."
                     : "Analysis result is not valid.");
             LOGGER.info("Dtangler analisys completed. "
