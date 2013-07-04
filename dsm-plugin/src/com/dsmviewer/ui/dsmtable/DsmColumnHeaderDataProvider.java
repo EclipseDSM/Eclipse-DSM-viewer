@@ -1,4 +1,4 @@
-package com.dsmviewer.dsmtable;
+package com.dsmviewer.ui.dsmtable;
 
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
 
@@ -10,25 +10,25 @@ import com.dsmviewer.dsm.DependencyMatrix;
  */
 public class DsmColumnHeaderDataProvider implements IDataProvider {
 
-    private DependencyMatrix dsMatrix;
+    private DependencyMatrix dependencyMatrix;
 
     public DsmColumnHeaderDataProvider(DependencyMatrix dsMatrix) {
-        this.dsMatrix = dsMatrix;
+        this.dependencyMatrix = dsMatrix;
     }
 
     @Override
     public int getColumnCount() {
-        return dsMatrix == null ? 0 : dsMatrix.getSize();
+        return dependencyMatrix == null ? 0 : dependencyMatrix.getSize();
     }
 
     @Override
     public Object getDataValue(int column, int row) {
-        return dsMatrix == null ? "" : Integer.toString(column + 1);
+        return dependencyMatrix == null ? "" : Integer.toString(column + 1);
     }
 
     @Override
     public int getRowCount() {
-        return dsMatrix == null ? 0 : 1;
+        return dependencyMatrix == null ? 0 : 1;
     }
 
     @Override
@@ -36,8 +36,12 @@ public class DsmColumnHeaderDataProvider implements IDataProvider {
         // do nothing
     }
 
-    public void setDsMatrix(DependencyMatrix dsMatrix) {
-        this.dsMatrix = dsMatrix;
+    public void setDependencyMatrix(DependencyMatrix dsMatrix) {
+        this.dependencyMatrix = dsMatrix;
+    }
+
+    public DependencyMatrix getDependencyMatrix() {
+        return dependencyMatrix;
     }
 
 }

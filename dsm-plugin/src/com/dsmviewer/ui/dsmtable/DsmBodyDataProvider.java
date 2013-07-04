@@ -1,4 +1,4 @@
-package com.dsmviewer.dsmtable;
+package com.dsmviewer.ui.dsmtable;
 
 import org.dtangler.core.dsm.DsmRow;
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
@@ -45,11 +45,11 @@ public class DsmBodyDataProvider implements IDataProvider {
         // do nothing
     }
 
-    public void setDsMatrix(DependencyMatrix dsMatrix) {
+    public void setDependencyMatrix(DependencyMatrix dsMatrix) {
         this.dsMatrix = dsMatrix;
     }
 
-    public DependencyMatrix getDsMatrix() {
+    public DependencyMatrix getDependencyMatrix() {
         return dsMatrix;
     }
 

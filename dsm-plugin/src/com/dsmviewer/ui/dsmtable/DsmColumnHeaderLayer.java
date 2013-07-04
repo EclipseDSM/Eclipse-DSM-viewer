@@ -1,4 +1,4 @@
-package com.dsmviewer.dsmtable;
+package com.dsmviewer.ui.dsmtable;
 
 import java.awt.Dimension;
 

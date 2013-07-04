@@ -1,4 +1,4 @@
-package com.dsmviewer.dsmtable;
+package com.dsmviewer.ui.dsmtable;
 
 import org.eclipse.nebula.widgets.nattable.layer.cell.ILayerCell;
 import org.eclipse.nebula.widgets.nattable.layer.config.DefaultRowHeaderStyleConfiguration;

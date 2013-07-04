@@ -1,10 +1,8 @@
-package com.dsmviewer.dsmtable;
+package com.dsmviewer.ui.dsmtable;
 
 import java.awt.Dimension;
 import java.util.List;
 
-import org.dtangler.core.dsm.DsmCell;
-import org.dtangler.core.dsm.DsmRow;
 import org.eclipse.nebula.widgets.nattable.NatTable;
 import org.eclipse.nebula.widgets.nattable.grid.data.DefaultCornerDataProvider;
 import org.eclipse.nebula.widgets.nattable.grid.layer.ColumnHeaderSelectionListener;
@@ -13,11 +11,12 @@ import org.eclipse.nebula.widgets.nattable.grid.layer.GridLayer;
 import org.eclipse.nebula.widgets.nattable.layer.DataLayer;
 import org.eclipse.nebula.widgets.nattable.layer.event.ILayerEvent;
 import org.eclipse.nebula.widgets.nattable.selection.event.CellSelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
 import com.dsmviewer.Activator;
-import com.dsmviewer.dsm.DependencyScope;
 import com.dsmviewer.dsm.DependencyMatrix;
+import com.dsmviewer.dsm.DependencyScope;
 import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.UiHelper;
 
@@ -106,10 +105,10 @@ public class DsmTableController {
 
     }
 
-    public void setDsMatrix(DependencyMatrix dsMatrix, boolean refresh) {
-        mainDataProvider.setDsMatrix(dsMatrix);
-        rowHeaderDataProvider.setDsMatrix(dsMatrix);
-        colHeaderDataProvider.setDsMatrix(dsMatrix);
+    public void setDependencyMatrix(DependencyMatrix dsMatrix, boolean refresh) {
+        mainDataProvider.setDependencyMatrix(dsMatrix);
+        rowHeaderDataProvider.setDependencyMatrix(dsMatrix);
+        colHeaderDataProvider.setDependencyMatrix(dsMatrix);
 
         int cellSize = 21; // computeMaxCellSize(dsMatrix);
 
@@ -137,9 +136,19 @@ public class DsmTableController {
 //        logger.info("DS-Matrix with size = " + dsMatrix.getSize() + " is shown successfully");
     }
 
-    private static int computeMaximumRowHeaderWidth(DependencyMatrix dsMatrix) {
+    public Point getDsmTableBounds() {
+        int height = bodyLayer.getWidth() + rowHeaderLayer.getWidth();
+        int width = bodyLayer.getHeight();
+        return new Point(height, width);
+    }
+
+    public DependencyMatrix getDependencyMatrix() {
+        return mainDataProvider.getDependencyMatrix();
+    }
+
+    private static int computeMaximumRowHeaderWidth(DependencyMatrix dependencyMatrix) {
         int maxLength = 0;
-        List<String> displayNames = dsMatrix.getDisplayNames();
+        List<String> displayNames = dependencyMatrix.getDisplayNames();
         for (int i = 0; i < displayNames.size(); i++) {
             int length = displayNames.get(i).length();
             if (maxLength < length) {
@@ -149,22 +158,22 @@ public class DsmTableController {
         return (int) (maxLength * UiHelper.DEFAULT_FONT_SIZE / 1.2) + 2 * ICON_SIZE;
     }
 
-    private static int computeMaxCellSize(DependencyMatrix dsMatrix) {
-        int maxLength = 0;
-        List<DsmRow> rows = dsMatrix.getRows();
-        // indexed loops were used to avoid creation of many unnecessary Iterator objects
-        for (int i = 0; i < rows.size(); i++) {
-            List<DsmCell> cells = rows.get(i).getCells();
-            for (int j = 0; j < cells.size(); j++) {
-                DsmCell cell = cells.get(j);
-                int length = String.valueOf(cell.getDependencyWeight()).length();
-                if (length > maxLength) {
-                    maxLength = length;
-                }
-            }
-        }
-        return maxLength * UiHelper.DEFAULT_FONT_WIDTH + 6;
-    }
+//    private static int computeMaxCellSize(DependencyMatrix dsMatrix) {
+//        int maxLength = 0;
+//        List<DsmRow> rows = dsMatrix.getRows();
+//        // indexed loops were used to avoid creation of many unnecessary Iterator objects
+//        for (int i = 0; i < rows.size(); i++) {
+//            List<DsmCell> cells = rows.get(i).getCells();
+//            for (int j = 0; j < cells.size(); j++) {
+//                DsmCell cell = cells.get(j);
+//                int length = String.valueOf(cell.getDependencyWeight()).length();
+//                if (length > maxLength) {
+//                    maxLength = length;
+//                }
+//            }
+//        }
+//        return maxLength * UiHelper.DEFAULT_FONT_WIDTH + 6;
+//    }
 
     public NatTable getTable() {
         return table;

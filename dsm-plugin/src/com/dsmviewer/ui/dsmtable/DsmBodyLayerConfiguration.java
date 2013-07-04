@@ -1,4 +1,4 @@
-package com.dsmviewer.dsmtable;
+package com.dsmviewer.ui.dsmtable;
 
 import org.eclipse.nebula.widgets.nattable.config.AbstractRegistryConfiguration;
 import org.eclipse.nebula.widgets.nattable.config.CellConfigAttributes;
@@ -22,9 +22,9 @@ import org.eclipse.nebula.widgets.nattable.util.GUIHelper;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 
-import com.dsmviewer.dsmtable.actions.DoubleClickOnGridAction;
-import com.dsmviewer.dsmtable.actions.DoubleClickOnRowHeaderAction;
 import com.dsmviewer.ui.UiHelper;
+import com.dsmviewer.ui.dsmtable.action.DoubleClickOnGridAction;
+import com.dsmviewer.ui.dsmtable.action.DoubleClickOnRowHeaderAction;
 
 /**
  * 

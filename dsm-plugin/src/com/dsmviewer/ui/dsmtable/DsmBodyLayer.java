@@ -1,4 +1,4 @@
-package com.dsmviewer.dsmtable;
+package com.dsmviewer.ui.dsmtable;
 
 import java.awt.Dimension;
 
@@ -90,15 +90,15 @@ public class DsmBodyLayer extends AbstractLayerTransform {
         int rowIndex = cell.getRowIndex();
         if (columnIndex == rowIndex) {
             return MAIN_DIAGONAL_CELL_PAINTER;
-        } else if (getDsMatrix().hasViolations(rowIndex, columnIndex)) {
+        } else if (getDependencyMatrix().hasViolations(rowIndex, columnIndex)) {
             return NON_VALID_CELL_PAINTER;
         } else {
             return super.getCellPainter(colPosition, rowPosition, cell, confRegistry);
         }
     }
 
-    public DependencyMatrix getDsMatrix() {
-        return dataProvider.getDsMatrix();
+    public DependencyMatrix getDependencyMatrix() {
+        return dataProvider.getDependencyMatrix();
     }
 
 }

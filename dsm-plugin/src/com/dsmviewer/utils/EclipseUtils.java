@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
@@ -39,6 +40,7 @@ import org.eclipse.ui.navigator.resources.ProjectExplorer;
 import org.eclipse.ui.part.FileEditorInput;
 
 import com.dsmviewer.Activator;
+import com.dsmviewer.dsm.DependencyScope;
 import com.dsmviewer.exception.DsmPluginException;
 import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.views.DsmView;
@@ -49,7 +51,7 @@ import com.dsmviewer.ui.views.DsmView;
  */
 public final class EclipseUtils {
 
-    private static final Logger LOGGER = Activator.getLogger(EclipseUtils.class);
+    private static final Logger LOG = Activator.getLogger(EclipseUtils.class);
 
     private EclipseUtils() {
     }
@@ -144,72 +146,85 @@ public final class EclipseUtils {
 
     /// ~
 
-    public static void openInEditor(Dependable dependee) throws PartInitException, JavaModelException {
+    public static void openInEditor(Dependable javaClassResource) {
 
-        String fullPath = DtanglerUtils.getAbsolutePath(dependee);
-        IProject project = getProjectForResource(toIfile(fullPath));
+        StringBuilder sourceFileAbsolutePath = new StringBuilder();
 
+        String javaClassResourceFullPath = DtanglerUtils.getAbsolutePath(javaClassResource, DependencyScope.CLASSES);
+        IProject project = getProjectForResource(toIfile(javaClassResourceFullPath));
+
+        // Compiled classes can be located at Maven 'target' folder or Eclipse default 'bin' folder, or etc.
         String binaryOutputLocation = getBinaryOutputLocation(project, false, false);
 
-        // class can be located at Maven 'target' folder or Eclipse default 'bin' folder, or etc.
-        if (fullPath.startsWith(binaryOutputLocation) && project.exists() && project.isOpen()) {
+        if (javaClassResourceFullPath.startsWith(binaryOutputLocation) && project.exists() && project.isOpen()) {
 
-            StringBuilder sourceFileAbsolutePath = new StringBuilder();
             String projectFullPath = project.getLocationURI().getPath();
             sourceFileAbsolutePath.append(projectFullPath);
 
             String projectSourcesLocation = getSourcesLocation(project, false);
             sourceFileAbsolutePath.append(projectSourcesLocation);
 
-            String classRelativePath = fullPath.substring(binaryOutputLocation.length());
-            String javaSourceRelativePath = classRelativePath.replaceAll(".class", ".java");
-            sourceFileAbsolutePath.append(javaSourceRelativePath);
+            String javaClassRelativePath = javaClassResourceFullPath.substring(binaryOutputLocation.length());
+            String javaResourceRelativePath = javaClassRelativePath.replaceAll(".class", ".java");
+            sourceFileAbsolutePath.append(javaResourceRelativePath);
             sourceFileAbsolutePath.toString();
 
             openInternalFileInAppropriateEditor(sourceFileAbsolutePath.toString());
         }
-
     }
 
-    public static void openInternalFileInAppropriateEditor(String fileAbsolutePath) throws PartInitException {
+    public static void openInternalFileInAppropriateEditor(String fileAbsolutePath) {
         openInternalFileInAppropriateEditor(toIfile(fileAbsolutePath));
     }
 
-    public static void openInternalFileInAppropriateEditor(IFile file) throws PartInitException {
-        IWorkbenchPage page = getActiveWorkbenchPage();
-        IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(file.getName());
-        page.openEditor(new FileEditorInput(file), desc.getId());
+    public static void openInternalFileInAppropriateEditor(IFile file) {
+        try {
+            IWorkbenchPage page = getActiveWorkbenchPage();
+            IEditorRegistry editorRegistry = page.getWorkbenchWindow().getWorkbench().getEditorRegistry();
+            IEditorDescriptor desc = editorRegistry.getDefaultEditor(file.getName());
+            page.openEditor(new FileEditorInput(file), desc.getId());
+        } catch (PartInitException e) {
+            LOG.error("Cannot open resource in editor: " + file.getFullPath(), e);
+        }
     }
 
-    public static void openExternalFileInAppropriateEditor(String fileAbsolutePath) throws PartInitException {
+    public static void openExternalFileInAppropriateEditor(String fileAbsolutePath) {
         openExternalFileInAppropriateEditor(toIfile(fileAbsolutePath));
     }
 
-    public static void openExternalFileInAppropriateEditor(IFile fileToOpen) throws PartInitException {
+    public static void openExternalFileInAppropriateEditor(IFile fileToOpen) {
+        try {
+            File file = fileToOpen.getFullPath().toFile();
 
-        File file = fileToOpen.getFullPath().toFile();
+            if (file.exists()) {
+                throw new IllegalArgumentException("File does not exists: " + file.getAbsolutePath());
+            }
+            if (!file.isFile()) {
+                throw new IllegalArgumentException("Is not a file: " + file.getAbsolutePath());
+            }
 
-        if (file.exists()) {
-            throw new IllegalArgumentException("File does not exists: " + file.getAbsolutePath());
+            IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
+            IWorkbenchPage page = getActiveWorkbenchPage();
+            IDE.openEditorOnFileStore(page, fileStore);
+
+        } catch (PartInitException e) {
+            LOG.error("Cannot open resource in editor: " + fileToOpen.getFullPath(), e);
         }
-        if (!file.isFile()) {
-            throw new IllegalArgumentException("Is not a file: " + file.getAbsolutePath());
-        }
-
-        IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
-        IWorkbenchPage page = getActiveWorkbenchPage();
-        IDE.openEditorOnFileStore(page, fileStore);
     }
 
-    public static void openExternalFileInDefaultTextEditor(String filePath) throws PartInitException {
-        File file = new File(filePath);
-        IFileStore fileOnLocalDisk = EFS.getLocalFileSystem().getStore(file.toURI());
-        FileStoreEditorInput editorInput = new FileStoreEditorInput(fileOnLocalDisk);
+    public static void openExternalFileInDefaultTextEditor(String filePath) {
+        try {
+            File file = new File(filePath);
+            IFileStore fileOnLocalDisk = EFS.getLocalFileSystem().getStore(file.toURI());
+            FileStoreEditorInput editorInput = new FileStoreEditorInput(fileOnLocalDisk);
 
-        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        IWorkbenchPage page = window.getActivePage();
+            IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+            IWorkbenchPage page = window.getActivePage();
 
-        page.openEditor(editorInput, EditorsUI.DEFAULT_TEXT_EDITOR_ID);
+            page.openEditor(editorInput, EditorsUI.DEFAULT_TEXT_EDITOR_ID);
+        } catch (PartInitException e) {
+            LOG.error("Cannot open resource in default text editor: " + filePath, e);
+        }
     }
 
     public static void revealInPackageExplorer(String fileAbsolutePath) {
@@ -238,6 +253,14 @@ public final class EclipseUtils {
         return getBinaryOutputLocation(openedProject, relativePath, includeProjectName);
     }
 
+    /**
+     * Gets the binaries location for given project
+     * 
+     * @param project
+     * @param relativePath
+     * @param includeProjectName
+     * @return
+     */
     public static String getBinaryOutputLocation(IProject project, boolean relativePath, boolean includeProjectName) {
         IJavaProject javaProject = JavaCore.create(project);
         if (javaProject != null && javaProject.exists()) {
@@ -248,7 +271,21 @@ public final class EclipseUtils {
         }
     }
 
-    public static String getSourcesLocation(IProject project, boolean includeProjectName) throws JavaModelException {
+    public static String getSourcesLocation(IProject project, boolean includeProjectName) {
+
+        String result = null;
+
+        try {
+            result = internalGetSourcesLocation(project, includeProjectName);
+        } catch (JavaModelException e) {
+            LOG.error("Cannot find sources location for Java project: " + project.getName(), e);
+        }
+
+        return result;
+    }
+
+    private static String internalGetSourcesLocation(IProject project, boolean includeProjectName)
+            throws JavaModelException {
         IJavaProject javaProject = JavaCore.create(project);
         if (javaProject != null && javaProject.exists()) {
             for (IClasspathEntry classPathEntry : javaProject.getRawClasspath()) {
@@ -284,7 +321,7 @@ public final class EclipseUtils {
         } catch (JavaModelException e) {
             String message = MessageFormat.format(
                     "Cannot retrieve binary output location for project ''{0}''", javaProject.getElementName());
-            LOGGER.error(message, e);
+            LOG.error(message, e);
             throw new DsmPluginException(message, e);
         }
         return result;

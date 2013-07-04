@@ -7,7 +7,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Display;
 
-import com.dsmviewer.dsmtable.DsmBodyLayerConfiguration;
+import com.dsmviewer.ui.dsmtable.DsmBodyLayerConfiguration;
 
 public final class UiHelper {
 

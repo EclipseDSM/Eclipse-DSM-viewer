@@ -29,8 +29,9 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 
 import com.dsmviewer.Activator;
-import com.dsmviewer.dsm.DependencyScope;
 import com.dsmviewer.dsm.DependencyMatrix;
+import com.dsmviewer.dsm.DependencyMatrixOrdering;
+import com.dsmviewer.dsm.DependencyScope;
 import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.views.DsmView;
 import com.dsmviewer.utils.CoreUtils;
@@ -106,7 +107,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
                     try {
                         monitor.subTask("Computing DS-Matrix for " + pathList.size() + " resource(s)");
-                        dsMatrix = computeDsMatrixFromBinaries(pathList, scope);
+                        dsMatrix = computeDsMatrixFromBinaries(pathList, scope, DependencyMatrixOrdering.NATURAL_ORDERING);
                         monitor.worked(2);
 
                     } catch (MissingArgumentsException e) {
@@ -154,25 +155,21 @@ public class DtanglerRunner implements IObjectActionDelegate {
     }
 
     public static synchronized DependencyMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList,
-            DependencyScope scope, boolean allowCycles) {
-        Arguments arguments = DtanglerArguments.build(getBinaryPathList(fullyQualifiedPathList),
-                scope.getDisplayName(), allowCycles);
-        return computeDsMatrix(arguments);
+            DependencyScope sourcesScope, DependencyScope resultDsmScope, DependencyMatrixOrdering ordering) {
+
+        List<String> binaryPathList = getBinaryPathList(fullyQualifiedPathList, sourcesScope);
+        String dsmScope = resultDsmScope.getDisplayName();
+        Arguments dtanglerArguments = DtanglerArguments.build(binaryPathList, dsmScope, false);
+
+        return computeDsMatrix(dtanglerArguments, ordering);
     }
 
-    public static synchronized DependencyMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList,
-            DependencyScope scope) {
-        Arguments arguments = DtanglerArguments.build(getBinaryPathList(fullyQualifiedPathList),
-                scope.getDisplayName(), false);
-        return computeDsMatrix(arguments);
-    }
-
-    private static List<String> getBinaryPathList(List<String> resourceFullyQualifiedNames) {
+    private static List<String> getBinaryPathList(List<String> resourceFullyQualifiedNames, DependencyScope scope) {
 
         List<String> result = new LinkedList<String>();
 
         for (String fullyQualifiedName : resourceFullyQualifiedNames) {
-            String binaryResourcePath = DtanglerUtils.getAbsolutePath(fullyQualifiedName);
+            String binaryResourcePath = DtanglerUtils.getAbsolutePath(fullyQualifiedName, scope);
             File resourceFile = new File(binaryResourcePath);
             if (resourceFile.isFile()) {
                 result.add(binaryResourcePath);
@@ -185,31 +182,22 @@ public class DtanglerRunner implements IObjectActionDelegate {
         return result;
     }
 
-    public static synchronized DependencyMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList, String scope) {
-        Arguments arguments = DtanglerArguments.build(fullyQualifiedPathList, scope, false);
-        return computeDsMatrix(arguments);
-    }
+//    public static synchronized DependencyMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList,
+//            String scope, DependencyMatrixOrdering ordering) {
+//        Arguments arguments = DtanglerArguments.build(fullyQualifiedPathList, scope, false);
+//        return computeDsMatrix(arguments, ordering);
+//    }
 
-    public static synchronized DependencyMatrix computeDsMatrixFromBinaries(List<String> pathList, DependencyScope scope,
-            boolean allowCycles) {
-        Arguments arguments = DtanglerArguments.build(pathList, scope.getDisplayName(), allowCycles);
-        return computeDsMatrix(arguments);
-    }
-
-    public static synchronized DependencyMatrix computeDsMatrixFromBinaries(List<String> pathList, DependencyScope scope) {
+    public static synchronized DependencyMatrix computeDsMatrixFromBinaries(List<String> pathList, DependencyScope scope
+            , DependencyMatrixOrdering ordering) {
         Arguments arguments = DtanglerArguments.build(pathList, scope.getDisplayName(), false);
-        return computeDsMatrix(arguments);
+        return computeDsMatrix(arguments, ordering);
     }
 
     public static synchronized DependencyMatrix computeDsMatrixFromBinaries(List<String> pathList, String scope,
-            boolean allowCycles) {
-        Arguments arguments = DtanglerArguments.build(pathList, scope, allowCycles);
-        return computeDsMatrix(arguments);
-    }
-
-    public static synchronized DependencyMatrix computeDsMatrixFromBinaries(List<String> pathList, String scope) {
+            DependencyMatrixOrdering ordering) {
         Arguments arguments = DtanglerArguments.build(pathList, scope, false);
-        return computeDsMatrix(arguments);
+        return computeDsMatrix(arguments, ordering);
     }
 
     /**
@@ -219,7 +207,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * @throws DtException when DTangler cannot process current request.
      * @throws MissingArgumentsException if the request parameters are incorrect.
      */
-    public static synchronized DependencyMatrix computeDsMatrix(Arguments arguments) {
+    public static synchronized DependencyMatrix computeDsMatrix(Arguments arguments, DependencyMatrixOrdering ordering) {
 
         DependencyMatrix dsMatrix = null;
 
@@ -234,7 +222,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             ConfigurableDependencyAnalyzer analyzer = new ConfigurableDependencyAnalyzer(arguments);
             AnalysisResult analysisResult = analyzer.analyze(dependencies);
 
-            dsMatrix = new DependencyMatrix(dependencyGraph, analysisResult);
+            dsMatrix = new DependencyMatrix(dependencyGraph, analysisResult, ordering);
 
         } catch (MissingArgumentsException e) {
             String message = "Wrong Dtangler arguments provided";

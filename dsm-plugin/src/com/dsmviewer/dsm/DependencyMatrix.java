@@ -9,10 +9,8 @@ import org.dtangler.core.dependencies.Dependable;
 import org.dtangler.core.dependencies.Dependency;
 import org.dtangler.core.dependencies.DependencyGraph;
 import org.dtangler.core.dependencies.Scope;
-import org.dtangler.core.dsm.Dsm;
 import org.dtangler.core.dsm.DsmCell;
 import org.dtangler.core.dsm.DsmRow;
-import org.dtangler.core.dsmengine.DsmEngine;
 
 import com.dsmviewer.utils.DtanglerUtils;
 
@@ -24,12 +22,19 @@ public class DependencyMatrix {
 
     private AnalysisResult analysisResult;
     private List<DsmRow> rows;
+    private DependencyGraph dependencyGraph;
+    private DependencyMatrixOrdering currentOrdering;
 
-    public DependencyMatrix(DependencyGraph dependencyGraph, AnalysisResult analysisResult) {
-        Dsm dsm = new DsmEngine(dependencyGraph).createDsm();
-        this.rows = DtanglerUtils.transposeValues(dsm).getRows();
+    public DependencyMatrix(DependencyGraph dependencyGraph, AnalysisResult analysisResult,
+            DependencyMatrixOrdering ordering) {
+        this.dependencyGraph = dependencyGraph;
+        this.rows = DtanglerUtils.buildDsmRowsUsingDtangler(dependencyGraph);
         this.analysisResult = analysisResult;
-        DtanglerUtils.quickSort(this);
+
+        // skip sorting if Dtangler default ordering is specified
+        if (ordering != DependencyMatrixOrdering.dtanglerDefaultOrdering()) {
+            sort(ordering);
+        }
     }
 
     public List<DsmRow> getRows() {
@@ -42,6 +47,10 @@ public class DependencyMatrix {
 
     public void setRow(int index, DsmRow row) {
         this.rows.set(index, row);
+    }
+
+    public void setRows(List<DsmRow> rows) {
+        this.rows = rows;
     }
 
     public int getRowIndex(String displayName) {
@@ -113,14 +122,6 @@ public class DependencyMatrix {
 
         rows.set(rowNum1, new DsmRow(dependee2, getRow(rowNum1).getCells()));
         rows.set(rowNum2, new DsmRow(dependee1, getRow(rowNum2).getCells()));
-
-//        DsmRow temp = getRow(rowNum2);
-//        setRow(rowNum2, getRow(rowNum1));
-//        setRow(rowNum1, temp);
-
-        // fix changes for cells which should not be moved
-//        replaceCells(rowNum2, rowNum1, rowNum2, rowNum2);
-//        replaceCells(rowNum1, rowNum2, rowNum1, rowNum1);
     }
 
     public boolean hasViolations(int i, int j) {
@@ -166,6 +167,27 @@ public class DependencyMatrix {
         }
     }
 
+    public DependencyGraph getDependencyGraph() {
+        return dependencyGraph;
+    }
+
+    public void sort(DependencyMatrixOrdering ordering) {
+        if (currentOrdering != ordering) {
+            this.currentOrdering = ordering;
+
+            switch (ordering) {
+            case BY_INSTABILITY:
+                setRows(DtanglerUtils.buildDsmRowsUsingDtangler(getDependencyGraph()));
+                break;
+            case NATURAL_ORDERING:
+                DtanglerUtils.sortDisplayNamesInNaturalOrder(this);
+                break;
+            default:
+                throw new IllegalArgumentException("Ordering '" + ordering + "' is not supported");
+            }
+        }
+    }
+
     @Override
     public String toString() {
         if (getSize() > 20) {
@@ -176,8 +198,9 @@ public class DependencyMatrix {
         } else {
             StringBuilder sb = new StringBuilder(getClass().getSimpleName());
             sb.append("\n");
+            List<String> displayNames = getDisplayNames();
             for (int i = 0; i < getSize(); i++) {
-                sb.append(getDisplayNames().get(i));
+                sb.append(displayNames.get(i));
                 sb.append(" ");
                 for (int j = 0; j < getSize(); j++) {
                     sb.append("| ");
@@ -189,4 +212,5 @@ public class DependencyMatrix {
             return sb.toString();
         }
     }
+
 }

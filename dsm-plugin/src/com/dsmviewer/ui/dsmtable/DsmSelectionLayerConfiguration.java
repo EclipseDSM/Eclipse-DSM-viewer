@@ -1,4 +1,4 @@
-package com.dsmviewer.dsmtable;
+package com.dsmviewer.ui.dsmtable;
 
 import org.eclipse.nebula.widgets.nattable.selection.config.DefaultSelectionStyleConfiguration;
 import org.eclipse.nebula.widgets.nattable.style.BorderStyle;

@@ -18,6 +18,28 @@ public enum DependencyScope {
         return displayName;
     }
 
+    public static DependencyScope getParentScope(DependencyScope scope) {
+        switch (scope) {
+        case CLASSES:
+            return PACKAGES;
+        case PACKAGES:
+            return null;
+        default:
+            throw new IllegalArgumentException("Scope " + scope + " is not supported");
+        }
+    }
+
+    public static DependencyScope getChildScope(DependencyScope scope) {
+        switch (scope) {
+        case CLASSES:
+            return null;
+        case PACKAGES:
+            return CLASSES;
+        default:
+            throw new IllegalArgumentException("Scope " + scope + " is not supported");
+        }
+    }
+
     public Image getDisplayIcon() {
         switch (ordinal()) {
         case 0:

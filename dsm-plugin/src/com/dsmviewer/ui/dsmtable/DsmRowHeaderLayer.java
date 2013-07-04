@@ -1,4 +1,4 @@
-package com.dsmviewer.dsmtable;
+package com.dsmviewer.ui.dsmtable;
 
 import org.eclipse.nebula.widgets.nattable.config.IConfigRegistry;
 import org.eclipse.nebula.widgets.nattable.grid.layer.RowHeaderLayer;
@@ -129,7 +129,7 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
     }
 
     private DependencyScope getDependencyScope(int rowIndex, int columnIndex) {
-        DependencyScope scope = rowHeaderDataProvider.getDsMatrix().getScope(rowIndex, columnIndex,
+        DependencyScope scope = rowHeaderDataProvider.getDependencyMatrix().getScope(rowIndex, columnIndex,
                 DependencyLocation.DEPENDEE);
         return scope;
     }
