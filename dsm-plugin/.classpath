@@ -4,7 +4,5 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" output="target/classes" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/dtangler-core.jar" sourcepath="lib/dtangler-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.nebula.widgets.nattable.core-0.9.0.jar" sourcepath="/home/dyaroslavtsev/git/NAT/0.9 sources"/>
-	<classpathentry exported="true" kind="lib" path="lib/org.apache.commons.lang-2.4.0.v20081016-1030.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
