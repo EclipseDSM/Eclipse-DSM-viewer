@@ -3,14 +3,12 @@ package com.dsmviewer.logging;
 /**
  * Logging levels sorted by importance (asc.):
  * 
- * <pre>
  * <ul>
  * <li>DEBUG.</li>
  * <li>INFO.</li>
  * <li>WARNING.</li>
  * <li>ERROR.</li>
  * </ul>
- * </pre>
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */

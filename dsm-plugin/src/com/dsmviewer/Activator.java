@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.Enumeration;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
@@ -163,6 +164,10 @@ public class Activator extends AbstractUIPlugin {
 //    public static ImageDescriptor getImageDescriptor(String path) {
 //        return imageDescriptorFromPlugin(PLUGIN_ID, path);
 //    }
+
+    public ILog getEclipseNativeLogger() {
+        return getLog();
+    }
 
     public static Logger getLogger(String className) {
         return loggerFactory.getLogger(className);

@@ -26,9 +26,11 @@ misrepresented as being the original software.
 
 import java.util.Comparator;
 
+/**
+ * Refactored NaturalOrderComparator implementation from Pierre-Luc Paour
+ */
 @SuppressWarnings("rawtypes")
-public class NaturalOrderComparator implements Comparator
-{
+public class NaturalOrderComparator implements Comparator {
     private static int compareRight(String a, String b) { //SUPPRESS CHECKSTYLE ReturnCount this code is easy-to-read
         int bias = 0;
         int ia = 0;
@@ -90,8 +92,7 @@ public class NaturalOrderComparator implements Comparator
                 if (ca == '0') {
                     nza++;
                 }
-                else {
-                    // only count consecutive zeroes
+                else { // only count consecutive zeroes
                     nza = 0;
                 }
 
@@ -102,8 +103,7 @@ public class NaturalOrderComparator implements Comparator
                 if (cb == '0') {
                     nzb++;
                 }
-                else {
-                    // only count consecutive zeroes
+                else { // only count consecutive zeroes
                     nzb = 0;
                 }
 

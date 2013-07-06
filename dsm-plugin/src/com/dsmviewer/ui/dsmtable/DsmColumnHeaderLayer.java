@@ -8,17 +8,11 @@ import org.eclipse.nebula.widgets.nattable.layer.AbstractLayerTransform;
 import org.eclipse.nebula.widgets.nattable.layer.DataLayer;
 import org.eclipse.nebula.widgets.nattable.layer.config.DefaultColumnHeaderLayerConfiguration;
 
-import com.dsmviewer.Activator;
-import com.dsmviewer.logging.Logger;
-
 /**
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */
 public class DsmColumnHeaderLayer extends AbstractLayerTransform {
-
-    @SuppressWarnings("unused")
-    private Logger logger = Activator.getLogger(DsmColumnHeaderLayer.class);
 
     private DataLayer columnDataLayer;
 

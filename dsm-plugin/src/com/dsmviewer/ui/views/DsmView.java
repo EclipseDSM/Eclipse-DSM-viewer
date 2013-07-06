@@ -31,7 +31,7 @@ import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.dsm.DependencyMatrixOrdering;
 import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.action.SortDependencyMatrixByInstabilityAction;
-import com.dsmviewer.ui.action.SortDependencyMatrixInNaturalAction;
+import com.dsmviewer.ui.action.SortDependencyMatrixInNaturalOrderingAction;
 import com.dsmviewer.ui.dsmtable.DsmTableController;
 
 /**
@@ -53,12 +53,12 @@ public class DsmView extends ViewPart {
 
     private Action sortByInstabilityAction;
 
-    private static DsmView viewInstance;
+    private static DsmView currentInstance;
 
     @Override
     public void createPartControl(final Composite parent) {
 
-        viewInstance = this;
+        currentInstance = this;
 
         dsmTableController = new DsmTableController(parent);
 
@@ -152,7 +152,7 @@ public class DsmView extends ViewPart {
     }
 
     private void fillLocalToolBar(IToolBarManager manager) {
-        sortInNaturalOrderingAction = new SortDependencyMatrixInNaturalAction(dsmTableController);
+        sortInNaturalOrderingAction = new SortDependencyMatrixInNaturalOrderingAction(dsmTableController);
         sortInNaturalOrderingAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
                 getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 
@@ -221,7 +221,7 @@ public class DsmView extends ViewPart {
         logger.info("Removing lifecycle listener from DSM view");
         getViewSite().getPage().removePartListener(lifeCycleListener);
 
-        viewInstance = null;
+        currentInstance = null;
     }
 
     public void showDsMatrix(DependencyMatrix dsMatrix) {
@@ -251,8 +251,8 @@ public class DsmView extends ViewPart {
         sortByInstabilityAction.setEnabled(enabled);
     }
 
-    public static DsmView getInstance() {
-        return viewInstance;
+    public static DsmView getCurrent() {
+        return currentInstance;
     }
 
 }

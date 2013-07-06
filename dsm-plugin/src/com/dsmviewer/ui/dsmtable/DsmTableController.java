@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.util.List;
 
 import org.eclipse.nebula.widgets.nattable.NatTable;
+import org.eclipse.nebula.widgets.nattable.coordinate.PositionCoordinate;
 import org.eclipse.nebula.widgets.nattable.grid.data.DefaultCornerDataProvider;
 import org.eclipse.nebula.widgets.nattable.grid.layer.ColumnHeaderSelectionListener;
 import org.eclipse.nebula.widgets.nattable.grid.layer.CornerLayer;
@@ -82,17 +83,26 @@ public class DsmTableController {
 
     private void configureListeners() {
 
-        // Select the row which is a dependee by selected cell
+        // Additionally select the row which is a dependee for selected cell
         bodyLayer.getSelectionLayer().addLayerListener(
                 new ColumnHeaderSelectionListener(columnHeaderLayer.getColHeaderLayer()) {
                     @Override
                     public void handleLayerEvent(ILayerEvent event) {
                         if (event instanceof CellSelectionEvent) {
                             CellSelectionEvent cellSelectionEvent = (CellSelectionEvent) event;
-                            if (cellSelectionEvent.getSelectionLayer().getSelectedCellPositions().length == 1) {
+                            PositionCoordinate[] selectedCellPositions
+                            = cellSelectionEvent.getSelectionLayer().getSelectedCellPositions();
+                            if (selectedCellPositions.length == 1) {
                                 int columnPosition = cellSelectionEvent.getColumnPosition();
-                                if (rowHeaderLayer.getAdditionallySelectedRowIndex() != columnPosition) {
-                                    rowHeaderLayer.setAdditionallySelectedRowIndex(columnPosition);
+                                PositionCoordinate selectedCellPosition = selectedCellPositions[0];
+                                int selectedCellColumnIndex = selectedCellPosition.columnPosition;
+                                int selectedCellRowIndex = selectedCellPositions[0].rowPosition;
+                                if (selectedCellColumnIndex == selectedCellRowIndex) {
+                                    rowHeaderLayer.setAdditionallySelectedRowIndex(-1);
+                                } else {
+                                    if (rowHeaderLayer.getAdditionallySelectedRowIndex() != columnPosition) {
+                                        rowHeaderLayer.setAdditionallySelectedRowIndex(columnPosition);
+                                    }
                                 }
                             } else {
                                 rowHeaderLayer.setAdditionallySelectedRowIndex(-1);

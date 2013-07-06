@@ -1,17 +1,17 @@
-package com.dsmviewer.exception;
+package com.dsmviewer;
 
 /**
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */
-public class DsmPluginException extends RuntimeException {
+public class PluginException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    public DsmPluginException(String message, Throwable e) {
+    public PluginException(String message, Throwable e) {
         super(message, e);
     }
 
-    public DsmPluginException(String message) {
+    public PluginException(String message) {
         super(message);
     }
 

@@ -17,6 +17,7 @@ import org.eclipse.ui.console.MessageConsoleStream;
 import com.dsmviewer.Activator;
 
 /**
+ * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */
 public class ConsoleStream {

@@ -46,7 +46,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
     private static final Logger LOGGER = Activator.getLogger(DtanglerRunner.class);
 
-    /** Current Eclipse Project/Package Explorer selection. */
+    /** Current Eclipse Project/Package Explorer selection. Volatile as it could be set from different threads */
     private volatile IStructuredSelection selection;
 
     private IWorkbenchPart activeWorkBechPart;
@@ -276,7 +276,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
         @Override
         public void run() {
-            DsmView.getInstance().showDsMatrix(dsMatrix);
+            DsmView.getCurrent().showDsMatrix(dsMatrix);
             String message = "\n" + (dsMatrix.getAnalysisResult().isValid() ? "Analysis result is valid."
                     : "Analysis result is not valid.");
             LOGGER.info("Dtangler analisys completed. "

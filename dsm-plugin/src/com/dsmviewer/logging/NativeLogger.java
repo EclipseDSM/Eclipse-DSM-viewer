@@ -9,9 +9,9 @@ import org.eclipse.core.runtime.Status;
 import com.dsmviewer.Activator;
 
 /**
- * This class is an adapter to Eclipse native logging. It adds a 'DEBUG' level and log messages formatting by pattern.
- * There are 2 modes for this adapter, between which you can switch using '-Ddsmviewer.debugMode' JVM property: 1. Debug
- * mode. 2. Production mode. Logger shows only logs with level higher or equal of 'INFO'
+ * Proxy for Eclipse native logging. It adds a 'DEBUG' level and log messages formatting by pattern. There are 2 modes
+ * for NativeLogger, between which you can switch using '-Ddsmviewer.debugMode' JVM property: 1. Debug mode. 2.
+ * Production mode, when Logger shows only logs with level higher or equal of 'INFO'
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */
@@ -19,14 +19,14 @@ public final class NativeLogger implements Logger {
 
     private static final String LOGGING_PATTERN = "[{0}][{1}]: {2}";
 
-    private final ILog logger = Activator.getInstance().getLog();
+    private final ILog eclipseNativeLogger = Activator.getInstance().getEclipseNativeLogger();
 
     private String className;
 
-    private boolean isDebugMode;
+    // Shows all logs by default
+    private int defaultIgnoreLevel = IStatus.INFO;
 
-    // Show all logs by default
-    private int ignoreLevel = IStatus.INFO;
+    private boolean isDebugMode;
 
     private NativeLogger() {
     }
@@ -49,43 +49,43 @@ public final class NativeLogger implements Logger {
         return new NativeLogger(clazz, isDebugMode);
     }
 
-    // Hack to support 'debug' level which doesn`t supported at all by Eclipse native logging 
+    // Hack to support the 'debug' level which doesn`t supported by Eclipse native logger
     @Override
     public synchronized void debug(String message) {
-        if (IStatus.INFO >= ignoreLevel) {
+        if (IStatus.INFO >= defaultIgnoreLevel) {
             if (isDebugMode) {
                 String formattedMessage = formatMsg("DEBUG", message);
-                logger.log(buildMessage(IStatus.INFO, formattedMessage));
+                eclipseNativeLogger.log(buildMessage(IStatus.INFO, formattedMessage));
             } else {
-                logger.log(buildMessage(IStatus.INFO, message));
+                eclipseNativeLogger.log(buildMessage(IStatus.INFO, message));
             }
         }
     }
 
     @Override
     public synchronized void info(String message) {
-        if (IStatus.INFO >= ignoreLevel) {
+        if (IStatus.INFO >= defaultIgnoreLevel) {
             log(IStatus.INFO, message);
         }
     }
 
     @Override
     public synchronized void warn(String message) {
-        if (IStatus.WARNING >= ignoreLevel) {
+        if (IStatus.WARNING >= defaultIgnoreLevel) {
             log(IStatus.WARNING, message);
         }
     }
 
     @Override
     public synchronized void warn(String message, Throwable e) {
-        if (IStatus.WARNING >= ignoreLevel) {
+        if (IStatus.WARNING >= defaultIgnoreLevel) {
             log(IStatus.WARNING, message, e);
         }
     }
 
     @Override
     public synchronized void error(String message, Throwable e) {
-        if (IStatus.ERROR >= ignoreLevel) {
+        if (IStatus.ERROR >= defaultIgnoreLevel) {
             log(IStatus.ERROR, message, e);
         }
     }
@@ -98,9 +98,9 @@ public final class NativeLogger implements Logger {
     private void log(int status, String message) {
         if (isDebugMode) {
             String formattedMessage = formatMsg(status, message);
-            logger.log(buildMessage(status, formattedMessage));
+            eclipseNativeLogger.log(buildMessage(status, formattedMessage));
         } else {
-            logger.log(buildMessage(status, message));
+            eclipseNativeLogger.log(buildMessage(status, message));
         }
     }
 
@@ -136,11 +136,11 @@ public final class NativeLogger implements Logger {
     }
 
     public int getIgnoreLevel() {
-        return ignoreLevel;
+        return defaultIgnoreLevel;
     }
 
     public void setIgnoreLevel(int ignoreLevel) {
-        this.ignoreLevel = ignoreLevel;
+        this.defaultIgnoreLevel = ignoreLevel;
     }
 
 }

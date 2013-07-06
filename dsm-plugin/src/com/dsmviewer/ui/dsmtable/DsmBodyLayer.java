@@ -38,10 +38,10 @@ public class DsmBodyLayer extends AbstractLayerTransform {
         };
     };
 
-    private static final TextPainter NON_VALID_CELL_PAINTER = new TextPainter() {
+    private static final TextPainter INVALID_CELL_PAINTER = new TextPainter() {
         @Override
         protected Color getBackgroundColour(ILayerCell cell, IConfigRegistry configRegistry) {
-            return UiHelper.COLOR_DSM_NON_VALID_CELL_BG;
+            return UiHelper.COLOR_DSM_INVALID_CELL_BG;
         };
     };
 
@@ -91,7 +91,7 @@ public class DsmBodyLayer extends AbstractLayerTransform {
         if (columnIndex == rowIndex) {
             return MAIN_DIAGONAL_CELL_PAINTER;
         } else if (getDependencyMatrix().hasViolations(rowIndex, columnIndex)) {
-            return NON_VALID_CELL_PAINTER;
+            return INVALID_CELL_PAINTER;
         } else {
             return super.getCellPainter(colPosition, rowPosition, cell, confRegistry);
         }

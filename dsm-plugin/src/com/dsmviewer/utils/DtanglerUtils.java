@@ -19,6 +19,10 @@ import org.dtangler.core.textui.Writer;
 import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.dsm.DependencyScope;
 
+/**
+ * 
+ * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
+ */
 public final class DtanglerUtils {
 
     private static final NaturalOrderComparator NATURAL_ORDER_COMPARATOR = new NaturalOrderComparator();

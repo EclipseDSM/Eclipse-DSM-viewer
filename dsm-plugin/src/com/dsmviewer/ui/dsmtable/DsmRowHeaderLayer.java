@@ -14,10 +14,8 @@ import org.eclipse.nebula.widgets.nattable.painter.cell.decorator.LineBorderDeco
 import org.eclipse.nebula.widgets.nattable.ui.util.CellEdgeEnum;
 import org.eclipse.swt.graphics.Color;
 
-import com.dsmviewer.Activator;
 import com.dsmviewer.dsm.DependencyLocation;
 import com.dsmviewer.dsm.DependencyScope;
-import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.UiHelper;
 
 /**
@@ -25,9 +23,6 @@ import com.dsmviewer.ui.UiHelper;
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */
 public class DsmRowHeaderLayer extends AbstractLayerTransform {
-
-    @SuppressWarnings("unused")
-    private final Logger logger = Activator.getLogger(getClass());
 
     private static final TextPainter ADDITIONAL_SELECTED_ROW_BG_PAINTER = new TextPainter() {
         @Override
@@ -99,8 +94,8 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
     public ICellPainter getCellPainter(int columnPosition, int rowPosition, ILayerCell cell,
             IConfigRegistry configRegistry) {
 
-        int rowIndex = cell.getRowIndex();
-        int columnIndex = cell.getColumnIndex();
+        final int rowIndex = cell.getRowIndex();
+        final int columnIndex = cell.getColumnIndex();
 
         ICellPainter textWithBgPainter;
         if (rowIndex == additionallySelectedRowIndex) {
@@ -109,9 +104,10 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
             textWithBgPainter = super.getCellPainter(columnPosition, rowPosition, cell, configRegistry);
         }
 
-        DependencyScope scope = getDependencyScope(rowIndex, columnIndex);
+        DependencyScope scope = rowHeaderDataProvider.getDependencyMatrix().getScope(rowIndex, columnIndex,
+                DependencyLocation.DEPENDEE);
 
-        ICellPainter painter = new LineBorderDecorator(
+        return new LineBorderDecorator(
                 new CellPainterDecorator(textWithBgPainter, CellEdgeEnum.LEFT,
                         new ImagePainter(scope.getDisplayIcon()) {
                             @Override
@@ -122,16 +118,7 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
                                     return super.getBackgroundColour(cell, configRegistry);
                                 }
                             }
-                        })
-                );
-
-        return painter;
-    }
-
-    private DependencyScope getDependencyScope(int rowIndex, int columnIndex) {
-        DependencyScope scope = rowHeaderDataProvider.getDependencyMatrix().getScope(rowIndex, columnIndex,
-                DependencyLocation.DEPENDEE);
-        return scope;
+                        }));
     }
 
 }

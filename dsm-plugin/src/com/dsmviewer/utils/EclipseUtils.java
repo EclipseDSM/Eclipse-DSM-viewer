@@ -11,12 +11,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -40,8 +37,8 @@ import org.eclipse.ui.navigator.resources.ProjectExplorer;
 import org.eclipse.ui.part.FileEditorInput;
 
 import com.dsmviewer.Activator;
+import com.dsmviewer.PluginException;
 import com.dsmviewer.dsm.DependencyScope;
-import com.dsmviewer.exception.DsmPluginException;
 import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.views.DsmView;
 
@@ -53,107 +50,16 @@ public final class EclipseUtils {
 
     private static final Logger LOG = Activator.getLogger(EclipseUtils.class);
 
-    private EclipseUtils() {
-    }
-
-    /**
-     * Gets the full path of the given Eclipse Project Explorer resource (Project/File/Folder, etc).
-     * 
-     * @param resource - the resource.
-     * @return the full path of the given resource.
-     */
-    public static String getFullPath(IResource resource) {
-        return resource.getLocationURI().getPath().toString();
-    }
-
-    /// Conversion
-
-    public static IFile toIfile(String fileAbsolutePath) {
-        return getWorkspaceRoot().getFileForLocation(new Path(fileAbsolutePath));
-    }
-
-    ///~
-
-    /// Get Eclipse resources
-    private static IWorkbenchPage getActiveWorkbenchPage() {
-        return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-    }
-
-    private static IWorkspaceRoot getWorkspaceRoot() {
-        return ResourcesPlugin.getWorkspace().getRoot();
-    }
-
-    public static IViewPart getView(String id) {
-        IViewReference[] viewReferences =
-                getActiveWorkbenchPage().getViewReferences();
-        for (int i = 0; i < viewReferences.length; i++) {
-            if (id.equals(viewReferences[i].getId())) {
-                return viewReferences[i].getView(false);
-            }
-        }
-        return null;
-    }
-
-//    public static IType getTypeFromOpenedJavaProject(String javaProjectName, String resourceName) {
-//        IProject project = getWorkspaceProject(javaProjectName);
-//        if (project == null) {
-//            return null;
-//        } else {
-//            IJavaProject javaProject = JavaCore.create(project);
-//            return getType(javaProject, resourceName);
-//        }
-//    }
-//
-//    public static IType getType(IJavaProject project, String resourceName) {
-//        IType result = null;
-//        if (project != null && resourceName != null && project.exists() && project.isOpen()) {
-//            try {
-//                result = project.findType(resourceName);
-//            } catch (JavaModelException e) {
-//                String message = MessageFormat.format(
-//                        "Cannot retrieve type ''{0}'' for project ''{1}''", resourceName, project.getElementName());
-//                throw new DsmPluginException(message, e);
-//            }
-//        }
-//        return result;
-//    }
-
-    public static IProject getProjectForResource(IResource resource) {
-        IProject project = resource.getProject();
-        if (project.exists() && project.isOpen()) {
-            return project;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Gets the project is currently present in workspace (in opened/closed state) by it`s short name.
-     * 
-     * @param name
-     * @return
-     * @throws CoreException
-     */
-    public static IProject getWorkspaceProject(String name) {
-        IProject project = getWorkspaceRoot().getProject(name);
-        if (project.exists()) {
-            return project;
-        }
-        else {
-            return null;
-        }
-    }
-
     /// ~
 
-    public static void openInEditor(Dependable javaClassResource) {
+    public static void openInEditor(Dependable javaResource) {
 
         StringBuilder sourceFileAbsolutePath = new StringBuilder();
 
-        String javaClassResourceFullPath = DtanglerUtils.getAbsolutePath(javaClassResource, DependencyScope.CLASSES);
+        String javaClassResourceFullPath = DtanglerUtils.getAbsolutePath(javaResource, DependencyScope.CLASSES);
         IProject project = getProjectForResource(toIfile(javaClassResourceFullPath));
 
-        // Compiled classes can be located at Maven 'target' folder or Eclipse default 'bin' folder, or etc.
+        // Compiled classes can be located anywhere (Maven 'target' folder, Eclipse default 'bin' folder, etc)
         String binaryOutputLocation = getBinaryOutputLocation(project, false, false);
 
         if (javaClassResourceFullPath.startsWith(binaryOutputLocation) && project.exists() && project.isOpen()) {
@@ -227,6 +133,73 @@ public final class EclipseUtils {
         }
     }
 
+    private EclipseUtils() {
+    }
+
+    /**
+     * Gets the full path of the given Eclipse Project Explorer resource (Project/File/Folder, etc).
+     * 
+     * @param resource - the resource.
+     * @return the full path of the given resource.
+     */
+    public static String getFullPath(IResource resource) {
+        return resource.getLocationURI().getPath().toString();
+    }
+
+    /// Conversion
+
+    public static IFile toIfile(String fileAbsolutePath) {
+        return getWorkspaceRoot().getFileForLocation(new Path(fileAbsolutePath));
+    }
+
+    ///~
+
+    /// Get Eclipse resources
+    private static IWorkbenchPage getActiveWorkbenchPage() {
+        return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+    }
+
+    private static IWorkspaceRoot getWorkspaceRoot() {
+        return ResourcesPlugin.getWorkspace().getRoot();
+    }
+
+    public static IViewPart getView(String id) {
+        IViewReference[] viewReferences =
+                getActiveWorkbenchPage().getViewReferences();
+        for (int i = 0; i < viewReferences.length; i++) {
+            if (id.equals(viewReferences[i].getId())) {
+                return viewReferences[i].getView(false);
+            }
+        }
+        return null;
+    }
+
+    public static IProject getProjectForResource(IResource resource) {
+        IProject project = resource.getProject();
+        if (project.exists() && project.isOpen()) {
+            return project;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Gets the project is currently present in workspace (in opened/closed state) by it`s short name.
+     * 
+     * @param name
+     * @return
+     * @throws CoreException
+     */
+    public static IProject getWorkspaceProject(String name) {
+        IProject project = getWorkspaceRoot().getProject(name);
+        if (project.exists()) {
+            return project;
+        }
+        else {
+            return null;
+        }
+    }
+
     public static void revealInPackageExplorer(String fileAbsolutePath) {
         revealInPackageExplorer(new Path(fileAbsolutePath));
     }
@@ -254,43 +227,36 @@ public final class EclipseUtils {
     }
 
     /**
-     * Gets the binaries location for given project
-     * 
-     * @param project
-     * @param relativePath
-     * @param includeProjectName
-     * @return
+     * Gets the binaries output location for given project
      */
     public static String getBinaryOutputLocation(IProject project, boolean relativePath, boolean includeProjectName) {
         IJavaProject javaProject = JavaCore.create(project);
-        if (javaProject != null && javaProject.exists()) {
-            String result = getBinaryOutputLocation(javaProject, relativePath, includeProjectName);
-            return result;
+        if (javaProject.exists()) {
+            return getBinaryOutputLocation(javaProject, relativePath, includeProjectName);
         } else {
-            return null;
+            LOG.debug("Cannot find binaries output location for Java project: " + project.getName());
         }
+        return null;
     }
 
+    /**
+     * Gets the sources location for given project
+     */
     public static String getSourcesLocation(IProject project, boolean includeProjectName) {
-
-        String result = null;
-
         try {
-            result = internalGetSourcesLocation(project, includeProjectName);
+            return internalGetSourcesLocation(project, includeProjectName);
         } catch (JavaModelException e) {
             LOG.error("Cannot find sources location for Java project: " + project.getName(), e);
         }
-
-        return result;
+        return null;
     }
 
     private static String internalGetSourcesLocation(IProject project, boolean includeProjectName)
             throws JavaModelException {
         IJavaProject javaProject = JavaCore.create(project);
-        if (javaProject != null && javaProject.exists()) {
+        if (javaProject.exists()) {
             for (IClasspathEntry classPathEntry : javaProject.getRawClasspath()) {
                 if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-
                     String sourcesLocation = classPathEntry.getPath().toOSString();
                     if (includeProjectName) {
                         return sourcesLocation;
@@ -300,59 +266,34 @@ public final class EclipseUtils {
                     }
                 }
             }
-            return null;
-        } else {
-            return null;
         }
+        return null;
     }
 
     public static String getBinaryOutputLocation(IJavaProject javaProject, boolean relativePath,
             boolean includeProjectName) {
-        String result;
+
+        String result = null;
+
         try {
             result = javaProject.getOutputLocation().toOSString();
             if (!includeProjectName) {
-                String prefix = "/" + javaProject.getElementName();
-                result = result.replaceFirst(prefix, "");
+                result = result.replaceFirst(File.separator + javaProject.getElementName(), "");
             }
             if (!relativePath) {
-                result = javaProject.getCorrespondingResource().getLocationURI().getRawPath() + result;
+                result = javaProject.getCorrespondingResource().getLocationURI().getRawPath().concat(result);
             }
         } catch (JavaModelException e) {
             String message = MessageFormat.format(
                     "Cannot retrieve binary output location for project ''{0}''", javaProject.getElementName());
             LOG.error(message, e);
-            throw new DsmPluginException(message, e);
+            throw new PluginException(message, e);
         }
+
         return result;
     }
 
-    /// Build projects
-
-    /**
-     * Builds the project (using INCREMENTAL_BUILD) without progress showing
-     * 
-     * @param project
-     * @throws CoreException
-     */
-    public static void buildProject(IProject project) throws CoreException {
-        buildProject(project, new NullProgressMonitor());
-    }
-
-    /**
-     * Builds the project (using INCREMENTAL_BUILD)
-     * 
-     * @param project
-     * @param progressMonitor
-     * @throws CoreException
-     */
-    public static void buildProject(IProject project, IProgressMonitor progressMonitor) throws CoreException {
-        project.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, progressMonitor);
-    }
-
-    /// ~
-
-//    public static void visitAllChildResources(IProject project) {
+//    public static void visitAllResources(IProject project) {
 //        try {
 //            project.accept(new IResourceVisitor() {
 //                @Override

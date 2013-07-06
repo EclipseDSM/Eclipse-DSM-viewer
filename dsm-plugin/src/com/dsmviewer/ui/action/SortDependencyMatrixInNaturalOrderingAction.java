@@ -7,20 +7,20 @@ import com.dsmviewer.ui.dsmtable.DsmTableController;
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */
-public class SortDependencyMatrixByInstabilityAction extends AbstractSortDependencyMatrixAction {
+public class SortDependencyMatrixInNaturalOrderingAction extends AbstractSortDependencyMatrixAction {
 
-    public SortDependencyMatrixByInstabilityAction(DsmTableController dsmTableController) {
+    public SortDependencyMatrixInNaturalOrderingAction(DsmTableController dsmTableController) {
         super(dsmTableController);
     }
 
     @Override
     public DependencyMatrixOrdering getDependencyMatrixOrdering() {
-        return DependencyMatrixOrdering.BY_INSTABILITY;
+        return DependencyMatrixOrdering.NATURAL_ORDERING;
     }
 
     @Override
     public String getToolTipText() {
-        return "Sort by instability index";
+        return "Sort in natural ordering";
     }
 
 }

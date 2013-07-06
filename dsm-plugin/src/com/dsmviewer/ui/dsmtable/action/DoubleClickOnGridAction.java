@@ -25,7 +25,6 @@ import com.dsmviewer.ui.views.DsmView;
  */
 public class DoubleClickOnGridAction implements IMouseAction {
 
-    @SuppressWarnings("unused")
     private final Logger logger = Activator.getLogger(getClass());
 
     @Override
@@ -39,7 +38,7 @@ public class DoubleClickOnGridAction implements IMouseAction {
         DependencyMatrix dsm = bodyLayer.getDependencyMatrix();
         DsmCell cellUnderCursor = dsm.getCell(rowIndex, columnIndex);
 
-        logger.info("DoubleClick. Source: " + event.getSource()
+        logger.debug("Source: " + event.getSource()
                 + ". Coordinates: " + event.x + " | " + event.y + ". Mouse button : " + event.button + "\n"
                 + "On Layer: " + bodyLayer
                 + "\n" + "Column position: " + columnIndex
@@ -52,16 +51,17 @@ public class DoubleClickOnGridAction implements IMouseAction {
         Dependable dependee = cellUnderCursor.getDependency().getDependee();
 
         // if we clicked at 'package scope' matrix cell (dependency package --> package):
-        if (dependant.getScope().getDisplayName().equals(DependencyScope.PACKAGES.getDisplayName())
-                && dependant.getScope() == dependee.getScope()) {
+        if (DependencyScope.PACKAGES.equals(dependant.getScope()) && dependant.getScope() == dependee.getScope()) {
 
             List<String> pathList = new LinkedList<String>();
             pathList.add(dependant.getFullyQualifiedName());
             pathList.add(dependee.getFullyQualifiedName());
+
             DependencyMatrix dsMatrix = DtanglerRunner.computeDsMatrixFromSources(pathList,
                     DependencyScope.PACKAGES, DependencyScope.CLASSES,
-                    DependencyMatrixOrdering.NATURAL_ORDERING);
-            DsmView.getInstance().showDsMatrix(dsMatrix);
+                    DependencyMatrixOrdering.getPluginDefaultOrdering());
+
+            DsmView.getCurrent().showDsMatrix(dsMatrix);
         }
     }
 

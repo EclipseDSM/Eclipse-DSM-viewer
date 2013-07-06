@@ -38,7 +38,6 @@ public class DsmBodyLayerConfiguration extends AbstractRegistryConfiguration {
 
     private final Color bgColor = UiHelper.COLOR_DSM_CELL_BG;
     private final Color fgColor = UiHelper.COLOR_DSM_CELL_FG;
-    // TODO: Check why I cannot see the gradients!
     private final Color gradientBgColor = GUIHelper.COLOR_WHITE;
     private final Color gradientFgColor = GUIHelper.getColor(136, 212, 215);
     private final Font font = UiHelper.getSystemFont(FONT_SIZE);
@@ -50,7 +49,6 @@ public class DsmBodyLayerConfiguration extends AbstractRegistryConfiguration {
 
     @Override
     public void configureLayer(ILayer layer) {
-
     }
 
     @Override

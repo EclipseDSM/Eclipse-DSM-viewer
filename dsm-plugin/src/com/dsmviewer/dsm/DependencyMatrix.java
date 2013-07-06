@@ -32,7 +32,7 @@ public class DependencyMatrix {
         this.analysisResult = analysisResult;
 
         // skip sorting if Dtangler default ordering is specified
-        if (ordering != DependencyMatrixOrdering.dtanglerDefaultOrdering()) {
+        if (ordering != DependencyMatrixOrdering.getDtanglerDefaultOrdering()) {
             sort(ordering);
         }
     }

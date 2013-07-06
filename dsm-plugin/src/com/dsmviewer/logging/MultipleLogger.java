@@ -3,6 +3,10 @@ package com.dsmviewer.logging;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 
+ * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
+ */
 public class MultipleLogger implements Logger {
 
     private volatile List<Logger> loggers;
