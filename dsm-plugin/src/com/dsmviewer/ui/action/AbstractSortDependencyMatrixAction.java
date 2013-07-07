@@ -25,7 +25,7 @@ public abstract class AbstractSortDependencyMatrixAction extends Action {
         DependencyMatrix dependencyMatrix = dsmTableController.getDependencyMatrix();
         if (dependencyMatrix != null) {
             dependencyMatrix.sort(getDependencyMatrixOrdering());
-            dsmTableController.setDependencyMatrix(dependencyMatrix, true);
+            dsmTableController.setDependencyMatrix(dependencyMatrix, false, false);
         }
     }
 

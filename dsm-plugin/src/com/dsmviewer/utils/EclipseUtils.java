@@ -25,6 +25,7 @@ import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -40,7 +41,7 @@ import com.dsmviewer.Activator;
 import com.dsmviewer.PluginException;
 import com.dsmviewer.dsm.DependencyScope;
 import com.dsmviewer.logging.Logger;
-import com.dsmviewer.ui.views.DsmView;
+import com.dsmviewer.ui.DsmView;
 
 /**
  * 
@@ -212,6 +213,27 @@ public final class EclipseUtils {
 
     public static void revealInPackageExplorer(ISelection selection) {
         ((ProjectExplorer) getView(ProjectExplorer.VIEW_ID)).selectReveal(selection);
+    }
+
+    public static void showDsmView() {
+        IWorkbench workbench = PlatformUI.getWorkbench();
+        IWorkbenchWindow workbenchWindow = workbench.getActiveWorkbenchWindow();
+        IWorkbenchPage activeWorkbenchPage = workbenchWindow.getActivePage();
+        try {
+            // open view in background
+            activeWorkbenchPage.showView(DsmView.ID);
+        } catch (PartInitException e) {
+            LOG.error("Cannot show Dsm View (id=" + DsmView.ID + ")", e);
+        }
+        // and ensure that it is bringed on top
+        activeWorkbenchPage.activate(DsmView.getCurrent());
+        DsmView.getCurrent().setFocus();
+    }
+
+    public static void hideDsmView() {
+        IWorkbench workbench = PlatformUI.getWorkbench();
+        IWorkbenchWindow workbenchWindow = workbench.getActiveWorkbenchWindow();
+        workbenchWindow.getActivePage().hideView(getView(DsmView.ID));
     }
 
     public static void showDsmView(IWorkbenchPart workbenchPart) throws PartInitException {

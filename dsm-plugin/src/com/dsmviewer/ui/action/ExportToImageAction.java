@@ -16,12 +16,11 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchPage;
 
 import com.dsmviewer.Activator;
 import com.dsmviewer.logging.Logger;
+import com.dsmviewer.ui.DsmView;
 import com.dsmviewer.ui.dsmtable.DsmTableController;
-import com.dsmviewer.ui.views.DsmView;
 
 public class ExportToImageAction extends Action {
 
@@ -48,15 +47,11 @@ public class ExportToImageAction extends Action {
             NatTable table = dsmTableController.getTable();
             Point tableSize = dsmTableController.getDsmTableBounds();
 
-            DsmView.getCurrent().setState(IWorkbenchPage.STATE_MAXIMIZED);
-
             GC gc = new GC(table);
             Display display = shell.getDisplay();
             final Image image = new Image(display, tableSize.x, tableSize.y);
             gc.copyArea(image, 0, 0);
             gc.dispose();
-
-            DsmView.getCurrent().setState(IWorkbenchPage.STATE_RESTORED);
 
             ImageLoader loader = new ImageLoader();
             loader.data = new ImageData[] { image.getImageData() };

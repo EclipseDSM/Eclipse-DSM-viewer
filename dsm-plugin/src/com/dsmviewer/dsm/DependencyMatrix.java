@@ -213,8 +213,52 @@ public class DependencyMatrix {
         }
     }
 
-    public DependencyMatrixOrdering getCurrentOrdering() {
+    public DependencyMatrixOrdering getOrdering() {
         return currentOrdering;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((analysisResult == null) ? 0 : analysisResult.hashCode());
+        result = prime * result + ((currentOrdering == null) ? 0 : currentOrdering.hashCode());
+        result = prime * result + ((dependencyGraph == null) ? 0 : dependencyGraph.hashCode());
+        result = prime * result + ((rows == null) ? 0 : rows.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        DependencyMatrix other = (DependencyMatrix) obj;
+        if (analysisResult == null) {
+            if (other.analysisResult != null) {
+                return false;
+            }
+        } else if (!analysisResult.getAllViolations().equals(other.analysisResult.getAllViolations())) {
+            return false;
+        }
+        if (currentOrdering != other.currentOrdering) {
+            return false;
+        }
+        if (dependencyGraph == null) {
+            if (other.dependencyGraph != null) {
+                return false;
+            }
+        } else if (!dependencyGraph.getAllItems().equals(other.dependencyGraph.getAllItems())) {
+            return false;
+        }
+        return true;
+    }
+
 
 }

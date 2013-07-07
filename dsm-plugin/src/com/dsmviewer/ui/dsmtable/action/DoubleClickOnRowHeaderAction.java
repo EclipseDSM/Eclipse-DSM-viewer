@@ -16,8 +16,8 @@ import com.dsmviewer.dsm.DependencyMatrixOrdering;
 import com.dsmviewer.dsm.DependencyScope;
 import com.dsmviewer.dtangler.DtanglerRunner;
 import com.dsmviewer.logging.Logger;
+import com.dsmviewer.ui.DsmView;
 import com.dsmviewer.ui.dsmtable.DsmBodyLayer;
-import com.dsmviewer.ui.views.DsmView;
 import com.dsmviewer.utils.EclipseUtils;
 
 /**
@@ -50,7 +50,7 @@ public class DoubleClickOnRowHeaderAction implements IMouseAction {
                     DependencyScope.PACKAGES, DependencyScope.CLASSES,
                     DependencyMatrixOrdering.NATURAL_ORDERING);
 
-            DsmView.getCurrent().showDsMatrix(dsMatrix);
+            DsmView.getCurrent().showDsMatrix(dsMatrix, false, false, true);
 
         } else if (DependencyScope.CLASSES.equals(dependee.getScope())) {
             // if doubleclicked cell has a 'class' scope - open appropriate source file in Project Explorer

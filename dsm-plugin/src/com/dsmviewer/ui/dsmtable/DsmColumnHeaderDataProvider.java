@@ -12,23 +12,23 @@ public class DsmColumnHeaderDataProvider implements IDataProvider {
 
     private DependencyMatrix dependencyMatrix;
 
-    public DsmColumnHeaderDataProvider(DependencyMatrix dsMatrix) {
-        this.dependencyMatrix = dsMatrix;
+    public DsmColumnHeaderDataProvider(DependencyMatrix dependencyMatrix) {
+        this.dependencyMatrix = dependencyMatrix;
     }
 
     @Override
     public int getColumnCount() {
-        return dependencyMatrix == null ? 0 : dependencyMatrix.getSize();
+        return dependencyMatrix.getSize();
     }
 
     @Override
     public Object getDataValue(int column, int row) {
-        return dependencyMatrix == null ? "" : Integer.toString(column + 1);
+        return Integer.toString(column + 1);
     }
 
     @Override
     public int getRowCount() {
-        return dependencyMatrix == null ? 0 : 1;
+        return 1;
     }
 
     @Override

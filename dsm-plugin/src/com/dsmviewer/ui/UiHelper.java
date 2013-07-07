@@ -47,6 +47,8 @@ public final class UiHelper extends GUIHelper {
     public static final Color LOG_COLOR_WARN = getColor(232, 174, 91); // orange
     public static final Color LOG_COLOR_ERROR = getSystemColor(SWT.COLOR_RED);
 
+    public static final int DSM_CELL_SIZE_DEFAULT = 21;
+
     public static final int DEFAULT_FONT_SIZE = 9;
     public static final Font FONT_BOLD_ARIAL = new Font(Display.getCurrent(), "Arial", 8, SWT.BOLD);
     public static final int DEFAULT_FONT_HEIGHT = DsmBodyLayerConfiguration.FONT_SIZE;

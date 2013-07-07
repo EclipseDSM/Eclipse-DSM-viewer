@@ -12,8 +12,8 @@
             name="DsmView"
             icon="icons/dsm-view-favicon.png"
             category="eclipse-dsm-plugin"
-            class="com.dsmviewer.ui.views.DsmView"
-            id="com.dsmviewer.ui.views.DsmView">
+            class="com.dsmviewer.ui.DsmView"
+            id="com.dsmviewer.ui.DsmView">
       </view>
    </extension>
    <extension
@@ -24,7 +24,7 @@
                ratio="0.5"
                relative="org.eclipse.ui.views.TaskList"
                relationship="right"
-               id="com.dsmviewer.ui.views.DsmView">
+               id="com.dsmviewer.ui.DsmView">
          </view>
       </perspectiveExtension>
    </extension>
@@ -39,7 +39,7 @@
          point="org.eclipse.ui.viewActions">
       <viewContribution
             id="Eclipse-DSM-viewer.DsmView"
-            targetID="com.dsmviewer.ui.views.DsmView">
+            targetID="com.dsmviewer.ui.DsmView">
       </viewContribution>
    </extension>
    <extension

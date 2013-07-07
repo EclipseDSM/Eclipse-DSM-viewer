@@ -1,4 +1,4 @@
-package com.dsmviewer.ui.views;
+package com.dsmviewer.ui;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
@@ -21,6 +21,7 @@ import com.dsmviewer.ui.action.SortDependencyMatrixInNaturalOrderingAction;
 import com.dsmviewer.ui.action.StepBackwardAction;
 import com.dsmviewer.ui.action.StepForwardAction;
 import com.dsmviewer.ui.dsmtable.DsmTableController;
+import com.dsmviewer.utils.EclipseUtils;
 
 /**
  * 
@@ -31,7 +32,7 @@ public class DsmView extends ViewPart {
 
     private final Logger logger = Activator.getLogger(DsmView.class);
 
-    public static final String ID = "com.dsmviewer.ui.views.DsmView";
+    public static final String ID = "com.dsmviewer.ui.DsmView";
 
     private DsmViewLyfeCycleListener lifeCycleListener;
 
@@ -44,7 +45,7 @@ public class DsmView extends ViewPart {
 
     private ExportToImageAction takeScreenshotAction;
 
-    private StepBackwardAction stepBackAction;
+    private StepBackwardAction stepBackWardAction;
     private StepForwardAction stepForwardAction;
 
     private IPropertyChangeListener sortByInstailityActionPropertyChangeListener = new IPropertyChangeListener() {
@@ -65,6 +66,10 @@ public class DsmView extends ViewPart {
         }
     };
 
+    public static DsmView getCurrent() {
+        return currentInstance;
+    }
+
     @Override
     public void createPartControl(final Composite parent) {
 
@@ -73,8 +78,6 @@ public class DsmView extends ViewPart {
         dsmTableController = new DsmTableController(parent);
 
         try {
-
-            dsmTableController.init(null);
 
             lifeCycleListener = new DsmViewLyfeCycleListener();
             getViewSite().getPage().addPartListener(lifeCycleListener);
@@ -125,7 +128,7 @@ public class DsmView extends ViewPart {
 
     private void fillLocalToolBar(IToolBarManager manager) {
 
-        stepBackAction = new StepBackwardAction();
+        stepBackWardAction = new StepBackwardAction();
         stepForwardAction = new StepForwardAction();
 
         sortInNaturalOrderingAction = new SortDependencyMatrixInNaturalOrderingAction(dsmTableController);
@@ -135,7 +138,7 @@ public class DsmView extends ViewPart {
 
         addPropertyChangeListeners();
 
-        manager.add(stepBackAction);
+        manager.add(stepBackWardAction);
         manager.add(stepForwardAction);
         manager.add(new Separator());
         manager.add(sortInNaturalOrderingAction);
@@ -144,6 +147,17 @@ public class DsmView extends ViewPart {
         manager.add(takeScreenshotAction);
 
         setActionsEnabled(false);
+    }
+
+    public void showDsMatrix(DependencyMatrix dsMatrix, boolean revealDsmView, boolean refreshAll, boolean addToHistory) {
+
+        if (revealDsmView) {
+            EclipseUtils.showDsmView();
+        }
+
+        dsmTableController.setDependencyMatrix(dsMatrix, refreshAll, addToHistory);
+        setActionsEnabled(true);
+        updateSortActionsState(dsMatrix.getOrdering());
     }
 
     /**
@@ -159,18 +173,6 @@ public class DsmView extends ViewPart {
         }
     }
 
-    /**
-     * @param state one of the IWorkbenchPage STATE_* values: STATE_MAXIMIZED, STATE_MINIMIZED, STATE_RESTORED
-     */
-    public void setState(int state) {
-        IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-        int currentState = page.getPartState(page.getReference(this));
-        if (currentState != state) {
-            page.activate(this);
-            page.setPartState(page.getReference(this), state);
-        }
-    }
-
     @Override
     public void dispose() {
         dsmTableController = null;
@@ -180,12 +182,6 @@ public class DsmView extends ViewPart {
         getViewSite().getPage().removePartListener(lifeCycleListener);
 
         currentInstance = null;
-    }
-
-    public void showDsMatrix(DependencyMatrix dsMatrix) {
-        dsmTableController.setDependencyMatrix(dsMatrix, true);
-        setActionsEnabled(true);
-        updateSortActionsState(dsMatrix.getCurrentOrdering());
     }
 
     public void updateSortActionsState(DependencyMatrixOrdering currentDsmOrdering) {
@@ -204,8 +200,8 @@ public class DsmView extends ViewPart {
     }
 
     public void setActionsEnabled(boolean enabled) {
-        stepBackAction.setEnabled(enabled);
-        stepForwardAction.setEnabled(enabled);
+        stepBackWardAction.setEnabled(enabled);
+        stepForwardAction.setEnabled(false);
         sortInNaturalOrderingAction.setEnabled(enabled);
         sortByInstabilityAction.setEnabled(enabled);
         takeScreenshotAction.setEnabled(enabled);
@@ -216,8 +212,29 @@ public class DsmView extends ViewPart {
         sortInNaturalOrderingAction.addPropertyChangeListener(sortInNaturalOrderingPropertyChangeListener);
     }
 
-    public static DsmView getCurrent() {
-        return currentInstance;
+    public void minimize() {
+        setState(IWorkbenchPage.STATE_MINIMIZED);
+    }
+
+    public void maximize() {
+        setState(IWorkbenchPage.STATE_MAXIMIZED);
+    }
+
+    public void restore() {
+        setState(IWorkbenchPage.STATE_RESTORED);
+    }
+
+    private void setState(int state) {
+        IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        int currentState = page.getPartState(page.getReference(this));
+        if (currentState != state) {
+            page.activate(this);
+            page.setPartState(page.getReference(this), state);
+        }
+    }
+
+    public DsmTableController getDsmTableController() {
+        return dsmTableController;
     }
 
 }

@@ -21,24 +21,23 @@ public class DsmRowHeaderDataProvider implements IDataProvider {
     private DependencyMatrix dependencyMatrix;
     private List<String> displayNames;
 
-    public DsmRowHeaderDataProvider(DependencyMatrix dsMatrix) {
-        this.dependencyMatrix = dsMatrix;
+    public DsmRowHeaderDataProvider(DependencyMatrix dependencyMatrix) {
+        this.dependencyMatrix = dependencyMatrix;
     }
 
     @Override
     public int getColumnCount() {
-        return dependencyMatrix == null ? 0 : 1;
+        return 1;
     }
 
     @Override
     public Object getDataValue(int columnIndex, int rowIndex) {
-        return dependencyMatrix == null ? "" : MessageFormat.format("{0} {1}",
-                String.valueOf(rowIndex + 1), displayNames.get(rowIndex));
+        return MessageFormat.format("{0} {1}", String.valueOf(rowIndex + 1), displayNames.get(rowIndex));
     }
 
     @Override
     public int getRowCount() {
-        return dependencyMatrix == null ? 0 : dependencyMatrix.getSize();
+        return dependencyMatrix.getSize();
     }
 
     @Override

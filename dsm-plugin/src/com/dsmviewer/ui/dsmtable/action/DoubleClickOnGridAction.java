@@ -16,8 +16,8 @@ import com.dsmviewer.dsm.DependencyMatrixOrdering;
 import com.dsmviewer.dsm.DependencyScope;
 import com.dsmviewer.dtangler.DtanglerRunner;
 import com.dsmviewer.logging.Logger;
+import com.dsmviewer.ui.DsmView;
 import com.dsmviewer.ui.dsmtable.DsmBodyLayer;
-import com.dsmviewer.ui.views.DsmView;
 
 /**
  * 
@@ -61,7 +61,7 @@ public class DoubleClickOnGridAction implements IMouseAction {
                     DependencyScope.PACKAGES, DependencyScope.CLASSES,
                     DependencyMatrixOrdering.getPluginDefaultOrdering());
 
-            DsmView.getCurrent().showDsMatrix(dsMatrix);
+            DsmView.getCurrent().showDsMatrix(dsMatrix, false, false, true);
         }
     }
 

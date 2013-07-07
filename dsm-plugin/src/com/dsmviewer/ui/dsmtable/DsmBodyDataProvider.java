@@ -13,31 +13,31 @@ public class DsmBodyDataProvider implements IDataProvider {
 
     private static final String EMPTY_STRING = "";
 
-    private DependencyMatrix dsMatrix;
+    private DependencyMatrix dependencyMatrix;
 
-    public DsmBodyDataProvider(DependencyMatrix dsMatrix) {
-        this.dsMatrix = dsMatrix;
+    public DsmBodyDataProvider(DependencyMatrix dependencyMatrix) {
+        this.dependencyMatrix = dependencyMatrix;
     }
 
     @Override
     public int getColumnCount() {
-        return dsMatrix == null ? 0 : dsMatrix.getSize();
+        return dependencyMatrix.getSize();
     }
 
     @Override
     public Object getDataValue(int column, int row) {
-        return dsMatrix == null ? EMPTY_STRING : internalGetDataValue(row, column);
+        return internalGetDataValue(row, column);
     }
 
     private String internalGetDataValue(int row, int column) {
-        DsmRow dsmRow = dsMatrix.getRow(row);
+        DsmRow dsmRow = dependencyMatrix.getRow(row);
         int dependencyWeight = dsmRow.getCells().get(column).getDependencyWeight();
         return (dependencyWeight == 0) ? EMPTY_STRING : String.valueOf(dependencyWeight);
     }
 
     @Override
     public int getRowCount() {
-        return dsMatrix == null ? 0 : dsMatrix.getSize();
+        return dependencyMatrix.getSize();
     }
 
     @Override
@@ -46,11 +46,11 @@ public class DsmBodyDataProvider implements IDataProvider {
     }
 
     public void setDependencyMatrix(DependencyMatrix dsMatrix) {
-        this.dsMatrix = dsMatrix;
+        this.dependencyMatrix = dsMatrix;
     }
 
     public DependencyMatrix getDependencyMatrix() {
-        return dsMatrix;
+        return dependencyMatrix;
     }
 
 }

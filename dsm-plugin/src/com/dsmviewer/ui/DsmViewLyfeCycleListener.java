@@ -1,4 +1,4 @@
-package com.dsmviewer.ui.views;
+package com.dsmviewer.ui;
 
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;

@@ -33,7 +33,7 @@ import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.dsm.DependencyMatrixOrdering;
 import com.dsmviewer.dsm.DependencyScope;
 import com.dsmviewer.logging.Logger;
-import com.dsmviewer.ui.views.DsmView;
+import com.dsmviewer.ui.DsmView;
 import com.dsmviewer.utils.CoreUtils;
 import com.dsmviewer.utils.DtanglerUtils;
 import com.dsmviewer.utils.EclipseUtils;
@@ -276,7 +276,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
         @Override
         public void run() {
-            DsmView.getCurrent().showDsMatrix(dsMatrix);
+            DsmView.getCurrent().showDsMatrix(dsMatrix, true, true, true);
             String message = "\n" + (dsMatrix.getAnalysisResult().isValid() ? "Analysis result is valid."
                     : "Analysis result is not valid.");
             LOGGER.info("Dtangler analisys completed. "
