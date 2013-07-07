@@ -1,11 +1,14 @@
 package com.dsmviewer.ui;
 
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.nebula.widgets.nattable.util.GUIHelper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 
 import com.dsmviewer.ui.dsmtable.DsmBodyLayerConfiguration;
 
@@ -32,10 +35,10 @@ public final class UiHelper extends GUIHelper {
     public static final Color COLOR_DSM_INVALID_CELL_BG = getColor(255, 156, 156);
 
     public static final Color COLOR_DSM_SELECTION_BG_LIGHT = getColor(155, 188, 209);
-    public static final Color COLOR_DSM_SELECTION_BG_DARK = getColor(186, 214, 232);
+    public static final Color COLOR_DSM_SELECTION_BG_DARK = getColor(176, 204, 222);
     public static final Color COLOR_DSM_SELECTION_FG = getColor(56, 75, 87);
 
-    public static final Color COLOR_DSM_ADDITIONALLY_SELECTED_ROW_BG = getColor(245, 230, 162);
+    public static final Color COLOR_DSM_SELECTED_DEPENDEE_ROW_BG = getColor(245, 230, 162);
 
     // Log colors for debug mode logging
     public static final Color LOG_COLOR_DEFAULT = getSystemColor(SWT.COLOR_BLACK);
@@ -51,6 +54,24 @@ public final class UiHelper extends GUIHelper {
     public static final int DEFAULT_FONT_WIDTH = (int) (DEFAULT_FONT_HEIGHT * 1.5);
 
     private UiHelper() {
+    }
+
+    /**
+     * Gets image is accessible from shared images of active Eclipse plugins
+     * 
+     * @param imageId String constant from ISharedImages i-face. Example: ISharedImages.IMG_OBJS_INFO_TSK
+     */
+    public static Image getSharedImage(String imageId) {
+        return PlatformUI.getWorkbench().getSharedImages().getImage(imageId);
+    }
+
+    /**
+     * Gets descriptor for image is accessible from shared images of active Eclipse plugins
+     * 
+     * @param imageId String constant from ISharedImages i-face. Example: ISharedImages.IMG_OBJS_INFO_TSK
+     */
+    public static ImageDescriptor getSharedImageDescriptor(String imageId) {
+        return PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(imageId);
     }
 
     public static Color getSystemColor(int swtColorConstant) {

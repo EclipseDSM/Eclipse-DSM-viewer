@@ -10,7 +10,7 @@
       </category>
       <view
             name="DsmView"
-            icon="icons/dsm-view_favicon.gif"
+            icon="icons/dsm-view-favicon.png"
             category="eclipse-dsm-plugin"
             class="com.dsmviewer.ui.views.DsmView"
             id="com.dsmviewer.ui.views.DsmView">

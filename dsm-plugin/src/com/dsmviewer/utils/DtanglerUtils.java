@@ -18,6 +18,7 @@ import org.dtangler.core.textui.Writer;
 
 import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.dsm.DependencyScope;
+import com.dsmviewer.utils.misc.NaturalOrderComparator;
 
 /**
  * 

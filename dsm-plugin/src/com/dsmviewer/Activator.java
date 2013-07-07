@@ -1,5 +1,6 @@
 package com.dsmviewer;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -12,6 +13,7 @@ import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.MessageConsole;
+import org.eclipse.ui.internal.util.BundleUtility;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -52,9 +54,7 @@ public class Activator extends AbstractUIPlugin {
     private static void loadImagesToRegistry() {
         Bundle bundle = pluginInstance.getBundle();
 
-        Enumeration<URL> entries = bundle.findEntries("/icons/", "*.gif", true);
-//        IPath path = new Path("");
-//        URL[] iconPaths = FileLocator.findEntries(bundle, path);
+        Enumeration<URL> entries = bundle.findEntries("/icons/", "*.*", true);
         while (entries.hasMoreElements()) {
             URL url = entries.nextElement();
             ImageDescriptor desc = ImageDescriptor.createFromURL(url);
@@ -153,6 +153,17 @@ public class Activator extends AbstractUIPlugin {
 
     public static Image getImageFromRegistry(String filename) {
         return (imageRegistry == null) ? null : imageRegistry.get(filename);
+    }
+
+    // TODO: search for another way to do this, without using of restricted code
+    @SuppressWarnings("restriction")
+    public static ImageDescriptor getImageDescriptorFromRegistry(String imageNameOrPath) {
+        Bundle bundle = pluginInstance.getBundle();
+        URL imageUrl = BundleUtility.find(bundle, imageNameOrPath);
+        if (imageUrl == null) {
+            imageUrl = BundleUtility.find(bundle, "icons" + File.separator + imageNameOrPath);
+        }
+        return ImageDescriptor.createFromURL(imageUrl);
     }
 
 //    /**

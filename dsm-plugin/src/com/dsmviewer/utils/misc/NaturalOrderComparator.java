@@ -1,4 +1,4 @@
-package com.dsmviewer.utils;
+package com.dsmviewer.utils.misc;
 
 /*
 NaturalOrderComparator.java -- Perform 'natural order' comparisons of strings in Java.

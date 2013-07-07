@@ -1,6 +1,11 @@
 package com.dsmviewer.ui.action;
 
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.ISharedImages;
+
 import com.dsmviewer.dsm.DependencyMatrixOrdering;
+import com.dsmviewer.ui.UiHelper;
 import com.dsmviewer.ui.dsmtable.DsmTableController;
 
 /**
@@ -20,7 +25,16 @@ public class SortDependencyMatrixByInstabilityAction extends AbstractSortDepende
 
     @Override
     public String getToolTipText() {
-        return "Sort by instability index";
+        return "Sort dsm by dependees instability";
     }
 
+    @Override
+    public ImageDescriptor getImageDescriptor() {
+        return UiHelper.getSharedImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK);
+    }
+
+    @Override
+    public int getStyle() {
+        return IAction.AS_RADIO_BUTTON;
+    }
 }

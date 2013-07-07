@@ -42,6 +42,8 @@ public class DsmTableController {
     private Composite parent;
     private NatTable table;
 
+//    private Stack<DependencyMatrix> stack = new Stack<DependencyMatrix>();
+
     public DsmTableController(Composite parent) {
         this.parent = parent;
     }
@@ -83,36 +85,40 @@ public class DsmTableController {
 
     private void configureListeners() {
 
-        // Additionally select the row which is a dependee for selected cell
+        // Select the row which represents the dependee for selected cell
         bodyLayer.getSelectionLayer().addLayerListener(
                 new ColumnHeaderSelectionListener(columnHeaderLayer.getColHeaderLayer()) {
                     @Override
                     public void handleLayerEvent(ILayerEvent event) {
-                        if (event instanceof CellSelectionEvent) {
-                            CellSelectionEvent cellSelectionEvent = (CellSelectionEvent) event;
-                            PositionCoordinate[] selectedCellPositions
-                            = cellSelectionEvent.getSelectionLayer().getSelectedCellPositions();
-                            if (selectedCellPositions.length == 1) {
-                                int columnPosition = cellSelectionEvent.getColumnPosition();
-                                PositionCoordinate selectedCellPosition = selectedCellPositions[0];
-                                int selectedCellColumnIndex = selectedCellPosition.columnPosition;
-                                int selectedCellRowIndex = selectedCellPositions[0].rowPosition;
-                                if (selectedCellColumnIndex == selectedCellRowIndex) {
-                                    rowHeaderLayer.setAdditionallySelectedRowIndex(-1);
-                                } else {
-                                    if (rowHeaderLayer.getAdditionallySelectedRowIndex() != columnPosition) {
-                                        rowHeaderLayer.setAdditionallySelectedRowIndex(columnPosition);
-                                    }
-                                }
-                            } else {
-                                rowHeaderLayer.setAdditionallySelectedRowIndex(-1);
-                            }
-                        } else { // if selection is not a cell (row selection, etc.)
-                            rowHeaderLayer.setAdditionallySelectedRowIndex(-1);
-                        }
+                        handleColumnHeaderSelectionEvent(event);
                     }
                 });
 
+    }
+
+    private void handleColumnHeaderSelectionEvent(ILayerEvent event) {
+        if (event instanceof CellSelectionEvent) {
+            CellSelectionEvent cellSelectionEvent = (CellSelectionEvent) event;
+            PositionCoordinate[] selectedCellPositions = cellSelectionEvent.getSelectionLayer()
+                    .getSelectedCellPositions();
+            if (selectedCellPositions.length == 1) {
+                int columnPosition = cellSelectionEvent.getColumnPosition();
+                PositionCoordinate selectedCellPosition = selectedCellPositions[0];
+                int selectedCellColumnIndex = selectedCellPosition.columnPosition;
+                int selectedCellRowIndex = selectedCellPositions[0].rowPosition;
+                if (selectedCellColumnIndex == selectedCellRowIndex) {
+                    rowHeaderLayer.deselectDependeeRow();
+                } else {
+                    if (rowHeaderLayer.getSelectedDependeeRowIndex() != columnPosition) {
+                        rowHeaderLayer.setSelectedDenendeeRowIndex(columnPosition);
+                    }
+                }
+            } else {
+                rowHeaderLayer.deselectDependeeRow();
+            }
+        } else { // if selection is not a single cell (range selection, etc.)
+            rowHeaderLayer.deselectDependeeRow();
+        }
     }
 
     public void setDependencyMatrix(DependencyMatrix dsMatrix, boolean refresh) {
@@ -120,12 +126,7 @@ public class DsmTableController {
         rowHeaderDataProvider.setDependencyMatrix(dsMatrix);
         colHeaderDataProvider.setDependencyMatrix(dsMatrix);
 
-        int cellSize = 21; // computeMaxCellSize(dsMatrix);
-
-        // TODO: write the better solution instead of such ugly hardcoding!
-//        if (cellSize > 23 || cellSize < 18) {
-//            cellSize = 23;
-//        }
+        int cellSize = 21; // TODO: add to plugin human-changeable properties as 'default cell size'
 
         Dimension cellDimension = new Dimension(cellSize, cellSize);
 
@@ -139,11 +140,12 @@ public class DsmTableController {
         rowHeaderLayer.setHeaderWidth(maximumHeaderWidth);
 
         if (refresh) {
-            table.refresh();
-//          table.redraw();
+            refreshDsmTableInUi();
         }
+    }
 
-//        logger.info("DS-Matrix with size = " + dsMatrix.getSize() + " is shown successfully");
+    public void refreshDsmTableInUi() {
+        table.refresh();
     }
 
     public Point getDsmTableBounds() {
@@ -167,23 +169,6 @@ public class DsmTableController {
         }
         return (int) (maxLength * UiHelper.DEFAULT_FONT_SIZE / 1.2) + 2 * ICON_SIZE;
     }
-
-//    private static int computeMaxCellSize(DependencyMatrix dsMatrix) {
-//        int maxLength = 0;
-//        List<DsmRow> rows = dsMatrix.getRows();
-//        // indexed loops were used to avoid creation of many unnecessary Iterator objects
-//        for (int i = 0; i < rows.size(); i++) {
-//            List<DsmCell> cells = rows.get(i).getCells();
-//            for (int j = 0; j < cells.size(); j++) {
-//                DsmCell cell = cells.get(j);
-//                int length = String.valueOf(cell.getDependencyWeight()).length();
-//                if (length > maxLength) {
-//                    maxLength = length;
-//                }
-//            }
-//        }
-//        return maxLength * UiHelper.DEFAULT_FONT_WIDTH + 6;
-//    }
 
     public NatTable getTable() {
         return table;

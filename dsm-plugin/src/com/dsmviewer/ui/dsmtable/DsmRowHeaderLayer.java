@@ -24,10 +24,10 @@ import com.dsmviewer.ui.UiHelper;
  */
 public class DsmRowHeaderLayer extends AbstractLayerTransform {
 
-    private static final TextPainter ADDITIONAL_SELECTED_ROW_BG_PAINTER = new TextPainter() {
+    private static final TextPainter SELECTED_DEPENDEE_ROW_BG_PAINTER = new TextPainter() {
         @Override
         protected Color getBackgroundColour(ILayerCell cell, IConfigRegistry configRegistry) {
-            return UiHelper.COLOR_DSM_ADDITIONALLY_SELECTED_ROW_BG;
+            return UiHelper.COLOR_DSM_SELECTED_DEPENDEE_ROW_BG;
         }
     };
 
@@ -37,13 +37,13 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
     private DataLayer rowDataLayer;
     private DsmRowHeaderDataProvider rowHeaderDataProvider;
 
-    private int additionallySelectedRowIndex = -1;
+    private int selectedDependeeRowIndex = -1;
 
     public DsmRowHeaderLayer(DsmRowHeaderDataProvider rowHeaderDataProvider, DsmBodyLayer bodyLayer) {
         this.rowHeaderDataProvider = rowHeaderDataProvider;
         rowDataLayer = new DataLayer(rowHeaderDataProvider);
-        RowHeaderLayer rowHeaderLayer = new RowHeaderLayer(rowDataLayer, bodyLayer, bodyLayer.getSelectionLayer(),
-                false);
+        RowHeaderLayer rowHeaderLayer = new RowHeaderLayer(
+                rowDataLayer, bodyLayer, bodyLayer.getSelectionLayer(), false);
         rowHeaderLayer.addConfiguration(new DefaultRowHeaderLayerConfiguration() {
             @Override
             protected void addRowHeaderStyleConfig() {
@@ -82,12 +82,16 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
         this.headerWidth = headerWidth;
     }
 
-    public int getAdditionallySelectedRowIndex() {
-        return additionallySelectedRowIndex;
+    public int getSelectedDependeeRowIndex() {
+        return selectedDependeeRowIndex;
     }
 
-    public void setAdditionallySelectedRowIndex(int additionallySelectedRowPos) {
-        this.additionallySelectedRowIndex = additionallySelectedRowPos;
+    public void setSelectedDenendeeRowIndex(int selectedDependeeRowIndex) {
+        this.selectedDependeeRowIndex = selectedDependeeRowIndex;
+    }
+
+    public void deselectDependeeRow() {
+        setSelectedDenendeeRowIndex(-1);
     }
 
     @Override
@@ -98,8 +102,8 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
         final int columnIndex = cell.getColumnIndex();
 
         ICellPainter textWithBgPainter;
-        if (rowIndex == additionallySelectedRowIndex) {
-            textWithBgPainter = ADDITIONAL_SELECTED_ROW_BG_PAINTER;
+        if (rowIndex == selectedDependeeRowIndex) {
+            textWithBgPainter = SELECTED_DEPENDEE_ROW_BG_PAINTER;
         } else {
             textWithBgPainter = super.getCellPainter(columnPosition, rowPosition, cell, configRegistry);
         }
@@ -112,8 +116,8 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
                         new ImagePainter(scope.getDisplayIcon()) {
                             @Override
                             protected Color getBackgroundColour(ILayerCell cell, IConfigRegistry configRegistry) {
-                                if (cell.getRowIndex() == additionallySelectedRowIndex) {
-                                    return UiHelper.COLOR_DSM_ADDITIONALLY_SELECTED_ROW_BG;
+                                if (cell.getRowIndex() == selectedDependeeRowIndex) {
+                                    return UiHelper.COLOR_DSM_SELECTED_DEPENDEE_ROW_BG;
                                 } else {
                                     return super.getBackgroundColour(cell, configRegistry);
                                 }
