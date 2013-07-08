@@ -11,9 +11,9 @@ import java.util.List;
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */
-public final class CoreUtils {
+public final class PluginUtils {
 
-    private CoreUtils() {
+    private PluginUtils() {
     }
 
     public static String extractStackTrace(Throwable e) {

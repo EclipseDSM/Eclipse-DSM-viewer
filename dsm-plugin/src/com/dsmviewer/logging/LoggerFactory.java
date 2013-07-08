@@ -42,10 +42,10 @@ public class LoggerFactory {
 
     public Logger getLogger(String className) {
         Logger existingLogger = loggers.get(className);
-        if (existingLogger != null) {
-            return existingLogger;
-        } else {
+        if (existingLogger == null) {
             return createLogger(className);
+        } else {
+            return existingLogger;
         }
     }
 

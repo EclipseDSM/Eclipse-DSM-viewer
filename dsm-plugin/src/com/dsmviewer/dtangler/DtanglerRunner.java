@@ -34,9 +34,9 @@ import com.dsmviewer.dsm.DependencyMatrixOrdering;
 import com.dsmviewer.dsm.DependencyScope;
 import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.DsmView;
-import com.dsmviewer.utils.CoreUtils;
 import com.dsmviewer.utils.DtanglerUtils;
 import com.dsmviewer.utils.EclipseUtils;
+import com.dsmviewer.utils.PluginUtils;
 
 /**
  * 
@@ -72,84 +72,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
      */
     @Override
     public synchronized void run(final IAction action) {
-
-        Job job = new Job("DSM computing") {
-            @Override
-            protected IStatus run(final IProgressMonitor monitor) {
-
-                while (!monitor.isCanceled()) {
-                    monitor.beginTask("Dsm-Viewer", 5);
-
-                    // update UI before analisys
-                    Display.getDefault().asyncExec(new Runnable() {
-                        @Override
-                        public void run() {
-                            LOGGER.info("Dtangler analisys started.");
-                        }
-                    });
-
-                    monitor.subTask("Getting the Path List");
-                    List<String> pathList = null;
-
-                    if (selectedElement instanceof IProject) {
-                        IProject project = (IProject) selectedElement;
-                        String binaryOutputLocation = EclipseUtils.getBinaryOutputLocation(project, false, false);
-                        pathList = new LinkedList<String>();
-                        pathList.add(binaryOutputLocation);
-                    } else { // get list of all resources under selection
-                        pathList = getPathList(selection);
-                    }
-
-                    String scope = action.getDescription(); // "classes" / "packages"
-                    monitor.worked(1);
-
-                    DependencyMatrix dsMatrix = null;
-
-                    try {
-                        monitor.subTask("Computing DS-Matrix for " + pathList.size() + " resource(s)");
-                        dsMatrix = computeDsMatrixFromBinaries(pathList, scope, DependencyMatrixOrdering.NATURAL_ORDERING);
-                        monitor.worked(2);
-
-                    } catch (MissingArgumentsException e) {
-                        LOGGER.error(e.getMessage(), e);
-                        Activator.showErrorMessage(e.getMessage());
-                        return Status.CANCEL_STATUS;
-                    } catch (DtException e) {
-                        String errorMessage = "DTangler cannot process this request";
-                        LOGGER.error(errorMessage, e);
-                        Activator.showErrorMessage(errorMessage, e);
-                        return Status.CANCEL_STATUS;
-                    }
-
-                    monitor.subTask("Opening the Dsm View");
-                    // Showing the DSM-view:
-                    Display.getDefault().asyncExec(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            try {
-                                EclipseUtils.showDsmView(activeWorkBechPart);
-                            } catch (PartInitException e) {
-                                String message = "Cannot open the DSM View";
-                                LOGGER.error(message, e);
-                                Activator.showErrorMessage(message, e);
-                            }
-                        }
-                    });
-                    monitor.worked(4);
-
-                    monitor.subTask("Showing the DS-Matrix for " + dsMatrix.getSize() + " elements");
-                    // update UI after analisys
-                    Display.getDefault().asyncExec(new ShowDsMatrixJob(dsMatrix));
-                    monitor.worked(5);
-
-                    return Status.OK_STATUS;
-                }
-                return Status.CANCEL_STATUS;
-            }
-
-        };
-
+        Job job = new RunDtanglerJob("DSM computing", action.getDescription());
         job.setPriority(Job.LONG);
         job.schedule();
     }
@@ -175,7 +98,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
                 result.add(binaryResourcePath);
             } else if (resourceFile.isDirectory()) {
                 if (resourceFile.exists() && resourceFile.isDirectory()) {
-                    result.addAll(CoreUtils.listFiles(resourceFile));
+                    result.addAll(PluginUtils.listFiles(resourceFile));
                 }
             }
         }
@@ -282,6 +205,93 @@ public class DtanglerRunner implements IObjectActionDelegate {
             LOGGER.info("Dtangler analisys completed. "
                     + "Analyzed " + dsMatrix.getSize() + " parent-scope resources. " + message);
         }
+    }
+
+    class RunDtanglerJob extends Job {
+
+        private String scope;
+
+        /**
+         * @param scope "classes" / "packages"
+         */
+        public RunDtanglerJob(String name, String scope) {
+            super(name);
+            this.scope = scope;
+        }
+
+        @Override
+        protected IStatus run(final IProgressMonitor monitor) {
+
+            while (!monitor.isCanceled()) {
+                monitor.beginTask("Dsm-Viewer", 5);
+
+                // update UI before analisys
+                Display.getDefault().asyncExec(new Runnable() {
+                    @Override
+                    public void run() {
+                        LOGGER.info("Dtangler analisys started.");
+                    }
+                });
+
+                monitor.subTask("Getting the Path List");
+                List<String> pathList = null;
+
+                if (selectedElement instanceof IProject) {
+                    IProject project = (IProject) selectedElement;
+                    String binaryOutputLocation = EclipseUtils.getBinaryOutputLocation(project, false, false);
+                    pathList = new LinkedList<String>();
+                    pathList.add(binaryOutputLocation);
+                } else { // get list of all resources under selection
+                    pathList = getPathList(selection);
+                }
+
+                monitor.worked(1);
+
+                DependencyMatrix dsMatrix = null;
+
+                try {
+                    monitor.subTask("Computing DS-Matrix for " + pathList.size() + " resource(s)");
+                    dsMatrix = computeDsMatrixFromBinaries(pathList, scope, DependencyMatrixOrdering.NATURAL_ORDERING);
+                    monitor.worked(2);
+
+                } catch (MissingArgumentsException e) {
+                    LOGGER.error(e.getMessage(), e);
+                    Activator.showErrorMessage(e.getMessage());
+                    return Status.CANCEL_STATUS;
+                } catch (DtException e) {
+                    String errorMessage = "DTangler cannot process this request";
+                    LOGGER.error(errorMessage, e);
+                    Activator.showErrorMessage(errorMessage, e);
+                    return Status.CANCEL_STATUS;
+                }
+
+                monitor.subTask("Opening the Dsm View");
+                // Showing the DSM-view:
+                Display.getDefault().asyncExec(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        try {
+                            EclipseUtils.showDsmView(activeWorkBechPart);
+                        } catch (PartInitException e) {
+                            String message = "Cannot open the DSM View";
+                            LOGGER.error(message, e);
+                            Activator.showErrorMessage(message, e);
+                        }
+                    }
+                });
+                monitor.worked(4);
+
+                monitor.subTask("Showing the DS-Matrix for " + dsMatrix.getSize() + " elements");
+                // update UI after analisys
+                Display.getDefault().asyncExec(new ShowDsMatrixJob(dsMatrix));
+                monitor.worked(5);
+
+                return Status.OK_STATUS;
+            }
+            return Status.CANCEL_STATUS;
+        }
+
     }
 
 }

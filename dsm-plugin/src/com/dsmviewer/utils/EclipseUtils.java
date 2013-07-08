@@ -1,6 +1,9 @@
 package com.dsmviewer.utils;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.text.MessageFormat;
 
 import org.dtangler.core.dependencies.Dependable;
@@ -13,6 +16,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -145,6 +149,33 @@ public final class EclipseUtils {
      */
     public static String getFullPath(IResource resource) {
         return resource.getLocationURI().getPath().toString();
+    }
+
+    /**
+     * Gets an absolute path from resource relative path.
+     * 
+     * @param filePath - relative path to any resource.
+     * @return absolute path to given resource
+     */
+    public static String getAbsolutePath(final String filePath) {
+        String result = null;
+        URL fileUrl = Activator.getInstance().getBundle().getEntry(filePath);
+        try {
+            result = FileLocator.toFileURL(fileUrl).getFile();
+        } catch (IOException e) {
+            LOG.error("Cannot retrieve absolute path for the file: " + filePath, e);
+        }
+        return result;
+    }
+
+    public static InputStream getResourceAsStream(String resourcePath) {
+        InputStream openStream = null;
+        try {
+            openStream = FileLocator.openStream(Activator.getInstance().getBundle(), new Path(resourcePath), false);
+        } catch (IOException e) {
+            LOG.error("Cannot retrieve input stream for resource: " + resourcePath, e);
+        }
+        return openStream;
     }
 
     /// Conversion

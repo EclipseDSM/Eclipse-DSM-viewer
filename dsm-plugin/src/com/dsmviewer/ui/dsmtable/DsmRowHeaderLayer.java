@@ -14,7 +14,7 @@ import org.eclipse.nebula.widgets.nattable.painter.cell.decorator.LineBorderDeco
 import org.eclipse.nebula.widgets.nattable.ui.util.CellEdgeEnum;
 import org.eclipse.swt.graphics.Color;
 
-import com.dsmviewer.dsm.DependencyLocation;
+import com.dsmviewer.dsm.DependencyType;
 import com.dsmviewer.dsm.DependencyScope;
 import com.dsmviewer.ui.UiHelper;
 
@@ -109,7 +109,7 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
         }
 
         DependencyScope scope = rowHeaderDataProvider.getDependencyMatrix().getScope(rowIndex, columnIndex,
-                DependencyLocation.DEPENDEE);
+                DependencyType.DEPENDEE);
 
         return new LineBorderDecorator(
                 new CellPainterDecorator(textWithBgPainter, CellEdgeEnum.LEFT,

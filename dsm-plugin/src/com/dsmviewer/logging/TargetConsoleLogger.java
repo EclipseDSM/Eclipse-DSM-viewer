@@ -9,7 +9,7 @@ import org.eclipse.swt.graphics.Color;
 
 import com.dsmviewer.Activator;
 import com.dsmviewer.ui.UiHelper;
-import com.dsmviewer.utils.CoreUtils;
+import com.dsmviewer.utils.PluginUtils;
 
 /**
  * This logger logs into its own console in target Eclipse instance (if appropriate console doesn`t exists on target
@@ -84,14 +84,14 @@ public final class TargetConsoleLogger implements Logger {
     public synchronized void warn(String message, Throwable e) {
         String errorMessage = format("{0}: {1}", message, e.getMessage());
         appendMessage(LogLevel.WARN, errorMessage, true);
-        appendMessage(CoreUtils.extractStackTrace(e), LogLevel.WARN.getColor(), true);
+        appendMessage(PluginUtils.extractStackTrace(e), LogLevel.WARN.getColor(), true);
     }
 
     @Override
     public synchronized void error(String message, Throwable e) {
         String errorMessage = format("{0}: {1}", message, e.getMessage());
         appendMessage(LogLevel.ERROR, errorMessage, true);
-        appendMessage(CoreUtils.extractStackTrace(e), LogLevel.ERROR.getColor(), true);
+        appendMessage(PluginUtils.extractStackTrace(e), LogLevel.ERROR.getColor(), true);
     }
 
     private void appendMessage(LogLevel level, String msg, boolean addNewLine) {

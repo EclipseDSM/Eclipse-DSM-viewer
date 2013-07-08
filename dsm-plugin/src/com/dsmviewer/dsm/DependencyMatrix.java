@@ -31,7 +31,7 @@ public class DependencyMatrix {
         this.rows = DtanglerUtils.buildDsmRowsUsingDtangler(dependencyGraph);
         this.analysisResult = analysisResult;
 
-        // skip sorting if Dtangler default ordering is specified
+        // skip sorting if Dtangler default ordering is provided
         if (ordering != DependencyMatrixOrdering.getDtanglerDefaultOrdering()) {
             sort(ordering);
         }
@@ -136,15 +136,15 @@ public class DependencyMatrix {
         return this.analysisResult.hasViolations(dependency);
     }
 
-    public DependencyScope getScope(int i, int j, DependencyLocation dependencyLocation) {
+    public DependencyScope getScope(int i, int j, DependencyType dependencyLocation) {
         return getScope(dependencyLocation, getCell(i, j));
     }
 
-    private DependencyScope getScope(DependencyLocation dependencyLocation, DsmCell cell) {
+    private DependencyScope getScope(DependencyType dependencyLocation, DsmCell cell) {
         return getScope(cell.getDependency(), dependencyLocation);
     }
 
-    public DependencyScope getScope(Dependency dependency, DependencyLocation dependencyLocation) {
+    public DependencyScope getScope(Dependency dependency, DependencyType dependencyLocation) {
         Scope scope = null;
         switch (dependencyLocation) {
         case DEPENDANT:

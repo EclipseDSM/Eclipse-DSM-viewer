@@ -15,28 +15,28 @@ package com.dsmviewer.logging;
 public interface Logger {
 
     /**
-     * Logs given message as DEBUG level.
+     * Logs given message at DEBUG level.
      * 
      * @param message given message (message will be formatted in different ways by different loggers)
      */
     void debug(String message);
 
     /**
-     * Logs given message as INFO level.
+     * Logs given message at INFO level.
      * 
      * @param message given message (message will be formatted in different ways by different loggers)
      */
     void info(String message);
 
     /**
-     * Logs given message as WARNING level.
+     * Logs given message at WARNING level.
      * 
      * @param message given message (message will be formatted in different ways by different loggers)
      */
     void warn(String message);
 
     /**
-     * Logs given message as WARNING level.
+     * Logs given message at WARNING level.
      * 
      * @param message given message (message will be formatted in different ways by different loggers)
      * @param e - Exception to log.
@@ -44,7 +44,7 @@ public interface Logger {
     void warn(String message, Throwable e);
 
     /**
-     * Logs given message as ERROR level.
+     * Logs given message at ERROR level.
      * 
      * @param message given message (message will be formatted in different ways by different loggers)
      * @param e - Exception to log.
