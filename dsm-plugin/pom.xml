@@ -6,12 +6,12 @@
     <parent>
         <groupId>com.github.sevntu.dsm</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>2.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>eclipse-dsm-plugin</artifactId>
     <packaging>eclipse-plugin</packaging>
-    <version>1.0.0.qualifier</version>
+    <version>2.0.1.qualifier</version>
 
     <name>Eclipse-DSM Plugin</name>
     <url>https://github.com/EclipseDSM/Eclipse-DSM-viewer</url>

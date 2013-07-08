@@ -12,6 +12,7 @@ import com.dsmviewer.Activator;
 import com.dsmviewer.logging.Logger;
 
 /**
+ * Template for preferences page <is not used yet>
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com">Daniil Yaroslavtsev</a>
  * 

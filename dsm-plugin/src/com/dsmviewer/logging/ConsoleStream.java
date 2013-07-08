@@ -17,6 +17,7 @@ import org.eclipse.ui.console.MessageConsoleStream;
 import com.dsmviewer.Activator;
 
 /**
+ * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */
 public class ConsoleStream {
@@ -31,19 +32,19 @@ public class ConsoleStream {
 //		out.setActivateOnWrite(true);
     }
 
-    public static final MessageConsole findPluginsConsole(String consoleName, boolean createNewIfNecessary) {
+    public static final MessageConsole findPluginsConsole(String consoleName, boolean createNewConsoleIfNecessary) {
         ConsolePlugin plugin = ConsolePlugin.getDefault();
-        IConsoleManager conMan = plugin.getConsoleManager();
-        IConsole[] existing = conMan.getConsoles();
+        IConsoleManager consoleManager = plugin.getConsoleManager();
+        IConsole[] existing = consoleManager.getConsoles();
         for (IConsole element : existing) {
             if (consoleName.equals(element.getName())) {
                 return (MessageConsole) element;
             }
         }
-        if (createNewIfNecessary) {
-            // no Opened Eclipse Console found for current plugin, create a new one:
+        if (createNewConsoleIfNecessary) {
+            // if no Eclipse Console is already opened for current plugin, create the new one:
             MessageConsole myConsole = new MessageConsole(consoleName, null);
-            conMan.addConsoles(new IConsole[] { myConsole });
+            consoleManager.addConsoles(new IConsole[] { myConsole });
             return myConsole;
         } else {
             return null;

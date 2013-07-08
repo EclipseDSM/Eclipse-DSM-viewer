@@ -2,7 +2,7 @@ package com.dsmviewer.utils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.dtangler.core.analysisresult.AnalysisResult;
@@ -16,8 +16,14 @@ import org.dtangler.core.textui.DSMWriter;
 import org.dtangler.core.textui.ViolationWriter;
 import org.dtangler.core.textui.Writer;
 
-import com.dsmviewer.dsm.DsMatrix;
+import com.dsmviewer.dsm.DependencyMatrix;
+import com.dsmviewer.dsm.DependencyScope;
+import com.dsmviewer.utils.misc.NaturalOrderComparator;
 
+/**
+ * 
+ * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
+ */
 public final class DtanglerUtils {
 
     private static final NaturalOrderComparator NATURAL_ORDER_COMPARATOR = new NaturalOrderComparator();
@@ -42,8 +48,8 @@ public final class DtanglerUtils {
         }
     }
 
-    public static String getAbsolutePath(Dependable dependable) {
-        return getAbsolutePath(dependable.getFullyQualifiedName());
+    public static String getAbsolutePath(Dependable resource, DependencyScope scope) {
+        return getAbsolutePath(resource.getFullyQualifiedName(), scope);
     }
 
     /**
@@ -51,84 +57,54 @@ public final class DtanglerUtils {
      * <p>
      * Example for packages: '/home/Workspace/Project: test.package' --> '/home/Workspace/Project/test/package' <br/>
      * <p>
-     * Example for Classes: '/home/Workspace/Project: ClassName' --> '/home/Workspace/Project/Classname' ?? (not tested
-     * yet)
+     * Example for Classes: '/home/Workspace/Project: ClassName' --> '/home/Workspace/Project/Classname'
      * 
-     * @param fullyQualifiedName Dtangler resources naming format (see examples below)
+     * @param fullyQualifiedName Dtangler resources naming format (see examples above)
+     * @param scope
      * @return
      */
-    public static String getAbsolutePath(String fullyQualifiedName) {
+    public static String getAbsolutePath(String fullyQualifiedName, DependencyScope scope) {
+
         String[] splitted = fullyQualifiedName.split(": ");
-        String fullPath = splitted[0];
-        String resourceName = splitted[1];
-        StringBuilder sb = new StringBuilder();
-        sb.append(fullPath);
-        sb.append(File.separator);
-        sb.append(resourceName.replaceAll("\\.", File.separator));
-        File file = new File(sb.toString());
-        if (file.exists() && file.isDirectory()) {
-            // do nothing
-        } else {
-            sb.append(".class");
+        String resourceParentPath = splitted[0];
+
+        switch (scope) {
+        case PACKAGES:
+            String resourceRelativePath = splitted[1].replaceAll("\\.", File.separator);
+
+            String resourceFullPath = resourceParentPath.concat(File.separator).concat(resourceRelativePath);
+            return resourceFullPath;
+        case CLASSES:
+            return resourceParentPath;
+        default:
+            throw new IllegalArgumentException("Scope " + scope + " is not supported");
         }
-        return sb.toString();
+    }
+
+    public static List<DsmRow> buildDsmRowsUsingDtangler(DependencyGraph dependencyGraph) {
+        Dsm dsm = new DsmEngine(dependencyGraph).createDsm();
+        // transpose matrix to make it more human-readable
+        return DtanglerUtils.transposeDsm(dsm).getRows();
     }
 
     @SuppressWarnings("unchecked")
-    public static List<DsmRow> sortInNaturalOrderByDisplayNames(final DsMatrix dsMatrix) {
-
-        final List<DsmRow> rows = dsMatrix.getRows();
-
-        Collections.sort(rows, new NaturalOrderComparator() {
-            @Override
-            public int compare(Object row1, Object row2) {
-                String displayName1 = ((DsmRow) row1).getDependee().getDisplayName();
-                String displayName2 = ((DsmRow) row2).getDependee().getDisplayName();
-
-                int compareResult = super.compare(displayName1, displayName2);
-                if (compareResult > 0) {
-                    int rowIndex1 = dsMatrix.getRowIndex(displayName1);
-                    int rowIndex2 = dsMatrix.getRowIndex(displayName2);
-
-                    int rowI1 = Math.min(rowIndex1, rowIndex2);
-                    int rowI2 = Math.max(rowIndex1, rowIndex2);
-
-                    // fix changes for cells which should not be moved
-                    dsMatrix.replaceCells(rowI1, rowI2, rowI1, rowI1);
-                    dsMatrix.replaceCells(rowI2, rowI1, rowI2, rowI2);
-
-                }
-                return compareResult;
-            }
-
-        });
-        return rows;
-    }
-
-    public static void quickSort(DsMatrix dsMatrix) {
+    public static void sortDisplayNamesInNaturalOrder(DependencyMatrix dsMatrix) {
         int startIndex = 0;
         int endIndex = dsMatrix.getSize() - 1;
-
-        doSort(dsMatrix, startIndex, endIndex);
+        quickSortByDepName(dsMatrix, NATURAL_ORDER_COMPARATOR, startIndex, endIndex);
     }
 
-    private static void doSort(DsMatrix dsMatrix, int start, int end) {
+    private static void quickSortByDepName(DependencyMatrix dsMatrix, Comparator<String> comparator, int start, int end) {
         if (start >= end) {
             return;
         }
         int i = start, j = end;
         int cur = i - (i - j) / 2;
         while (i < j) {
-            // dsMatrix.get(i).get(0) <= dsMatrix.get(cur).get(0)
-            while (i < cur && (
-                    NATURAL_ORDER_COMPARATOR.compare(dsMatrix.getDisplayName(i), dsMatrix.getDisplayName(cur)) <= 0
-                    )) {
+            while (i < cur && (comparator.compare(dsMatrix.getDisplayName(i), dsMatrix.getDisplayName(cur)) <= 0)) {
                 i++;
             }
-            // dsMatrix.get(cur).get(0) <= dsMatrix.get(j).get(0)
-            while (j > cur && (
-                    NATURAL_ORDER_COMPARATOR.compare(dsMatrix.getDisplayName(cur), dsMatrix.getDisplayName(j)) <= 0
-                    )) {
+            while (j > cur && (comparator.compare(dsMatrix.getDisplayName(cur), dsMatrix.getDisplayName(j)) <= 0)) {
                 j--;
             }
             if (i < j) {
@@ -142,11 +118,11 @@ public final class DtanglerUtils {
                 }
             }
         }
-        doSort(dsMatrix, start, cur);
-        doSort(dsMatrix, cur + 1, end);
+        quickSortByDepName(dsMatrix, comparator, start, cur);
+        quickSortByDepName(dsMatrix, comparator, cur + 1, end);
     }
 
-    public static Dsm transposeValues(Dsm dsm) {
+    public static Dsm transposeDsm(Dsm dsm) {
         List<DsmRow> inputRows = dsm.getRows();
         int dsmSize = inputRows.size();
 

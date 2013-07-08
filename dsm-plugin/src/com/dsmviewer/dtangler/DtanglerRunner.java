@@ -29,13 +29,14 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 
 import com.dsmviewer.Activator;
+import com.dsmviewer.dsm.DependencyMatrix;
+import com.dsmviewer.dsm.DependencyMatrixOrdering;
 import com.dsmviewer.dsm.DependencyScope;
-import com.dsmviewer.dsm.DsMatrix;
 import com.dsmviewer.logging.Logger;
-import com.dsmviewer.ui.views.DsmView;
-import com.dsmviewer.utils.CoreUtils;
+import com.dsmviewer.ui.DsmView;
 import com.dsmviewer.utils.DtanglerUtils;
 import com.dsmviewer.utils.EclipseUtils;
+import com.dsmviewer.utils.PluginUtils;
 
 /**
  * 
@@ -45,7 +46,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
     private static final Logger LOGGER = Activator.getLogger(DtanglerRunner.class);
 
-    /** Current Eclipse Project/Package Explorer selection. */
+    /** Current Eclipse Project/Package Explorer selection. Volatile as it could be set from different threads */
     private volatile IStructuredSelection selection;
 
     private IWorkbenchPart activeWorkBechPart;
@@ -71,145 +72,55 @@ public class DtanglerRunner implements IObjectActionDelegate {
      */
     @Override
     public synchronized void run(final IAction action) {
-
-        Job job = new Job("DSM computing") {
-            @Override
-            protected IStatus run(final IProgressMonitor monitor) {
-
-                while (!monitor.isCanceled()) {
-                    monitor.beginTask("Dsm-Viewer", 5);
-
-                    // update UI before analisys
-                    Display.getDefault().asyncExec(new Runnable() {
-                        @Override
-                        public void run() {
-                            LOGGER.info("Dtangler analisys started.");
-                        }
-                    });
-
-                    monitor.subTask("Getting the Path List");
-                    List<String> pathList = null;
-
-                    if (selectedElement instanceof IProject) {
-                        IProject project = (IProject) selectedElement;
-                        String binaryOutputLocation = EclipseUtils.getBinaryOutputLocation(project, false, false);
-                        pathList = new LinkedList<String>();
-                        pathList.add(binaryOutputLocation);
-                    } else { // get list of all resources under selection
-                        pathList = getPathList(selection);
-                    }
-
-                    String scope = action.getDescription(); // "classes" / "packages"
-                    monitor.worked(1);
-
-                    DsMatrix dsMatrix = null;
-
-                    try {
-                        monitor.subTask("Computing DS-Matrix for " + pathList.size() + " resource(s)");
-                        dsMatrix = computeDsMatrixFromBinaries(pathList, scope);
-                        monitor.worked(2);
-
-                    } catch (MissingArgumentsException e) {
-                        LOGGER.error(e.getMessage(), e);
-                        Activator.showErrorMessage(e.getMessage());
-                        return Status.CANCEL_STATUS;
-                    } catch (DtException e) {
-                        String errorMessage = "DTangler cannot process this request";
-                        LOGGER.error(errorMessage, e);
-                        Activator.showErrorMessage(errorMessage, e);
-                        return Status.CANCEL_STATUS;
-                    }
-
-                    monitor.subTask("Opening the Dsm View");
-                    // Showing the DSM-view:
-                    Display.getDefault().asyncExec(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            try {
-                                EclipseUtils.showDsmView(activeWorkBechPart);
-                            } catch (PartInitException e) {
-                                String message = "Cannot open the DSM View";
-                                LOGGER.error(message, e);
-                                Activator.showErrorMessage(message, e);
-                            }
-                        }
-                    });
-                    monitor.worked(4);
-
-                    monitor.subTask("Showing the DS-Matrix for " + dsMatrix.getSize() + " elements");
-                    // update UI after analisys
-                    Display.getDefault().asyncExec(new ShowDsMatrixJob(dsMatrix));
-                    monitor.worked(5);
-
-                    return Status.OK_STATUS;
-                }
-                return Status.CANCEL_STATUS;
-            }
-
-        };
-
+        Job job = new RunDtanglerJob("DSM computing", action.getDescription());
         job.setPriority(Job.LONG);
         job.schedule();
     }
 
-    public static synchronized DsMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList,
-            DependencyScope scope, boolean allowCycles) {
-        Arguments arguments = DtanglerArguments.build(getBinaryPathList(fullyQualifiedPathList),
-                scope.getDisplayName(), allowCycles);
-        return computeDsMatrix(arguments);
+    public static synchronized DependencyMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList,
+            DependencyScope sourcesScope, DependencyScope resultDsmScope, DependencyMatrixOrdering ordering) {
+
+        List<String> binaryPathList = getBinaryPathList(fullyQualifiedPathList, sourcesScope);
+        String dsmScope = resultDsmScope.getDisplayName();
+        Arguments dtanglerArguments = DtanglerArguments.build(binaryPathList, dsmScope, false);
+
+        return computeDsMatrix(dtanglerArguments, ordering);
     }
 
-    public static synchronized DsMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList,
-            DependencyScope scope) {
-        Arguments arguments = DtanglerArguments.build(getBinaryPathList(fullyQualifiedPathList),
-                scope.getDisplayName(), false);
-        return computeDsMatrix(arguments);
-    }
-
-    private static List<String> getBinaryPathList(List<String> resourceFullyQualifiedNames) {
+    private static List<String> getBinaryPathList(List<String> resourceFullyQualifiedNames, DependencyScope scope) {
 
         List<String> result = new LinkedList<String>();
 
         for (String fullyQualifiedName : resourceFullyQualifiedNames) {
-            String binaryResourcePath = DtanglerUtils.getAbsolutePath(fullyQualifiedName);
+            String binaryResourcePath = DtanglerUtils.getAbsolutePath(fullyQualifiedName, scope);
             File resourceFile = new File(binaryResourcePath);
             if (resourceFile.isFile()) {
                 result.add(binaryResourcePath);
             } else if (resourceFile.isDirectory()) {
                 if (resourceFile.exists() && resourceFile.isDirectory()) {
-                    result.addAll(CoreUtils.listFiles(resourceFile));
+                    result.addAll(PluginUtils.listFiles(resourceFile));
                 }
             }
         }
         return result;
     }
 
-    public static synchronized DsMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList, String scope) {
-        Arguments arguments = DtanglerArguments.build(fullyQualifiedPathList, scope, false);
-        return computeDsMatrix(arguments);
-    }
+//    public static synchronized DependencyMatrix computeDsMatrixFromSources(List<String> fullyQualifiedPathList,
+//            String scope, DependencyMatrixOrdering ordering) {
+//        Arguments arguments = DtanglerArguments.build(fullyQualifiedPathList, scope, false);
+//        return computeDsMatrix(arguments, ordering);
+//    }
 
-    public static synchronized DsMatrix computeDsMatrixFromBinaries(List<String> pathList, DependencyScope scope,
-            boolean allowCycles) {
-        Arguments arguments = DtanglerArguments.build(pathList, scope.getDisplayName(), allowCycles);
-        return computeDsMatrix(arguments);
-    }
-
-    public static synchronized DsMatrix computeDsMatrixFromBinaries(List<String> pathList, DependencyScope scope) {
+    public static synchronized DependencyMatrix computeDsMatrixFromBinaries(List<String> pathList, DependencyScope scope
+            , DependencyMatrixOrdering ordering) {
         Arguments arguments = DtanglerArguments.build(pathList, scope.getDisplayName(), false);
-        return computeDsMatrix(arguments);
+        return computeDsMatrix(arguments, ordering);
     }
 
-    public static synchronized DsMatrix computeDsMatrixFromBinaries(List<String> pathList, String scope,
-            boolean allowCycles) {
-        Arguments arguments = DtanglerArguments.build(pathList, scope, allowCycles);
-        return computeDsMatrix(arguments);
-    }
-
-    public static synchronized DsMatrix computeDsMatrixFromBinaries(List<String> pathList, String scope) {
+    public static synchronized DependencyMatrix computeDsMatrixFromBinaries(List<String> pathList, String scope,
+            DependencyMatrixOrdering ordering) {
         Arguments arguments = DtanglerArguments.build(pathList, scope, false);
-        return computeDsMatrix(arguments);
+        return computeDsMatrix(arguments, ordering);
     }
 
     /**
@@ -219,9 +130,9 @@ public class DtanglerRunner implements IObjectActionDelegate {
      * @throws DtException when DTangler cannot process current request.
      * @throws MissingArgumentsException if the request parameters are incorrect.
      */
-    public static synchronized DsMatrix computeDsMatrix(Arguments arguments) {
+    public static synchronized DependencyMatrix computeDsMatrix(Arguments arguments, DependencyMatrixOrdering ordering) {
 
-        DsMatrix dsMatrix = null;
+        DependencyMatrix dsMatrix = null;
 
         try {
 
@@ -234,7 +145,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
             ConfigurableDependencyAnalyzer analyzer = new ConfigurableDependencyAnalyzer(arguments);
             AnalysisResult analysisResult = analyzer.analyze(dependencies);
 
-            dsMatrix = new DsMatrix(dependencyGraph, analysisResult);
+            dsMatrix = new DependencyMatrix(dependencyGraph, analysisResult, ordering);
 
         } catch (MissingArgumentsException e) {
             String message = "Wrong Dtangler arguments provided";
@@ -280,20 +191,107 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
     class ShowDsMatrixJob implements Runnable {
 
-        private DsMatrix dsMatrix;
+        private DependencyMatrix dsMatrix;
 
-        public ShowDsMatrixJob(DsMatrix dsMatrix) {
+        public ShowDsMatrixJob(DependencyMatrix dsMatrix) {
             this.dsMatrix = dsMatrix;
         }
 
         @Override
         public void run() {
-            DsmView.showDsMatrix(dsMatrix);
+            DsmView.getCurrent().showDsMatrix(dsMatrix, true, true, true);
             String message = "\n" + (dsMatrix.getAnalysisResult().isValid() ? "Analysis result is valid."
                     : "Analysis result is not valid.");
             LOGGER.info("Dtangler analisys completed. "
                     + "Analyzed " + dsMatrix.getSize() + " parent-scope resources. " + message);
         }
+    }
+
+    class RunDtanglerJob extends Job {
+
+        private String scope;
+
+        /**
+         * @param scope "classes" / "packages"
+         */
+        public RunDtanglerJob(String name, String scope) {
+            super(name);
+            this.scope = scope;
+        }
+
+        @Override
+        protected IStatus run(final IProgressMonitor monitor) {
+
+            while (!monitor.isCanceled()) {
+                monitor.beginTask("Dsm-Viewer", 5);
+
+                // update UI before analisys
+                Display.getDefault().asyncExec(new Runnable() {
+                    @Override
+                    public void run() {
+                        LOGGER.info("Dtangler analisys started.");
+                    }
+                });
+
+                monitor.subTask("Getting the Path List");
+                List<String> pathList = null;
+
+                if (selectedElement instanceof IProject) {
+                    IProject project = (IProject) selectedElement;
+                    String binaryOutputLocation = EclipseUtils.getBinaryOutputLocation(project, false, false);
+                    pathList = new LinkedList<String>();
+                    pathList.add(binaryOutputLocation);
+                } else { // get list of all resources under selection
+                    pathList = getPathList(selection);
+                }
+
+                monitor.worked(1);
+
+                DependencyMatrix dsMatrix = null;
+
+                try {
+                    monitor.subTask("Computing DS-Matrix for " + pathList.size() + " resource(s)");
+                    dsMatrix = computeDsMatrixFromBinaries(pathList, scope, DependencyMatrixOrdering.NATURAL_ORDERING);
+                    monitor.worked(2);
+
+                } catch (MissingArgumentsException e) {
+                    LOGGER.error(e.getMessage(), e);
+                    Activator.showErrorMessage(e.getMessage());
+                    return Status.CANCEL_STATUS;
+                } catch (DtException e) {
+                    String errorMessage = "DTangler cannot process this request";
+                    LOGGER.error(errorMessage, e);
+                    Activator.showErrorMessage(errorMessage, e);
+                    return Status.CANCEL_STATUS;
+                }
+
+                monitor.subTask("Opening the Dsm View");
+                // Showing the DSM-view:
+                Display.getDefault().asyncExec(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        try {
+                            EclipseUtils.showDsmView(activeWorkBechPart);
+                        } catch (PartInitException e) {
+                            String message = "Cannot open the DSM View";
+                            LOGGER.error(message, e);
+                            Activator.showErrorMessage(message, e);
+                        }
+                    }
+                });
+                monitor.worked(4);
+
+                monitor.subTask("Showing the DS-Matrix for " + dsMatrix.getSize() + " elements");
+                // update UI after analisys
+                Display.getDefault().asyncExec(new ShowDsMatrixJob(dsMatrix));
+                monitor.worked(5);
+
+                return Status.OK_STATUS;
+            }
+            return Status.CANCEL_STATUS;
+        }
+
     }
 
 }
