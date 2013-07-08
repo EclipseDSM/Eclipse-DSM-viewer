@@ -1,9 +1,14 @@
 package com.dsmviewer.dsm;
 
+import org.dtangler.core.dependencies.Scope;
 import org.eclipse.swt.graphics.Image;
 
 import com.dsmviewer.Activator;
 
+/**
+ * 
+ * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
+ */
 public enum DependencyScope {
     CLASSES("classes"),
     PACKAGES("packages");
@@ -27,5 +32,9 @@ public enum DependencyScope {
         default:
             return null;
         }
+    }
+
+    public boolean equals(Scope scope) {
+        return scope.getDisplayName().equals(getDisplayName());
     }
 }

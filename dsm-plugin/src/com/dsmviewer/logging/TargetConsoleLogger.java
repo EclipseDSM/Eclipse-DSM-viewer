@@ -5,132 +5,126 @@ import static java.text.MessageFormat.format;
 import java.io.IOException;
 import java.util.Date;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Display;
 
 import com.dsmviewer.Activator;
-import com.dsmviewer.utils.CoreUtils;
+import com.dsmviewer.ui.UiHelper;
+import com.dsmviewer.utils.PluginUtils;
 
 /**
- * This logger creates the plugin`s console in Developers Eclipse instance and logs to it.
+ * This logger logs into its own console in target Eclipse instance (if appropriate console doesn`t exists on target
+ * platform, it will be initialized and shown on first message showing).
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */
 public final class TargetConsoleLogger implements Logger {
 
-	private static final String LOGGING_PATTERN = "[{0}][{1}][{2}]: {3}";
+    private static final String LOGGING_PATTERN = "[{0}][{1}][{2}]: {3}";
 
-	private static final Color LOG_COLOR_DEFAULT = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
+    private final String className;
 
-	private static final Color LOG_COLOR_DEBUG = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
-	private static final Color LOG_COLOR_INFO = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GREEN);
-    private static final Color LOG_COLOR_WARN = new Color(Display.getCurrent(), 232, 174, 91); // orange
-	private static final Color LOG_COLOR_ERROR = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+    private static enum LogLevel {
+        DEBUG("DEBUG", UiHelper.LOG_COLOR_DEBUG),
+        INFO("INFO", UiHelper.LOG_COLOR_INFO),
+        WARN("WARN", UiHelper.LOG_COLOR_WARN),
+        ERROR("ERROR", UiHelper.LOG_COLOR_ERROR);
 
-	private final String className;
+        private String name;
+        private Color color;
 
-	private static enum LogLevel {
-		DEBUG("DEBUG", LOG_COLOR_DEBUG),
-		INFO("INFO", LOG_COLOR_INFO),
-		WARN("WARN", LOG_COLOR_WARN),
-		ERROR("ERROR", LOG_COLOR_ERROR);
+        private LogLevel(String name, Color color) {
+            this.name = name;
+            this.color = color;
+        }
 
-		private String name;
-		private Color color;
+        public Color getColor() {
+            return this.color;
+        }
 
-		private LogLevel(String name, Color color) {
-			this.name = name;
-			this.color = color;
-		}
+        @Override
+        public String toString() {
+            return this.name;
+        }
+    }
 
-		public Color getColor() {
-			return this.color;
-		}
+    private <T> TargetConsoleLogger(Class<T> clazz) {
+        this.className = clazz.getSimpleName();
+    }
 
-		@Override
-		public String toString() {
-			return this.name;
-		}
-	}
+    private TargetConsoleLogger(String className) {
+        this.className = className;
+    }
 
-	private <T> TargetConsoleLogger(Class<T> clazz) {
-		this.className = clazz.getSimpleName();
-	}
+    protected static TargetConsoleLogger getLogger(String classname) {
+        TargetConsoleLogger logger = new TargetConsoleLogger(classname);
+        return logger;
+    }
 
-	private TargetConsoleLogger(String className) {
-		this.className = className;
-	}
+    protected static <T> TargetConsoleLogger getLogger(Class<T> clazz) {
+        TargetConsoleLogger logger = new TargetConsoleLogger(clazz);
+        return logger;
+    }
 
-	protected static TargetConsoleLogger getLogger(String classname) {
-		TargetConsoleLogger logger = new TargetConsoleLogger(classname);
-		return logger;
-	}
-
-	protected static <T> TargetConsoleLogger getLogger(Class<T> clazz) {
-		TargetConsoleLogger logger = new TargetConsoleLogger(clazz);
-		return logger;
-	}
-
-	@Override
+    @Override
     public synchronized void debug(String message) {
-		appendMessage(LogLevel.DEBUG, message, true);
-	}
+        appendMessage(LogLevel.DEBUG, message, true);
+    }
 
-	@Override
+    @Override
     public synchronized void info(String message) {
-		appendMessage(LogLevel.INFO, message, true);
-	}
+        appendMessage(LogLevel.INFO, message, true);
+    }
 
-	@Override
+    @Override
     public synchronized void warn(String message) {
-		appendMessage(LogLevel.WARN, message, true);
-	}
+        appendMessage(LogLevel.WARN, message, true);
+    }
 
-	@Override
+    @Override
     public synchronized void warn(String message, Throwable e) {
-		String errorMessage = format("{0}: {1}", message, e.getMessage());
-		appendMessage(LogLevel.WARN, errorMessage, true);
-        appendMessage(CoreUtils.extractStackTrace(e), LOG_COLOR_WARN, true);
-	}
+        String errorMessage = format("{0}: {1}", message, e.getMessage());
+        appendMessage(LogLevel.WARN, errorMessage, true);
+        appendMessage(PluginUtils.extractStackTrace(e), LogLevel.WARN.getColor(), true);
+    }
 
-	@Override
+    @Override
     public synchronized void error(String message, Throwable e) {
-		String errorMessage = format("{0}: {1}", message, e.getMessage());
-		appendMessage(LogLevel.ERROR, errorMessage, true);
-        appendMessage(CoreUtils.extractStackTrace(e), LOG_COLOR_ERROR, true);
-	}
+        String errorMessage = format("{0}: {1}", message, e.getMessage());
+        appendMessage(LogLevel.ERROR, errorMessage, true);
+        appendMessage(PluginUtils.extractStackTrace(e), LogLevel.ERROR.getColor(), true);
+    }
 
-	private void appendMessage(LogLevel level, String msg, boolean newLine) {
-		appendMessage(formatMessage(level, msg), level.getColor(), newLine);
-	}
+    private void appendMessage(LogLevel level, String msg, boolean addNewLine) {
+        appendMessage(formatMessage(level, msg), level.getColor(), addNewLine);
+    }
 
-	private static void appendMessage(String msg, Color color, boolean newLine) {
-		ConsoleStream out = new ConsoleStream();
-		if (color == null) {
-			out.setColor(LOG_COLOR_DEFAULT);
-		} else {
-			out.setColor(color);
-		}
-		try {
-			if (newLine) {
-				out.println(msg);
-			} else {
-				out.print(msg);
-			}
-		} finally {
-			try {
-				out.close();
-			} catch (IOException e) {
-			    String message = "Error while closing the target ConsoleStream";
+    private static void appendMessage(String msg, Color color, boolean addNewLine) {
+        ConsoleStream out = new ConsoleStream();
+        if (color == null) {
+            out.setColor(UiHelper.LOG_COLOR_DEFAULT);
+        } else {
+            out.setColor(color);
+        }
+        try {
+            if (addNewLine) {
+                out.println(msg);
+            } else {
+                out.print(msg);
+            }
+        } finally {
+            try {
+                out.close();
+            } catch (IOException e) {
+                String message = TargetConsoleLogger.class.getSimpleName()
+                        + ": Error while closing the target ConsoleStream";
                 NativeLogger.getLogger(TargetConsoleLogger.class, false).error(message, e);
                 Activator.showErrorMessage(message, e);
-			}
-		}
-	}
+            }
+        }
+    }
 
-	private String formatMessage(LogLevel level, String message) {
-		return format(LOGGING_PATTERN, new Date(), level, className, message);
-	}
+    private String formatMessage(LogLevel level, String message) {
+        return format(LOGGING_PATTERN, new Date(), level, className, message);
+    }
 
 }

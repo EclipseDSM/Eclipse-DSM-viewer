@@ -1,10 +1,10 @@
 package com.dsmviewer;
 
-import java.io.IOException;
+import java.io.File;
 import java.net.URL;
 import java.util.Enumeration;
 
-import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
@@ -18,7 +18,7 @@ import org.osgi.framework.BundleContext;
 import com.dsmviewer.logging.ConsoleStream;
 import com.dsmviewer.logging.Logger;
 import com.dsmviewer.logging.LoggerFactory;
-import com.dsmviewer.utils.CoreUtils;
+import com.dsmviewer.utils.PluginUtils;
 
 /**
  * 
@@ -26,11 +26,12 @@ import com.dsmviewer.utils.CoreUtils;
  */
 public class Activator extends AbstractUIPlugin {
 
-    public static final String PLUGIN_ID = "DSM-Viewer"; //$NON-NLS-1$
+    public static final String PLUGIN_ID = "Eclipse-DSM-Viewer"; //$NON-NLS-1$
 
     private static ImageRegistry imageRegistry;
 
     private static LoggerFactory loggerFactory;
+
     private static Logger logger;
 
     private static Activator pluginInstance;
@@ -44,40 +45,36 @@ public class Activator extends AbstractUIPlugin {
         loadImagesToRegistry();
 
         loggerFactory = new LoggerFactory();
-        logger = loggerFactory.getLogger(getClass());
+        logger = loggerFactory.getLogger(Activator.class.getName());
         logger.info("DSM-viewer plugin started");
     }
 
     private static void loadImagesToRegistry() {
         Bundle bundle = pluginInstance.getBundle();
 
-        Enumeration<URL> entries = bundle.findEntries("/icons/", "*.gif", true);
-//        IPath path = new Path("");
-//        URL[] iconPaths = FileLocator.findEntries(bundle, path);
+        Enumeration<URL> entries = bundle.findEntries("/icons/", "*.*", true);
         while (entries.hasMoreElements()) {
             URL url = entries.nextElement();
             ImageDescriptor desc = ImageDescriptor.createFromURL(url);
-            imageRegistry.put(CoreUtils.extractFileName(url), desc);
+            imageRegistry.put(PluginUtils.extractFileName(url), desc);
         }
     }
 
     @Override
     public void stop(BundleContext context) throws Exception {
-        loggerFactory.getLogger(getClass()).info("Stopping DSM-viewer plugin...");
+        logger.info("Stopping DSM-viewer plugin...");
 
         imageRegistry.dispose();
         imageRegistry = null;
 
-        // cleaning for logging
+        // destroy target plugin`s debug console
         if (loggerFactory.isDebugMode()) {
-            // destroy plugin`s target debug console
             MessageConsole targetConsole = ConsoleStream.findPluginsConsole(getPluginId(), false);
             if (targetConsole != null) {
                 targetConsole.destroy();
             }
         }
-        loggerFactory = null; // destroy all created loggers
-
+        loggerFactory = null; // this will destroy all created loggers
         pluginInstance = null;
 
         super.stop(context);
@@ -95,30 +92,6 @@ public class Activator extends AbstractUIPlugin {
     public static String getPluginId() {
         return pluginInstance.getBundle().getSymbolicName();
     }
-
-    /**
-     * Gets an absolute path from given resource relative path.
-     * 
-     * @param filePath - relative path to any resource.
-     * @return the absolute path.
-     * @throws IOException
-     */
-    public static String getAbsolutePath(final String filePath) {
-        String result = null;
-        URL confUrl = pluginInstance.getBundle().getEntry(filePath);
-        try {
-            result = FileLocator.toFileURL(confUrl).getFile();
-        } catch (IOException e) {
-            String errorMessage = "Cannot retrieve absolute path for the file: " + filePath;
-            logger.error(errorMessage, e);
-            showErrorMessage(errorMessage, e);
-        }
-        return result;
-    }
-
-// code to retrieve an java.io.InputStream
-//    InputStream inputStream = FileLocator.openStream(
-//        Activator.getDefault().getBundle(), new Path("resources/setup.xml"), false);
 
     /**
      * Shows the info message.
@@ -146,23 +119,26 @@ public class Activator extends AbstractUIPlugin {
     public static void showErrorMessage(String message, Throwable e) {
         StringBuilder sb = new StringBuilder(message);
         sb.append(":\n");
-        sb.append(CoreUtils.extractStackTrace(e));
+        sb.append(PluginUtils.extractStackTrace(e));
         MessageDialog.openError(Display.getDefault().getActiveShell(), PLUGIN_ID, sb.toString());
     }
 
     public static Image getImageFromRegistry(String filename) {
-        return (imageRegistry == null) ? null : imageRegistry.get(filename);
+        return imageRegistry.get(filename);
     }
 
-//    /**
-//     * Returns an image descriptor for the image file at the given plug-in relative path.
-//     * 
-//     * @param path the path
-//     * @return the image descriptor
-//     */
-//    public static ImageDescriptor getImageDescriptor(String path) {
-//        return imageDescriptorFromPlugin(PLUGIN_ID, path);
-//    }
+    public static ImageDescriptor getImageDescriptorFromRegistry(String imageNameOrPath) {
+        String pluginId = getPluginId();
+        ImageDescriptor imageDescriptor = imageDescriptorFromPlugin(pluginId, imageNameOrPath);
+        if (imageDescriptor == null) {
+            imageDescriptor = imageDescriptorFromPlugin(pluginId, "icons" + File.separator + imageNameOrPath);
+        }
+        return imageDescriptor;
+    }
+
+    public ILog getEclipseNativeLogger() {
+        return getLog();
+    }
 
     public static Logger getLogger(String className) {
         return loggerFactory.getLogger(className);
