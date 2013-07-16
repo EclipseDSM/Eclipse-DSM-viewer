@@ -15,6 +15,7 @@ import com.dsmviewer.Activator;
 import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.dsm.DependencyMatrixOrdering;
 import com.dsmviewer.logging.Logger;
+import com.dsmviewer.ui.action.ExportToExcelAction;
 import com.dsmviewer.ui.action.ExportToImageAction;
 import com.dsmviewer.ui.action.SortDependencyMatrixByInstabilityAction;
 import com.dsmviewer.ui.action.SortDependencyMatrixInNaturalOrderingAction;
@@ -43,7 +44,8 @@ public class DsmView extends ViewPart {
 
     private static DsmView currentInstance;
 
-    private ExportToImageAction takeScreenshotAction;
+    private ExportToImageAction exportToImageAction;
+    private ExportToExcelAction exportToExcelAction;
 
     private StepBackwardAction stepBackWardAction;
     private StepForwardAction stepForwardAction;
@@ -134,7 +136,8 @@ public class DsmView extends ViewPart {
         sortInNaturalOrderingAction = new SortDependencyMatrixInNaturalOrderingAction(dsmTableController);
         sortByInstabilityAction = new SortDependencyMatrixByInstabilityAction(dsmTableController);
 
-        takeScreenshotAction = new ExportToImageAction(dsmTableController);
+        exportToImageAction = new ExportToImageAction(dsmTableController);
+        exportToExcelAction = new ExportToExcelAction(dsmTableController);
 
         addPropertyChangeListeners();
 
@@ -144,7 +147,8 @@ public class DsmView extends ViewPart {
         manager.add(sortInNaturalOrderingAction);
         manager.add(sortByInstabilityAction);
         manager.add(new Separator());
-        manager.add(takeScreenshotAction);
+        manager.add(exportToImageAction);
+        manager.add(exportToExcelAction);
 
         setActionsEnabled(false);
     }
@@ -204,7 +208,8 @@ public class DsmView extends ViewPart {
         stepForwardAction.setEnabled(false);
         sortInNaturalOrderingAction.setEnabled(enabled);
         sortByInstabilityAction.setEnabled(enabled);
-        takeScreenshotAction.setEnabled(enabled);
+        exportToImageAction.setEnabled(enabled);
+        exportToExcelAction.setEnabled(enabled);
     }
 
     private void addPropertyChangeListeners() {
