@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="eclipse.dsm.feature"
-      label="Eclipse DSM-Viewer feature"
+      label="Eclipse DSM-Viewer Plugin"
       version="2.0.2.qualifier">
 
    <description url="http://www.example.com/description">
