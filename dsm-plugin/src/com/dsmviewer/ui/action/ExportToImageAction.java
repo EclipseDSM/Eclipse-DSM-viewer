@@ -63,6 +63,18 @@ public class ExportToImageAction extends Action {
         }
     }
 
+//    private void setClientAreaToMaximum(ILayer layer) {
+//        final Rectangle maxClientArea = new Rectangle(0, 0, layer.getWidth(), layer.getHeight());
+//        
+//        layer.setClientAreaProvider(new IClientAreaProvider() {
+//            public Rectangle getClientArea() {
+//                return maxClientArea;
+//            }
+//        });
+//        
+//        layer.doCommand(new PrintEntireGridCommand());
+//    }
+
     @Override
     public String getToolTipText() {
         return "Export visible DSM part to PNG image";

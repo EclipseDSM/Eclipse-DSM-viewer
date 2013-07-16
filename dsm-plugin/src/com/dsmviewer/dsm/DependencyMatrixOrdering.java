@@ -8,8 +8,8 @@ public enum DependencyMatrixOrdering {
     NATURAL_ORDERING,
     BY_INSTABILITY;
 
-    public static DependencyMatrixOrdering getDtanglerDefaultOrdering() {
-        return BY_INSTABILITY;
+    public static boolean isDtanglerDefaultOrdering(DependencyMatrixOrdering ordering) {
+        return BY_INSTABILITY == ordering;
     }
 
     public static DependencyMatrixOrdering getPluginDefaultOrdering() {
