@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dtangler.core.analysisresult.AnalysisResult;
-import org.dtangler.core.dependencies.Dependable;
 import org.dtangler.core.dependencies.Dependency;
 import org.dtangler.core.dependencies.DependencyGraph;
 import org.dtangler.core.dependencies.Scope;
@@ -31,8 +30,8 @@ public class DependencyMatrix {
         this.rows = DtanglerUtils.buildDsmRowsUsingDtangler(dependencyGraph);
         this.analysisResult = analysisResult;
 
-        // skip sorting if Dtangler default ordering is provided
-        if (ordering != DependencyMatrixOrdering.getDtanglerDefaultOrdering()) {
+        // skip sorting if Dtangler`s default ordering is provided
+        if (!DependencyMatrixOrdering.isDtanglerDefaultOrdering(ordering)) {
             sort(ordering);
         }
     }
@@ -97,31 +96,34 @@ public class DependencyMatrix {
 
     public void replaceRows(int rowNum1, int rowNum2) {
 
-        int row1 = Math.min(rowNum1, rowNum2);
-        int row2 = Math.max(rowNum1, rowNum2);
+        int row1Index = Math.min(rowNum1, rowNum2);
+        int row2Index = Math.max(rowNum1, rowNum2);
 
         // replace rows
         for (int j = 0; j < getSize(); j++) {
-            if (j != row1 && j != row2) {
-                replaceCells(row1, j, row2, j);
+            if (j == row1Index || j == row2Index) {
+                // skip
+            } else {
+                replaceCells(row1Index, j, row2Index, j);
             }
         }
 
         // replace columns
         for (int i = 0; i < getSize(); i++) {
-            if (i != row1 && i != row2) {
-                replaceCells(i, row1, i, row2);
+            if (i == row1Index || i == row2Index) {
+                // skip
+            } else {
+                replaceCells(i, row1Index, i, row2Index);
             }
         }
 
         // replace additional cells on intersection of row1 and row2
-        replaceCells(row2, row1, row1, row2);
+        replaceCells(row2Index, row1Index, row1Index, row2Index);
 
-        Dependable dependee1 = getRow(rowNum1).getDependee();
-        Dependable dependee2 = getRow(rowNum2).getDependee();
-
-        rows.set(rowNum1, new DsmRow(dependee2, getRow(rowNum1).getCells()));
-        rows.set(rowNum2, new DsmRow(dependee1, getRow(rowNum2).getCells()));
+        DsmRow row1 = getRow(rowNum1);
+        DsmRow row2 = getRow(rowNum2);
+        rows.set(rowNum1, new DsmRow(row2.getDependee(), row1.getCells()));
+        rows.set(rowNum2, new DsmRow(row1.getDependee(), row2.getCells()));
     }
 
     public boolean hasViolations(int i, int j) {
@@ -188,14 +190,18 @@ public class DependencyMatrix {
         }
     }
 
+    public DependencyMatrixOrdering getOrdering() {
+        return currentOrdering;
+    }
+
     @Override
     public String toString() {
         if (getSize() > 20) {
             String hasViolationsSuffix = analysisResult.isValid() ? ""
                     : MessageFormat.format("has {0} violations", analysisResult.getAllViolations().size());
-
-            return "Dependency Matrix: size = " + getSize() + "; " + hasViolationsSuffix;
+            return "DependencyMatrix: size = " + getSize() + ", " + hasViolationsSuffix;
         } else {
+            // TODO: This code is written for test purposes and should be removed before release
             StringBuilder sb = new StringBuilder(getClass().getSimpleName());
             sb.append("\n");
             List<String> displayNames = getDisplayNames();
@@ -211,10 +217,6 @@ public class DependencyMatrix {
             }
             return sb.toString();
         }
-    }
-
-    public DependencyMatrixOrdering getOrdering() {
-        return currentOrdering;
     }
 
     @Override
@@ -259,6 +261,5 @@ public class DependencyMatrix {
         }
         return true;
     }
-
 
 }

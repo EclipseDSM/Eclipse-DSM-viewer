@@ -2,7 +2,7 @@
 <feature
       id="eclipse.dsm.feature"
       label="Eclipse DSM-Viewer feature"
-      version="2.0.1.qualifier">
+      version="2.0.2.qualifier">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]
@@ -20,7 +20,7 @@
          id="eclipse-dsm-plugin"
          download-size="0"
          install-size="0"
-         version="2.0.1.qualifier"
+         version="2.0.2.qualifier"
          unpack="false"/>
 
 </feature>
