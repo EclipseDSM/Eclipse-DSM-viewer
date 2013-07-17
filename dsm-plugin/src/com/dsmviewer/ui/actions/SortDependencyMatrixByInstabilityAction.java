@@ -1,35 +1,36 @@
-package com.dsmviewer.ui.action;
+package com.dsmviewer.ui.actions;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.ISharedImages;
 
-import com.dsmviewer.Activator;
 import com.dsmviewer.dsm.DependencyMatrixOrdering;
+import com.dsmviewer.ui.UiHelper;
 import com.dsmviewer.ui.dsmtable.DsmTableController;
 
 /**
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */
-public class SortDependencyMatrixInNaturalOrderingAction extends AbstractSortDependencyMatrixAction {
+public class SortDependencyMatrixByInstabilityAction extends AbstractSortDependencyMatrixAction {
 
-    public SortDependencyMatrixInNaturalOrderingAction(DsmTableController dsmTableController) {
+    public SortDependencyMatrixByInstabilityAction(DsmTableController dsmTableController) {
         super(dsmTableController);
     }
 
     @Override
     public DependencyMatrixOrdering getDependencyMatrixOrdering() {
-        return DependencyMatrixOrdering.NATURAL_ORDERING;
+        return DependencyMatrixOrdering.BY_INSTABILITY;
     }
 
     @Override
     public String getToolTipText() {
-        return "Sort in natural ordering";
+        return "Sort dsm by dependees instability";
     }
 
     @Override
     public ImageDescriptor getImageDescriptor() {
-        return Activator.getImageDescriptorFromRegistry("sort_in_natural_ordering.png");
+        return UiHelper.getSharedImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK);
     }
 
     @Override

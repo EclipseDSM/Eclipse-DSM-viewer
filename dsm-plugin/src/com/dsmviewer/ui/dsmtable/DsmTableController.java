@@ -17,7 +17,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
 import com.dsmviewer.dsm.DependencyMatrix;
-import com.dsmviewer.dsm.DependencyScope;
 import com.dsmviewer.ui.DsmView;
 import com.dsmviewer.ui.UiHelper;
 
@@ -27,7 +26,9 @@ import com.dsmviewer.ui.UiHelper;
  */
 public class DsmTableController {
 
-    private static final int ICON_SIZE = DependencyScope.PACKAGES.getDisplayIcon().getBounds().width; // 16px
+    private NatTable dsmTable;
+
+    private Composite parent;
 
     private DsmBodyDataProvider mainDataProvider;
     private DsmRowHeaderDataProvider rowHeaderDataProvider;
@@ -37,9 +38,6 @@ public class DsmTableController {
     private DsmColumnHeaderLayer columnHeaderLayer;
     private DsmRowHeaderLayer rowHeaderLayer;
 
-    private Composite parent;
-    private NatTable table;
-
     private boolean alreadyInitialized = false;
 
     private Stack<DependencyMatrix> stack = new Stack<DependencyMatrix>();
@@ -48,7 +46,14 @@ public class DsmTableController {
         this.parent = parent;
     }
 
-    public void setDependencyMatrix(DependencyMatrix dependencyMatrix, boolean fullRefresh, boolean addToHistory) {
+    public void setDependencyMatrix(DependencyMatrix dependencyMatrix, boolean addToHistory) {
+        internalSetDependencyMatrix(dependencyMatrix);
+        if (addToHistory) {
+            stack.add(dependencyMatrix);
+        }
+    }
+
+    private void internalSetDependencyMatrix(DependencyMatrix dependencyMatrix) {
 
         if (!alreadyInitialized) {
             init(dependencyMatrix);
@@ -58,25 +63,19 @@ public class DsmTableController {
         rowHeaderDataProvider.setDependencyMatrix(dependencyMatrix);
         colHeaderDataProvider.setDependencyMatrix(dependencyMatrix);
 
-        // TODO: add to plugin human-changeable properties as 'default cell size'
+        // TODO: add human-changeable 'default cell size' property to plugin
         int cellSize = UiHelper.DSM_CELL_SIZE_DEFAULT;
 
         Dimension cellDimension = new Dimension(cellSize, cellSize);
-
         bodyLayer.setCellSize(cellDimension);
         columnHeaderLayer.setCellSize(cellDimension);
+        rowHeaderLayer.setRowHeight((int) (cellSize * 1.2));
 
-        int rowHeight = (int) (cellSize * 1.25);
-        rowHeaderLayer.setRowHeight(rowHeight);
+        List<String> displayNames = dependencyMatrix.getDisplayNames();
+        int maxHeaderWidth = UiHelper.computeMaxTextWidth(displayNames, dsmTable.getShell());
+        rowHeaderLayer.setWidth(maxHeaderWidth + UiHelper.ICON_SIZE + 5);
 
-        int maximumHeaderWidth = computeMaximumRowHeaderWidth(dependencyMatrix.getDisplayNames());
-        rowHeaderLayer.setHeaderWidth(maximumHeaderWidth);
-
-        refreshTable(fullRefresh);
-
-        if (addToHistory) {
-            stack.add(dependencyMatrix);
-        }
+        refreshTable(true);
     }
 
     private void init(DependencyMatrix dependencyMatrix) {
@@ -89,7 +88,7 @@ public class DsmTableController {
         columnHeaderLayer = new DsmColumnHeaderLayer(colHeaderDataProvider, bodyLayer);
         rowHeaderLayer = new DsmRowHeaderLayer(rowHeaderDataProvider, bodyLayer);
 
-        // just for now I want to do nothing with left-upper corner. It will be a simply rectangle gray area
+        // just for now I want to do nothing with left-upper corner. It will be the simple gray rectangle
         DefaultCornerDataProvider cornerDataProvider =
                 new DefaultCornerDataProvider(colHeaderDataProvider, rowHeaderDataProvider);
 
@@ -97,12 +96,12 @@ public class DsmTableController {
 
         GridLayer mainLayer = new GridLayer(bodyLayer, columnHeaderLayer, rowHeaderLayer, cornerLayer);
 
-        table = new NatTable(parent, mainLayer, false);
+        dsmTable = new NatTable(parent, mainLayer, false);
 
         { // configuring layers
             mainLayer.clearConfiguration(); // do not configure parent layer, only child layers
             cornerLayer.addConfiguration(new DsmCornerLayerConfiguration());
-            table.configure(); // apply all configuration tweaks to all table layers
+            dsmTable.configure(); // apply all configuration tweaks to all table layers recursively 
         }
 
         configureListeners();
@@ -148,41 +147,34 @@ public class DsmTableController {
         }
     }
 
-    public void refreshTable(boolean layoutAll) {
-        table.refresh();
-        parent.layout(layoutAll);
+    public void refreshTable(boolean changed) {
+        dsmTable.refresh();
+        parent.layout(changed);
     }
 
     public Point getDsmTableBounds() {
         int height = bodyLayer.getWidth() + rowHeaderLayer.getWidth();
-        int width = bodyLayer.getHeight();
+        int width = bodyLayer.getHeight() + columnHeaderLayer.getHeight();
         return new Point(height, width);
     }
 
-    public DependencyMatrix getDependencyMatrix() {
-        return mainDataProvider.getDependencyMatrix();
+    public void setDsmTableBounds(Point bounds) {
+        dsmTable.setBounds(bounds.x, bounds.y, bounds.x, bounds.y);
     }
 
-    private static int computeMaximumRowHeaderWidth(List<String> displayNames) {
-        int maxLength = 0;
-        for (int i = 0; i < displayNames.size(); i++) {
-            int length = displayNames.get(i).length();
-            if (maxLength < length) {
-                maxLength = length;
-            }
-        }
-        return (int) (maxLength * UiHelper.DEFAULT_FONT_SIZE / 1.2) + 2 * ICON_SIZE;
+    public DependencyMatrix getDependencyMatrix() {
+        return mainDataProvider == null ? null : mainDataProvider.getDependencyMatrix();
     }
 
     public NatTable getTable() {
-        return table;
+        return dsmTable;
     }
 
     public boolean setTableFocused() {
-        if (table == null) {
+        if (dsmTable == null) {
             return false;
         } else {
-            return table.forceFocus();
+            return dsmTable.forceFocus();
         }
     }
 
@@ -194,7 +186,7 @@ public class DsmTableController {
     public void doStepBackWard() {
         if (stack.size() > 1) {
             DependencyMatrix dependencyMatrix = stack.get(stack.size() - 2);
-            setDependencyMatrix(dependencyMatrix, false, false);
+            setDependencyMatrix(dependencyMatrix, false);
             DsmView.getCurrent().updateSortActionsState(dependencyMatrix.getOrdering());
             stack.pop();
         } else {
@@ -202,7 +194,7 @@ public class DsmTableController {
         }
     }
 
-    public void crearStack() {
+    public void clearHistory() {
         stack.clear();
     }
 

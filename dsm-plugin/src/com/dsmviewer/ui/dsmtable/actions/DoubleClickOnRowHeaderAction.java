@@ -1,4 +1,4 @@
-package com.dsmviewer.ui.dsmtable.action;
+package com.dsmviewer.ui.dsmtable.actions;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -50,7 +50,7 @@ public class DoubleClickOnRowHeaderAction implements IMouseAction {
                     DependencyScope.PACKAGES, DependencyScope.CLASSES,
                     DependencyMatrixOrdering.NATURAL_ORDERING);
 
-            DsmView.getCurrent().showDsMatrix(dsMatrix, false, false, true);
+            DsmView.getCurrent().showDsMatrix(dsMatrix, false, true);
 
         } else if (DependencyScope.CLASSES.equals(dependee.getScope())) {
             // if doubleclicked cell has a 'class' scope - open appropriate source file in Project Explorer

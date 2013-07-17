@@ -2,6 +2,7 @@ package com.dsmviewer.dsm;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.dtangler.core.analysisresult.AnalysisResult;
@@ -10,6 +11,7 @@ import org.dtangler.core.dependencies.DependencyGraph;
 import org.dtangler.core.dependencies.Scope;
 import org.dtangler.core.dsm.DsmCell;
 import org.dtangler.core.dsm.DsmRow;
+import org.dtangler.javaengine.types.JavaScope;
 
 import com.dsmviewer.utils.DtanglerUtils;
 
@@ -19,15 +21,23 @@ import com.dsmviewer.utils.DtanglerUtils;
  */
 public class DependencyMatrix {
 
+    public static final DependencyMatrix EMPTY_MATRIX = new DependencyMatrix();
+
     private AnalysisResult analysisResult;
     private List<DsmRow> rows;
     private DependencyGraph dependencyGraph;
     private DependencyMatrixOrdering currentOrdering;
 
+    public DependencyMatrix() {
+        this(new DependencyGraph(JavaScope.locations),
+                new AnalysisResult(Collections.EMPTY_MAP, Collections.EMPTY_SET, true),
+                DependencyMatrixOrdering.getPluginDefaultOrdering());
+    }
+
     public DependencyMatrix(DependencyGraph dependencyGraph, AnalysisResult analysisResult,
             DependencyMatrixOrdering ordering) {
         this.dependencyGraph = dependencyGraph;
-        this.rows = DtanglerUtils.buildDsmRowsUsingDtangler(dependencyGraph);
+        this.rows = DtanglerUtils.buildDsmRowsUsingDtanglersDefaultOrdering(dependencyGraph);
         this.analysisResult = analysisResult;
 
         // skip sorting if Dtangler`s default ordering is provided
@@ -179,7 +189,7 @@ public class DependencyMatrix {
 
             switch (ordering) {
             case BY_INSTABILITY:
-                setRows(DtanglerUtils.buildDsmRowsUsingDtangler(getDependencyGraph()));
+                setRows(DtanglerUtils.buildDsmRowsUsingDtanglersDefaultOrdering(getDependencyGraph()));
                 break;
             case NATURAL_ORDERING:
                 DtanglerUtils.sortDisplayNamesInNaturalOrder(this);

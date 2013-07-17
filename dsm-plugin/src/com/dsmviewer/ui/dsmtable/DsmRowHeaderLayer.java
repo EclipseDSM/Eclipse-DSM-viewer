@@ -14,8 +14,8 @@ import org.eclipse.nebula.widgets.nattable.painter.cell.decorator.LineBorderDeco
 import org.eclipse.nebula.widgets.nattable.ui.util.CellEdgeEnum;
 import org.eclipse.swt.graphics.Color;
 
-import com.dsmviewer.dsm.DependencyType;
 import com.dsmviewer.dsm.DependencyScope;
+import com.dsmviewer.dsm.DependencyType;
 import com.dsmviewer.ui.UiHelper;
 
 /**
@@ -31,8 +31,8 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
         }
     };
 
-    private int rowHeight;
-    private int headerWidth;
+    private int rowHeight = UiHelper.DSM_CELL_SIZE_DEFAULT;
+    private int rowWidth = UiHelper.DSM_CELL_SIZE_DEFAULT;
 
     private DataLayer rowDataLayer;
     private DsmRowHeaderDataProvider rowHeaderDataProvider;
@@ -60,12 +60,12 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
 
     @Override
     public boolean isColumnPositionResizable(int columnPosition) {
-        return true;
+        return false;
     }
 
     @Override
     public int getColumnWidthByPosition(int columnPosition) {
-        return headerWidth;
+        return rowWidth;
     }
 
     public int getRowHeight() {
@@ -77,9 +77,9 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
         this.rowHeight = rowHeight;
     }
 
-    public void setHeaderWidth(int headerWidth) {
-        rowDataLayer.setDefaultColumnWidth(headerWidth);
-        this.headerWidth = headerWidth;
+    public void setWidth(int width) {
+        rowDataLayer.setDefaultColumnWidth(width);
+        this.rowWidth = width;
     }
 
     public int getSelectedDependeeRowIndex() {

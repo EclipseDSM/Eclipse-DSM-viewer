@@ -1,7 +1,4 @@
-package com.dsmviewer.ui.action;
-
-import java.util.HashMap;
-import java.util.Map;
+package com.dsmviewer.ui.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -30,13 +27,10 @@ public class ExportToExcelAction extends Action {
         NatTable table = dsmTableController.getTable();
 
         NatExporter exporter = new NatExporter(table.getShell());
-        Map<String, NatTable> natTablesMap = new HashMap<String, NatTable>();
-
-        String dsmOrdering = dsmTableController.getDependencyMatrix().getOrdering().toString();
-        natTablesMap.put("DSM with " + dsmOrdering + " ordering", table);
 
         IConfigRegistry configRegistry = table.getConfigRegistry();
         configRegistry.registerConfigAttribute(ILayerExporter.CONFIG_ATTRIBUTE, new ExcelExporter());
+
         exporter.exportSingleLayer(table.getLayer(), configRegistry);
     }
 

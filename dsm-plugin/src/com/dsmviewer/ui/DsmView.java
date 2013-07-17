@@ -15,12 +15,13 @@ import com.dsmviewer.Activator;
 import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.dsm.DependencyMatrixOrdering;
 import com.dsmviewer.logging.Logger;
-import com.dsmviewer.ui.action.ExportToExcelAction;
-import com.dsmviewer.ui.action.ExportToImageAction;
-import com.dsmviewer.ui.action.SortDependencyMatrixByInstabilityAction;
-import com.dsmviewer.ui.action.SortDependencyMatrixInNaturalOrderingAction;
-import com.dsmviewer.ui.action.StepBackwardAction;
-import com.dsmviewer.ui.action.StepForwardAction;
+import com.dsmviewer.ui.actions.ClearAllAction;
+import com.dsmviewer.ui.actions.ExportToExcelAction;
+import com.dsmviewer.ui.actions.ExportToImageAction;
+import com.dsmviewer.ui.actions.SortDependencyMatrixByInstabilityAction;
+import com.dsmviewer.ui.actions.SortDependencyMatrixInNaturalOrderingAction;
+import com.dsmviewer.ui.actions.StepBackwardAction;
+import com.dsmviewer.ui.actions.StepForwardAction;
 import com.dsmviewer.ui.dsmtable.DsmTableController;
 import com.dsmviewer.utils.EclipseUtils;
 
@@ -35,6 +36,8 @@ public class DsmView extends ViewPart {
 
     public static final String ID = "com.dsmviewer.ui.DsmView";
 
+    private static DsmView currentInstance;
+
     private DsmViewLyfeCycleListener lifeCycleListener;
 
     private DsmTableController dsmTableController;
@@ -42,13 +45,13 @@ public class DsmView extends ViewPart {
     private Action sortInNaturalOrderingAction;
     private Action sortByInstabilityAction;
 
-    private static DsmView currentInstance;
+    private Action exportToImageAction;
+    private Action exportToExcelAction;
 
-    private ExportToImageAction exportToImageAction;
-    private ExportToExcelAction exportToExcelAction;
+    private Action stepBackWardAction;
+    private Action stepForwardAction;
 
-    private StepBackwardAction stepBackWardAction;
-    private StepForwardAction stepForwardAction;
+    private Action clearAllAction;
 
     private IPropertyChangeListener sortByInstailityActionPropertyChangeListener = new IPropertyChangeListener() {
         @Override
@@ -136,6 +139,8 @@ public class DsmView extends ViewPart {
         sortInNaturalOrderingAction = new SortDependencyMatrixInNaturalOrderingAction(dsmTableController);
         sortByInstabilityAction = new SortDependencyMatrixByInstabilityAction(dsmTableController);
 
+        clearAllAction = new ClearAllAction(dsmTableController);
+
         exportToImageAction = new ExportToImageAction(dsmTableController);
         exportToExcelAction = new ExportToExcelAction(dsmTableController);
 
@@ -147,19 +152,21 @@ public class DsmView extends ViewPart {
         manager.add(sortInNaturalOrderingAction);
         manager.add(sortByInstabilityAction);
         manager.add(new Separator());
+        manager.add(clearAllAction);
+        manager.add(new Separator());
         manager.add(exportToImageAction);
         manager.add(exportToExcelAction);
 
         setActionsEnabled(false);
     }
 
-    public void showDsMatrix(DependencyMatrix dsMatrix, boolean revealDsmView, boolean refreshAll, boolean addToHistory) {
+    public void showDsMatrix(DependencyMatrix dsMatrix, boolean revealDsmView, boolean addToHistory) {
 
         if (revealDsmView) {
             EclipseUtils.showDsmView();
         }
 
-        dsmTableController.setDependencyMatrix(dsMatrix, refreshAll, addToHistory);
+        dsmTableController.setDependencyMatrix(dsMatrix, addToHistory);
         setActionsEnabled(true);
         updateSortActionsState(dsMatrix.getOrdering());
     }
@@ -188,8 +195,8 @@ public class DsmView extends ViewPart {
         currentInstance = null;
     }
 
-    public void updateSortActionsState(DependencyMatrixOrdering currentDsmOrdering) {
-        switch (currentDsmOrdering) {
+    public void updateSortActionsState(DependencyMatrixOrdering newDsmOrdering) {
+        switch (newDsmOrdering) {
         case BY_INSTABILITY:
             sortByInstabilityAction.setChecked(true);
             sortInNaturalOrderingAction.setChecked(false);
@@ -199,17 +206,18 @@ public class DsmView extends ViewPart {
             sortInNaturalOrderingAction.setChecked(true);
             break;
         default:
-            throw new IllegalArgumentException("Ordering " + currentDsmOrdering + " is not supported");
+            throw new IllegalArgumentException("Ordering " + newDsmOrdering + " is not supported");
         }
     }
 
     public void setActionsEnabled(boolean enabled) {
         stepBackWardAction.setEnabled(enabled);
-        stepForwardAction.setEnabled(false);
+        stepForwardAction.setEnabled(false); // TODO
         sortInNaturalOrderingAction.setEnabled(enabled);
         sortByInstabilityAction.setEnabled(enabled);
         exportToImageAction.setEnabled(enabled);
         exportToExcelAction.setEnabled(enabled);
+        clearAllAction.setEnabled(enabled);
     }
 
     private void addPropertyChangeListeners() {

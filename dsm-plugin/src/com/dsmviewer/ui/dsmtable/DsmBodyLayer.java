@@ -46,7 +46,7 @@ public class DsmBodyLayer extends AbstractLayerTransform {
     };
 
     private SelectionLayer selectionLayer;
-    private Dimension cellSize = new Dimension(20, 10);
+    private Dimension cellSize = new Dimension(UiHelper.DSM_CELL_SIZE_DEFAULT, UiHelper.DSM_CELL_SIZE_DEFAULT);
     private DataLayer dataLayer;
 
     private DsmBodyDataProvider dataProvider;

@@ -1,4 +1,4 @@
-package com.dsmviewer.ui.dsmtable.action;
+package com.dsmviewer.ui.dsmtable.actions;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -61,7 +61,7 @@ public class DoubleClickOnGridAction implements IMouseAction {
                     DependencyScope.PACKAGES, DependencyScope.CLASSES,
                     DependencyMatrixOrdering.getPluginDefaultOrdering());
 
-            DsmView.getCurrent().showDsMatrix(dsMatrix, false, false, true);
+            DsmView.getCurrent().showDsMatrix(dsMatrix, false, true);
         }
     }
 

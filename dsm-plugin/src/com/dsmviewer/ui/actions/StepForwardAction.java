@@ -1,4 +1,4 @@
-package com.dsmviewer.ui.action;
+package com.dsmviewer.ui.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;

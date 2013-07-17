@@ -81,7 +81,7 @@ public final class DtanglerUtils {
         }
     }
 
-    public static List<DsmRow> buildDsmRowsUsingDtangler(DependencyGraph dependencyGraph) {
+    public static List<DsmRow> buildDsmRowsUsingDtanglersDefaultOrdering(DependencyGraph dependencyGraph) {
         Dsm dsm = new DsmEngine(dependencyGraph).createDsm();
         // transpose matrix to make it more human-readable
         return DtanglerUtils.transposeDsm(dsm).getRows();

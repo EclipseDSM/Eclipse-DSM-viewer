@@ -11,9 +11,9 @@ import java.util.List;
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
  */
-public final class PluginUtils {
+public final class Utils {
 
-    private PluginUtils() {
+    private Utils() {
     }
 
     public static String extractStackTrace(Throwable e) {
@@ -36,6 +36,18 @@ public final class PluginUtils {
             }
         }
         return result;
+    }
+
+    /**
+     * @return - true if both objects are null; <br>
+     *         - result of null-safe "equals()" operation otherwise.
+     */
+    public static boolean nullSafeEquals(Object a, Object b) {
+        if (a == null && b == null) {
+            return true;
+        } else {
+            return a == null ? b.equals(a) : a.equals(b);
+        }
     }
 
 }

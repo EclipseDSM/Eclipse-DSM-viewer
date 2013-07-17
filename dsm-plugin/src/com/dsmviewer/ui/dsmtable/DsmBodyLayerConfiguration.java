@@ -23,8 +23,8 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 
 import com.dsmviewer.ui.UiHelper;
-import com.dsmviewer.ui.dsmtable.action.DoubleClickOnGridAction;
-import com.dsmviewer.ui.dsmtable.action.DoubleClickOnRowHeaderAction;
+import com.dsmviewer.ui.dsmtable.actions.DoubleClickOnGridAction;
+import com.dsmviewer.ui.dsmtable.actions.DoubleClickOnRowHeaderAction;
 
 /**
  * 

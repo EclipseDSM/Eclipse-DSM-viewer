@@ -36,7 +36,7 @@ import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.DsmView;
 import com.dsmviewer.utils.DtanglerUtils;
 import com.dsmviewer.utils.EclipseUtils;
-import com.dsmviewer.utils.PluginUtils;
+import com.dsmviewer.utils.Utils;
 
 /**
  * 
@@ -98,7 +98,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
                 result.add(binaryResourcePath);
             } else if (resourceFile.isDirectory()) {
                 if (resourceFile.exists() && resourceFile.isDirectory()) {
-                    result.addAll(PluginUtils.listFiles(resourceFile));
+                    result.addAll(Utils.listFiles(resourceFile));
                 }
             }
         }
@@ -199,7 +199,7 @@ public class DtanglerRunner implements IObjectActionDelegate {
 
         @Override
         public void run() {
-            DsmView.getCurrent().showDsMatrix(dsMatrix, true, true, true);
+            DsmView.getCurrent().showDsMatrix(dsMatrix, true, true);
             String message = "\n" + (dsMatrix.getAnalysisResult().isValid() ? "Analysis result is valid."
                     : "Analysis result is not valid.");
             LOGGER.info("Dtangler analisys completed. "

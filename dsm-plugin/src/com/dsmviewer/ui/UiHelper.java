@@ -1,16 +1,18 @@
 package com.dsmviewer.ui;
 
+import java.util.List;
+
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.nebula.widgets.nattable.util.GUIHelper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-
-import com.dsmviewer.ui.dsmtable.DsmBodyLayerConfiguration;
 
 /**
  * 
@@ -47,13 +49,13 @@ public final class UiHelper extends GUIHelper {
     public static final Color LOG_COLOR_WARN = getColor(232, 174, 91); // orange
     public static final Color LOG_COLOR_ERROR = getSystemColor(SWT.COLOR_RED);
 
+    //sizes
     public static final int DSM_CELL_SIZE_DEFAULT = 21;
 
+    public static final int ICON_SIZE = 16;
+
+    // fonts
     public static final int DEFAULT_FONT_SIZE = 9;
-    public static final Font FONT_BOLD_ARIAL = new Font(Display.getCurrent(), "Arial", 8, SWT.BOLD);
-    public static final int DEFAULT_FONT_HEIGHT = DsmBodyLayerConfiguration.FONT_SIZE;
-    // TODO: use GC.fontMetrics method instead of 'height * const' hacks
-    public static final int DEFAULT_FONT_WIDTH = (int) (DEFAULT_FONT_HEIGHT * 1.5);
 
     private UiHelper() {
     }
@@ -98,6 +100,20 @@ public final class UiHelper extends GUIHelper {
         FontData[] fontData = font.getFontData();
         fontData[0].setHeight(size);
         return new Font(Display.getDefault(), fontData[0]);
+    }
+
+    public static int computeMaxTextWidth(List<String> strings, Shell shell) {
+        GC gc = new GC(shell);
+
+        int maxTextExtent = 0;
+        for (int i = 0; i < strings.size(); i++) {
+            int textExtent = gc.textExtent(strings.get(i)).x;
+            if (maxTextExtent < textExtent) {
+                maxTextExtent = textExtent;
+            }
+        }
+
+        return maxTextExtent;
     }
 
 }

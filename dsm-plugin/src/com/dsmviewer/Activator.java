@@ -18,7 +18,7 @@ import org.osgi.framework.BundleContext;
 import com.dsmviewer.logging.ConsoleStream;
 import com.dsmviewer.logging.Logger;
 import com.dsmviewer.logging.LoggerFactory;
-import com.dsmviewer.utils.PluginUtils;
+import com.dsmviewer.utils.Utils;
 
 /**
  * 
@@ -56,7 +56,7 @@ public class Activator extends AbstractUIPlugin {
         while (entries.hasMoreElements()) {
             URL url = entries.nextElement();
             ImageDescriptor desc = ImageDescriptor.createFromURL(url);
-            imageRegistry.put(PluginUtils.extractFileName(url), desc);
+            imageRegistry.put(Utils.extractFileName(url), desc);
         }
     }
 
@@ -119,7 +119,7 @@ public class Activator extends AbstractUIPlugin {
     public static void showErrorMessage(String message, Throwable e) {
         StringBuilder sb = new StringBuilder(message);
         sb.append(":\n");
-        sb.append(PluginUtils.extractStackTrace(e));
+        sb.append(Utils.extractStackTrace(e));
         MessageDialog.openError(Display.getDefault().getActiveShell(), PLUGIN_ID, sb.toString());
     }
 

@@ -1,4 +1,4 @@
-package com.dsmviewer.ui.action;
+package com.dsmviewer.ui.actions;
 
 import java.io.File;
 import java.io.FileNotFoundException;
