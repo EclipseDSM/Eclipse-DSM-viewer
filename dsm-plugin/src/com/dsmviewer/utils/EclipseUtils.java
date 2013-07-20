@@ -57,12 +57,27 @@ public final class EclipseUtils {
 
     /// ~
 
-    public static void openInEditor(Dependable javaResource) {
+    public static void openInJavaEditor(Dependable javaClassResource) {
+        String sourceFileAbsolutePath = getSourceFilePath(javaClassResource);
+        if (sourceFileAbsolutePath != null) {
+            openInternalFileInAppropriateEditor(sourceFileAbsolutePath);
+        }
+    }
 
+    public static IFile getSourceFile(Dependable javaClassResource) {
+        String sourceFilePath = getSourceFilePath(javaClassResource);
+        if (sourceFilePath != null) {
+            return toIfile(sourceFilePath);
+        } else {
+            throw new IllegalArgumentException("Cannot find appropriate Eclipse resource for: " + javaClassResource);
+        }
+    }
+
+    public static String getSourceFilePath(Dependable javaClassResource) {
         StringBuilder sourceFileAbsolutePath = new StringBuilder();
 
-        String javaClassResourceFullPath = DtanglerUtils.getAbsolutePath(javaResource, DependencyScope.CLASSES);
-        IProject project = getProjectForResource(toIfile(javaClassResourceFullPath));
+        String javaClassResourceFullPath = DtanglerUtils.getAbsolutePath(javaClassResource, DependencyScope.CLASSES);
+        IProject project = getOpenedProjectForResource(toIfile(javaClassResourceFullPath));
 
         // Compiled classes can be located anywhere (Maven 'target' folder, Eclipse default 'bin' folder, etc)
         String binaryOutputLocation = getBinaryOutputLocation(project, false, false);
@@ -79,9 +94,10 @@ public final class EclipseUtils {
             String javaResourceRelativePath = javaClassRelativePath.replaceAll(".class", ".java");
             sourceFileAbsolutePath.append(javaResourceRelativePath);
             sourceFileAbsolutePath.toString();
+            return sourceFileAbsolutePath.toString();
 
-            openInternalFileInAppropriateEditor(sourceFileAbsolutePath.toString());
         }
+        return null;
     }
 
     public static void openInternalFileInAppropriateEditor(String fileAbsolutePath) {
@@ -196,8 +212,7 @@ public final class EclipseUtils {
     }
 
     public static IViewPart getView(String id) {
-        IViewReference[] viewReferences =
-                getActiveWorkbenchPage().getViewReferences();
+        IViewReference[] viewReferences = getActiveWorkbenchPage().getViewReferences();
         for (int i = 0; i < viewReferences.length; i++) {
             if (id.equals(viewReferences[i].getId())) {
                 return viewReferences[i].getView(false);
@@ -206,7 +221,7 @@ public final class EclipseUtils {
         return null;
     }
 
-    public static IProject getProjectForResource(IResource resource) {
+    public static IProject getOpenedProjectForResource(IResource resource) {
         IProject project = resource.getProject();
         if (project.exists() && project.isOpen()) {
             return project;
@@ -222,9 +237,9 @@ public final class EclipseUtils {
      * @return
      * @throws CoreException
      */
-    public static IProject getWorkspaceProject(String name) {
+    public static IProject getOpenedWorkspaceProject(String name) {
         IProject project = getWorkspaceRoot().getProject(name);
-        if (project.exists()) {
+        if (project.exists() && project.isOpen()) {
             return project;
         }
         else {
@@ -275,7 +290,7 @@ public final class EclipseUtils {
      * Gets the 'OutputLocation' path for project is opened in workspace
      */
     public static String getBinaryOutputLocation(String projectName, boolean relativePath, boolean includeProjectName) {
-        IProject openedProject = getWorkspaceProject(projectName);
+        IProject openedProject = getOpenedWorkspaceProject(projectName);
         return getBinaryOutputLocation(openedProject, relativePath, includeProjectName);
     }
 
@@ -290,6 +305,16 @@ public final class EclipseUtils {
             LOG.debug("Cannot find binaries output location for Java project: " + project.getName());
         }
         return null;
+    }
+
+    public static IJavaProject toIJavaProject(IProject project) {
+        IJavaProject javaProject = JavaCore.create(project);
+        if (javaProject.exists()) {
+            return javaProject;
+        } else {
+            LOG.debug("Cannot find appropriate Java project in Eclipse workspace for: " + project.getName());
+            return null;
+        }
     }
 
     /**
@@ -344,6 +369,38 @@ public final class EclipseUtils {
         }
 
         return result;
+    }
+
+    public static String readIFileAsString(IFile file) {
+        String result = null;
+
+        try {
+            InputStream is = null;
+            try {
+                is = readIFileAsInputStream(file);
+                result = Utils.convertStreamToString(is);
+            } finally {
+                if (is != null) {
+                    is.close();
+                }
+            }
+        } catch (IOException e) {
+            LOG.error(MessageFormat.format("Cannot read file ''{0}'' as string", file), e);
+        }
+
+        return result;
+    }
+
+    public static InputStream readIFileAsInputStream(IFile file) {
+        InputStream is = null;
+
+        try {
+            is = file.getContents();
+        } catch (CoreException e) {
+            e.printStackTrace();
+        }
+
+        return is;
     }
 
 //    public static void visitAllResources(IProject project) {

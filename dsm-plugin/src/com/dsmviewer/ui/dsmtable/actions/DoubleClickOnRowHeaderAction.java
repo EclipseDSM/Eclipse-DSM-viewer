@@ -54,7 +54,7 @@ public class DoubleClickOnRowHeaderAction implements IMouseAction {
 
         } else if (DependencyScope.CLASSES.equals(dependee.getScope())) {
             // if doubleclicked cell has a 'class' scope - open appropriate source file in Project Explorer
-            EclipseUtils.openInEditor(dependee);
+            EclipseUtils.openInJavaEditor(dependee);
         }
     }
 

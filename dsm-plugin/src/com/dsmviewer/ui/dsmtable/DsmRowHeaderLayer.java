@@ -1,5 +1,8 @@
 package com.dsmviewer.ui.dsmtable;
 
+import org.dtangler.core.dependencies.Dependable;
+import org.dtangler.core.dsm.DsmRow;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.nebula.widgets.nattable.config.IConfigRegistry;
 import org.eclipse.nebula.widgets.nattable.grid.layer.RowHeaderLayer;
 import org.eclipse.nebula.widgets.nattable.layer.AbstractLayerTransform;
@@ -13,10 +16,13 @@ import org.eclipse.nebula.widgets.nattable.painter.cell.decorator.CellPainterDec
 import org.eclipse.nebula.widgets.nattable.painter.cell.decorator.LineBorderDecorator;
 import org.eclipse.nebula.widgets.nattable.ui.util.CellEdgeEnum;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
 
+import com.dsmviewer.Activator;
+import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.dsm.DependencyScope;
-import com.dsmviewer.dsm.DependencyType;
 import com.dsmviewer.ui.UiHelper;
+import com.dsmviewer.utils.EclipseUtils;
 
 /**
  * 
@@ -99,7 +105,7 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
             IConfigRegistry configRegistry) {
 
         final int rowIndex = cell.getRowIndex();
-        final int columnIndex = cell.getColumnIndex();
+//        final int columnIndex = cell.getColumnIndex();
 
         ICellPainter textWithBgPainter;
         if (rowIndex == selectedDependeeRowIndex) {
@@ -108,12 +114,12 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
             textWithBgPainter = super.getCellPainter(columnPosition, rowPosition, cell, configRegistry);
         }
 
-        DependencyScope scope = rowHeaderDataProvider.getDependencyMatrix().getScope(rowIndex, columnIndex,
-                DependencyType.DEPENDEE);
+        DependencyMatrix dependencyMatrix = rowHeaderDataProvider.getDependencyMatrix();
+        DsmRow dsmRow = dependencyMatrix.getRows().get(rowIndex);
 
         return new LineBorderDecorator(
                 new CellPainterDecorator(textWithBgPainter, CellEdgeEnum.LEFT,
-                        new ImagePainter(scope.getDisplayIcon()) {
+                        new ImagePainter(getResourceImage(dsmRow)) {
                             @Override
                             protected Color getBackgroundColour(ILayerCell cell, IConfigRegistry configRegistry) {
                                 if (cell.getRowIndex() == selectedDependeeRowIndex) {
@@ -124,5 +130,73 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
                             }
                         }));
     }
+
+    private static Image getResourceImage(DsmRow dsmRow) {
+
+        Dependable dependee = dsmRow.getDependee();
+        DependencyScope scope = DependencyScope.parse(dependee.getScope());
+
+        switch (scope) {
+        case CLASSES:
+            return getResourceImageForSource(dependee);
+        case PACKAGES:
+            return Activator.getImageFromRegistry("package.gif");
+        default:
+            return null;
+        }
+    }
+
+    // TODO: ugly quick fix till my diploma is not done. This code should use Eclipse AST to get resource type
+    private static Image getResourceImageForSource(Dependable dependee) {
+
+        IFile file = EclipseUtils.getSourceFile(dependee);
+        String source = EclipseUtils.readIFileAsString(file).replaceAll("\n", " ").replace("\r", "");
+        int indexOfOpeningBrace = source.indexOf("{");
+
+        if (indexOfOpeningBrace > 0) {
+            source = source.substring(0, indexOfOpeningBrace);
+        }
+
+        if (source.matches(".+ enum .+")) {
+            return Activator.getImageFromRegistry("enum.gif");
+        } else if (source.matches(".+ abstract.{0,} .{0,}class.+")) {
+            return Activator.getImageFromRegistry("abstract_class.gif");
+        } else if (source.matches(".+ interface .+")) {
+            return Activator.getImageFromRegistry("interface.gif");
+        } else if (source.matches(".+ @interface .+")) {
+            return Activator.getImageFromRegistry("annotation.gif");
+        }
+
+        return Activator.getImageFromRegistry("class.gif");
+    }
+
+//    private static Image getResourceImage(Dependable dependable) {
+//
+//        IFile file = EclipseUtils.getSourceFile(dependable);
+//
+//        IJavaElement javaElement = JavaCore.create(file);
+//        if (javaElement != null && javaElement.exists()
+//                && javaElement.getElementType() == IJavaElement.COMPILATION_UNIT) {
+//
+//            ICompilationUnit compilationUnit = (ICompilationUnit) javaElement;
+//            try {
+//                IType primaryType = compilationUnit.findPrimaryType();
+//                IJavaElement[] children = primaryType.getTypeRoot().getChildren();
+//                for (IJavaElement child : children) {
+//                    if (child instanceof SourceType) {
+//                        // ....
+//                        SourceType sourceType = (SourceType) child;
+//                        String source = sourceType.getSource();
+//                        return getResourceImage(source);
+//                    }
+//                }
+//
+//            } catch (JavaModelException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        return null;
+//    }
 
 }

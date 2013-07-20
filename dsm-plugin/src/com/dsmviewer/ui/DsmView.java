@@ -160,13 +160,13 @@ public class DsmView extends ViewPart {
         setActionsEnabled(false);
     }
 
-    public void showDsMatrix(DependencyMatrix dsMatrix, boolean revealDsmView, boolean addToHistory) {
+    public void showDsMatrix(DependencyMatrix dsMatrix, boolean revealDsmView, boolean addToNavigationHistory) {
 
         if (revealDsmView) {
             EclipseUtils.showDsmView();
         }
 
-        dsmTableController.setDependencyMatrix(dsMatrix, addToHistory);
+        dsmTableController.setDependencyMatrix(dsMatrix, addToNavigationHistory);
         setActionsEnabled(true);
         updateSortActionsState(dsMatrix.getOrdering());
     }

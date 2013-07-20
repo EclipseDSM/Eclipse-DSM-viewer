@@ -46,9 +46,9 @@ public class DsmTableController {
         this.parent = parent;
     }
 
-    public void setDependencyMatrix(DependencyMatrix dependencyMatrix, boolean addToHistory) {
+    public void setDependencyMatrix(DependencyMatrix dependencyMatrix, boolean addToNavigationHistory) {
         internalSetDependencyMatrix(dependencyMatrix);
-        if (addToHistory) {
+        if (addToNavigationHistory) {
             stack.add(dependencyMatrix);
         }
     }
@@ -73,7 +73,7 @@ public class DsmTableController {
 
         List<String> displayNames = dependencyMatrix.getDisplayNames();
         int maxHeaderWidth = UiHelper.computeMaxTextWidth(displayNames, dsmTable.getShell());
-        rowHeaderLayer.setWidth(maxHeaderWidth + UiHelper.ICON_SIZE + 5);
+        rowHeaderLayer.setWidth(maxHeaderWidth + UiHelper.ICON_SIZE + 10);
 
         refreshTable(true);
     }

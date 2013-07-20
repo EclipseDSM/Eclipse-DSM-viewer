@@ -50,4 +50,12 @@ public final class Utils {
         }
     }
 
+    public static String convertStreamToString(java.io.InputStream is) {
+        if (is != null) {
+            java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+            return s.hasNext() ? s.next() : "";
+        }
+        return null;
+    }
+
 }

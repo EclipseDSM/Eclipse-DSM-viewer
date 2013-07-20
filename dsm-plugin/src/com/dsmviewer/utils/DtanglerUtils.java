@@ -57,7 +57,7 @@ public final class DtanglerUtils {
      * <p>
      * Example for packages: '/home/Workspace/Project: test.package' --> '/home/Workspace/Project/test/package' <br/>
      * <p>
-     * Example for Classes: '/home/Workspace/Project: ClassName' --> '/home/Workspace/Project/Classname'
+     * Example for Classes: '/home/Test2/bin: test.package.AbstractClass1' --> ''
      * 
      * @param fullyQualifiedName Dtangler resources naming format (see examples above)
      * @param scope
@@ -70,12 +70,19 @@ public final class DtanglerUtils {
 
         switch (scope) {
         case PACKAGES:
-            String resourceRelativePath = splitted[1].replaceAll("\\.", File.separator);
-
-            String resourceFullPath = resourceParentPath.concat(File.separator).concat(resourceRelativePath);
-            return resourceFullPath;
+            String packageRelativePath = splitted[1].replaceAll("\\.", File.separator);
+            return resourceParentPath.concat(File.separator).concat(packageRelativePath);
         case CLASSES:
-            return resourceParentPath;
+            if (resourceParentPath.endsWith(".class")) {
+                return resourceParentPath;
+            } else {
+                String classRelativePath = splitted[1].replaceAll("\\.", File.separator);
+                String classFullPath = resourceParentPath.concat(File.separator).concat(classRelativePath);
+                if (!classFullPath.endsWith(".class")) {
+                    classFullPath = classFullPath.concat(".class");
+                }
+                return classFullPath;
+            }
         default:
             throw new IllegalArgumentException("Scope " + scope + " is not supported");
         }
