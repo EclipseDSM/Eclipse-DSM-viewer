@@ -45,7 +45,7 @@ public class ExportToImageAction extends Action {
 
         if (fileNameAndPath != null) {
             NatTable table = dsmTableController.getTable();
-            Point tableSize = dsmTableController.getDsmTableBounds();
+            Point tableSize = dsmTableController.getDsmTableSize();
 
             GC gc = new GC(table);
             Display display = shell.getDisplay();

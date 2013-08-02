@@ -78,7 +78,7 @@ public class DsmView extends ViewPart {
     @Override
     public void createPartControl(final Composite parent) {
 
-        currentInstance = this;
+		currentInstance = this;
 
         dsmTableController = new DsmTableController(parent);
 

@@ -72,8 +72,8 @@ public class DsmTableController {
         rowHeaderLayer.setRowHeight((int) (cellSize * 1.2));
 
         List<String> displayNames = dependencyMatrix.getDisplayNames();
-        int maxHeaderWidth = UiHelper.computeMaxTextWidth(displayNames, dsmTable.getShell());
-        rowHeaderLayer.setWidth(maxHeaderWidth + UiHelper.ICON_SIZE + 10);
+        int maxTextExtent = UiHelper.computeMaxTextExtent(displayNames, dsmTable.getShell());
+        rowHeaderLayer.setWidth(maxTextExtent + 2 * UiHelper.ICON_SIZE + 10);
 
         refreshTable(true);
     }
@@ -152,7 +152,7 @@ public class DsmTableController {
         parent.layout(changed);
     }
 
-    public Point getDsmTableBounds() {
+    public Point getDsmTableSize() {
         int height = bodyLayer.getWidth() + rowHeaderLayer.getWidth();
         int width = bodyLayer.getHeight() + columnHeaderLayer.getHeight();
         return new Point(height, width);

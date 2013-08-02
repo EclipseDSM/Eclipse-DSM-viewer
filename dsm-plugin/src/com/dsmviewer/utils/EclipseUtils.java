@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.regex.Matcher;
 
 import org.dtangler.core.dependencies.Dependable;
 import org.eclipse.core.filesystem.EFS;
@@ -356,15 +357,16 @@ public final class EclipseUtils {
         try {
             result = javaProject.getOutputLocation().toOSString();
             if (!includeProjectName) {
-                result = result.replaceFirst(File.separator + javaProject.getElementName(), "");
+                String replacement = Matcher.quoteReplacement(File.separator + javaProject.getElementName());
+				result = result.replaceFirst(replacement, "");
             }
             if (!relativePath) {
-                result = javaProject.getCorrespondingResource().getLocationURI().getRawPath().concat(result);
+                result = javaProject.getCorrespondingResource().getLocation().toOSString().concat(result);
             }
         } catch (JavaModelException e) {
             String message = MessageFormat.format(
                     "Cannot retrieve binary output location for project ''{0}''", javaProject.getElementName());
-            LOG.error(message, e);
+            LOG.error(message, e);            
             throw new PluginException(message, e);
         }
 

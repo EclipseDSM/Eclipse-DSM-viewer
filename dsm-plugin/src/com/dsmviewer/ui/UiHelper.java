@@ -102,7 +102,7 @@ public final class UiHelper extends GUIHelper {
         return new Font(Display.getDefault(), fontData[0]);
     }
 
-    public static int computeMaxTextWidth(List<String> strings, Shell shell) {
+    public static int computeMaxTextExtent(List<String> strings, Shell shell) {
         GC gc = new GC(shell);
 
         int maxTextExtent = 0;

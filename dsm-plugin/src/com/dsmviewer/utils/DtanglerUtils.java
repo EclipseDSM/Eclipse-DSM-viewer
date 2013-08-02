@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
 
 import org.dtangler.core.analysisresult.AnalysisResult;
 import org.dtangler.core.dependencies.Dependable;
@@ -70,13 +71,13 @@ public final class DtanglerUtils {
 
         switch (scope) {
         case PACKAGES:
-            String packageRelativePath = splitted[1].replaceAll("\\.", File.separator);
+            String packageRelativePath = splitted[1].replaceAll("\\.", Matcher.quoteReplacement(File.separator));
             return resourceParentPath.concat(File.separator).concat(packageRelativePath);
         case CLASSES:
             if (resourceParentPath.endsWith(".class")) {
                 return resourceParentPath;
             } else {
-                String classRelativePath = splitted[1].replaceAll("\\.", File.separator);
+                String classRelativePath = splitted[1].replaceAll("\\.",  Matcher.quoteReplacement(File.separator));
                 String classFullPath = resourceParentPath.concat(File.separator).concat(classRelativePath);
                 if (!classFullPath.endsWith(".class")) {
                     classFullPath = classFullPath.concat(".class");
@@ -98,10 +99,13 @@ public final class DtanglerUtils {
     public static void sortDisplayNamesInNaturalOrder(DependencyMatrix dsMatrix) {
         int startIndex = 0;
         int endIndex = dsMatrix.getSize() - 1;
-        quickSortByDepName(dsMatrix, NATURAL_ORDER_COMPARATOR, startIndex, endIndex);
+        sortByDependencyNames(dsMatrix, NATURAL_ORDER_COMPARATOR, startIndex, endIndex);
     }
 
-    private static void quickSortByDepName(DependencyMatrix dsMatrix, Comparator<String> comparator, int start, int end) {
+    /**
+     * Sort dependency matrix by dependant resources names. Uses quick sort algorithm.
+     */
+    private static void sortByDependencyNames(DependencyMatrix dsMatrix, Comparator<String> comparator, int start, int end) {
         if (start >= end) {
             return;
         }
@@ -125,8 +129,8 @@ public final class DtanglerUtils {
                 }
             }
         }
-        quickSortByDepName(dsMatrix, comparator, start, cur);
-        quickSortByDepName(dsMatrix, comparator, cur + 1, end);
+        sortByDependencyNames(dsMatrix, comparator, start, cur);
+        sortByDependencyNames(dsMatrix, comparator, cur + 1, end);
     }
 
     public static Dsm transposeDsm(Dsm dsm) {
@@ -144,6 +148,11 @@ public final class DtanglerUtils {
             Dependable dependee = inputRows.get(i).getDependee();
             resultRows.add(new DsmRow(dependee, cells));
         }
+        
+        // free the memory
+        inputRows = null;
+        dsm = null;
+        
         return new Dsm(resultRows);
     }
 }
