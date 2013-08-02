@@ -7,24 +7,25 @@ import java.io.FileOutputStream;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.nebula.widgets.nattable.NatTable;
+import org.eclipse.nebula.widgets.nattable.config.IConfigRegistry;
+import org.eclipse.nebula.widgets.nattable.grid.layer.GridLayer;
+import org.eclipse.nebula.widgets.nattable.layer.ILayer;
+import org.eclipse.nebula.widgets.nattable.print.command.PrintEntireGridCommand;
+import org.eclipse.nebula.widgets.nattable.print.command.TurnViewportOnCommand;
+import org.eclipse.nebula.widgets.nattable.util.IClientAreaProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Shell;
 
 import com.dsmviewer.Activator;
 import com.dsmviewer.logging.Logger;
-import com.dsmviewer.ui.DsmView;
 import com.dsmviewer.ui.dsmtable.DsmTableController;
 
 public class ExportToImageAction extends Action {
-
-    private Logger logger = Activator.getLogger(getClass());
 
     private DsmTableController dsmTableController;
 
@@ -32,52 +33,109 @@ public class ExportToImageAction extends Action {
         this.dsmTableController = dsmTableController;
     }
 
-    @Override
-    public void run() {
+	@Override
+	public void run() {
 
-        Shell shell = DsmView.getCurrent().getViewSite().getShell();
+		NatTable table = dsmTableController.getTable();
 
-        FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-        dialog.setFilterNames(new String[] { "Png Files", "All Files (*.*)" });
-        dialog.setFilterExtensions(new String[] { "*.png", "*.*" });
-        dialog.setFileName("screenshot.png");
-        String fileNameAndPath = dialog.open();
+		FileDialog dialog = new FileDialog(table.getShell(), SWT.SAVE);
+		dialog.setText("Export DSM to image");
+		dialog.setFilterNames(new String[] { "PNG Files (*.png)",
+				"JPEG files (*.jpg)", "BMP files (*.bmp)", "All Files (*.*)" });
+		dialog.setFilterExtensions(new String[] { "*.png", "*.jpg", "*.bmp", "*.*" });
+		dialog.setOverwrite(true);
+		dialog.setFileName("screenshot.png");
+		String filePath = dialog.open();
 
-        if (fileNameAndPath != null) {
-            NatTable table = dsmTableController.getTable();
-            Point tableSize = dsmTableController.getDsmTableSize();
+		if (filePath != null) {
 
-            GC gc = new GC(table);
-            Display display = shell.getDisplay();
-            final Image image = new Image(display, tableSize.x, tableSize.y);
-            gc.copyArea(image, 0, 0);
-            gc.dispose();
+			final Image image = toImage(table);
 
-            ImageLoader loader = new ImageLoader();
-            loader.data = new ImageData[] { image.getImageData() };
-            try {
-                loader.save(new FileOutputStream(new File(fileNameAndPath)), SWT.IMAGE_PNG);
-            } catch (FileNotFoundException e) {
-                logger.error("Error while saving screenshot to file " + fileNameAndPath, e);
-            }
-        }
-    }
+			int choosedFilterIndex = dialog.getFilterIndex();
+			switch (choosedFilterIndex) {
+			case 0:
+				saveImageToFile(image, filePath, SWT.IMAGE_PNG);
+				break;
+			case 1:
+				saveImageToFile(image, filePath, SWT.IMAGE_JPEG);
+				break;
+			case 2:
+				saveImageToFile(image, filePath, SWT.IMAGE_BMP);
+				break;
+			default:
+				throw new IllegalArgumentException("File format with index "
+			              + choosedFilterIndex + " is not supported");
+			}
 
-//    private void setClientAreaToMaximum(ILayer layer) {
-//        final Rectangle maxClientArea = new Rectangle(0, 0, layer.getWidth(), layer.getHeight());
-//        
-//        layer.setClientAreaProvider(new IClientAreaProvider() {
-//            public Rectangle getClientArea() {
-//                return maxClientArea;
-//            }
-//        });
-//        
-//        layer.doCommand(new PrintEntireGridCommand());
-//    }
+			image.dispose();
+		}
+	}
+
+	private static void saveImageToFile(Image image, String filePath, int imageType) {
+
+		ImageLoader loader = new ImageLoader();
+		loader.data = new ImageData[] { image.getImageData() };
+
+		try {
+			FileOutputStream fos = new FileOutputStream(new File(filePath));
+			loader.save(fos, imageType);
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException("Error while saving image as '" + filePath+ "'", e);			
+		}
+	}
+
+	private Image toImage(NatTable table) {
+
+		GridLayer layer = (GridLayer)table.getLayer();
+
+		int width = layer.getPreferredWidth();
+		int height = layer.getPreferredHeight();
+
+		final Image image = new Image(table.getDisplay(), width, height);
+
+		GC gc = new GC(image);
+
+		setViewportSize(layer, width, height);
+
+		Rectangle layerBounds = new Rectangle(0, 0, width, height);
+		IConfigRegistry configRegistry = table.getConfigRegistry();
+		layer.getLayerPainter().paintLayer(layer, gc, 0, 0, layerBounds, configRegistry);
+
+        restoreViewPorSize(layer);
+
+		gc.dispose();
+
+		return image;
+	}
+
+	/**
+	 * Expand the client area of the layer such that
+	 * all the contents fit in the viewport. This ensures that when the grid prints
+	 * we print the <i>entire</i> table.
+	 */
+	private void setViewportSize(final ILayer layer, int width, int height) {		
+
+		final Rectangle layerBounds = new Rectangle(0, 0, width, height);
+
+		layer.setClientAreaProvider(new IClientAreaProvider() {
+			public Rectangle getClientArea() {
+				return layerBounds;
+			}
+		});
+
+		layer.doCommand(new PrintEntireGridCommand());
+	}
+
+	/**
+	 * Restores layer`s viewport to its normal operation.
+	 */
+	private void restoreViewPorSize(ILayer layer) {
+		layer.doCommand(new TurnViewportOnCommand());
+	}
 
     @Override
     public String getToolTipText() {
-        return "Export visible DSM part to PNG image";
+        return "Export dependency matrix to PNG image";
     }
 
     @Override
