@@ -128,7 +128,7 @@ public final class EclipseUtils {
                 throw new IllegalArgumentException("File does not exists: " + file.getAbsolutePath());
             }
             if (!file.isFile()) {
-                throw new IllegalArgumentException("Is not a file: " + file.getAbsolutePath());
+                throw new IllegalArgumentException("Object is not a file: " + file.getAbsolutePath());
             }
 
             IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());

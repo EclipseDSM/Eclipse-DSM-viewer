@@ -101,4 +101,15 @@ public class DsmBodyLayer extends AbstractLayerTransform {
         return dataProvider.getDependencyMatrix();
     }
 
+
+    @Override
+    public boolean isRowPositionResizable(int rowPosition) {
+        return true;
+    }
+
+    @Override
+    public boolean isColumnPositionResizable(int columnPosition) {
+        return true;
+    }
+
 }

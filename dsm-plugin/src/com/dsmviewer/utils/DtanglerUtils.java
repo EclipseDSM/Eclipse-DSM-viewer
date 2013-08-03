@@ -71,13 +71,26 @@ public final class DtanglerUtils {
 
         switch (scope) {
         case PACKAGES:
-            String packageRelativePath = splitted[1].replaceAll("\\.", Matcher.quoteReplacement(File.separator));
-            return resourceParentPath.concat(File.separator).concat(packageRelativePath);
+        	if("default".equals(splitted[1])) { //
+                // do not include package name if there is a "default" package
+                // (note that Eclipse package can`t be named as "default" manually)
+        		return resourceParentPath;
+        	} else {
+        		String packageRelativePath = splitted[1].replaceAll("\\.", Matcher.quoteReplacement(File.separator));
+        		return resourceParentPath.concat(File.separator).concat(packageRelativePath);
+        	}
         case CLASSES:
             if (resourceParentPath.endsWith(".class")) {
                 return resourceParentPath;
             } else {
                 String classRelativePath = splitted[1].replaceAll("\\.",  Matcher.quoteReplacement(File.separator));
+                
+                // fix the path for resource if it is placed under "default" package
+                String defaultPackageName = "default" + File.separator;
+				if(classRelativePath.startsWith(defaultPackageName)) {
+                	classRelativePath = classRelativePath.substring(defaultPackageName.length());
+                }
+
                 String classFullPath = resourceParentPath.concat(File.separator).concat(classRelativePath);
                 if (!classFullPath.endsWith(".class")) {
                     classFullPath = classFullPath.concat(".class");

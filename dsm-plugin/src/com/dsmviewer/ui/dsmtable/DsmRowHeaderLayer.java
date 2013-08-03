@@ -61,12 +61,12 @@ public class DsmRowHeaderLayer extends AbstractLayerTransform {
 
     @Override
     public boolean isRowPositionResizable(int rowPosition) {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isColumnPositionResizable(int columnPosition) {
-        return false;
+        return true;
     }
 
     @Override

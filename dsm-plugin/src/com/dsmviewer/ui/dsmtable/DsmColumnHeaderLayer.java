@@ -36,10 +36,15 @@ public class DsmColumnHeaderLayer extends AbstractLayerTransform {
     }
 
     @Override
-    public boolean isColumnPositionResizable(int columnPosition) {
-        return false;
+    public boolean isRowPositionResizable(int rowPosition) {
+    	return true;
     }
 
+    @Override
+    public boolean isColumnPositionResizable(int columnPosition) {
+        return true;
+    }
+    
     @Override
     public int getColumnWidthByPosition(int columnPosition) {
         return cellSize.width;

@@ -28,7 +28,8 @@ public class DependencyMatrix {
     private DependencyGraph dependencyGraph;
     private DependencyMatrixOrdering currentOrdering;
 
-    public DependencyMatrix() {
+    @SuppressWarnings("unchecked")
+	public DependencyMatrix() {
         this(new DependencyGraph(JavaScope.locations),
                 new AnalysisResult(Collections.EMPTY_MAP, Collections.EMPTY_SET, true),
                 DependencyMatrixOrdering.getPluginDefaultOrdering());

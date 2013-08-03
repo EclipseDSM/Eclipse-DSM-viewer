@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Stack;
 
 import org.eclipse.nebula.widgets.nattable.NatTable;
+import org.eclipse.nebula.widgets.nattable.config.IConfigRegistry;
 import org.eclipse.nebula.widgets.nattable.coordinate.PositionCoordinate;
 import org.eclipse.nebula.widgets.nattable.grid.data.DefaultCornerDataProvider;
 import org.eclipse.nebula.widgets.nattable.grid.layer.ColumnHeaderSelectionListener;
@@ -12,9 +13,15 @@ import org.eclipse.nebula.widgets.nattable.grid.layer.CornerLayer;
 import org.eclipse.nebula.widgets.nattable.grid.layer.GridLayer;
 import org.eclipse.nebula.widgets.nattable.layer.DataLayer;
 import org.eclipse.nebula.widgets.nattable.layer.event.ILayerEvent;
+import org.eclipse.nebula.widgets.nattable.resize.command.InitializeAutoResizeColumnsCommand;
+import org.eclipse.nebula.widgets.nattable.resize.command.InitializeAutoResizeRowsCommand;
 import org.eclipse.nebula.widgets.nattable.selection.event.CellSelectionEvent;
+import org.eclipse.nebula.widgets.nattable.util.GCFactory;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 
 import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.ui.DsmView;
@@ -119,7 +126,7 @@ public class DsmTableController {
                         handleColumnHeaderSelectionEvent(event);
                     }
                 });
-
+    
     }
 
     private void handleColumnHeaderSelectionEvent(ILayerEvent event) {
@@ -177,11 +184,6 @@ public class DsmTableController {
             return dsmTable.forceFocus();
         }
     }
-
-    // TODO:
-//    public void doStepForward() {
-//        
-//    }
 
     public void doStepBackWard() {
         if (stack.size() > 1) {
