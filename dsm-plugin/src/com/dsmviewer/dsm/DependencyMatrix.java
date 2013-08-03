@@ -105,36 +105,36 @@ public class DependencyMatrix {
         setCell(rowIndex2, columnIndex2, temp);
     }
 
-    public void replaceRows(int rowNum1, int rowNum2) {
+    public void replaceElements(int element1Index, int element2Index) {
 
-        int row1Index = Math.min(rowNum1, rowNum2);
-        int row2Index = Math.max(rowNum1, rowNum2);
+        int el1Index = Math.min(element1Index, element2Index);
+        int el2Index = Math.max(element1Index, element2Index);
 
         // replace rows
         for (int j = 0; j < getSize(); j++) {
-            if (j == row1Index || j == row2Index) {
+            if (j == el1Index || j == el2Index) {
                 // skip
             } else {
-                replaceCells(row1Index, j, row2Index, j);
+                replaceCells(el1Index, j, el2Index, j);
             }
         }
 
         // replace columns
         for (int i = 0; i < getSize(); i++) {
-            if (i == row1Index || i == row2Index) {
+            if (i == el1Index || i == el2Index) {
                 // skip
             } else {
-                replaceCells(i, row1Index, i, row2Index);
+                replaceCells(i, el1Index, i, el2Index);
             }
         }
 
         // replace additional cells on intersection of row1 and row2
-        replaceCells(row2Index, row1Index, row1Index, row2Index);
+        replaceCells(el2Index, el1Index, el1Index, el2Index);
 
-        DsmRow row1 = getRow(rowNum1);
-        DsmRow row2 = getRow(rowNum2);
-        rows.set(rowNum1, new DsmRow(row2.getDependee(), row1.getCells()));
-        rows.set(rowNum2, new DsmRow(row1.getDependee(), row2.getCells()));
+        DsmRow row1 = getRow(element1Index);
+        DsmRow row2 = getRow(element2Index);
+        rows.set(element1Index, new DsmRow(row2.getDependee(), row1.getCells()));
+        rows.set(element2Index, new DsmRow(row1.getDependee(), row2.getCells()));
     }
 
     public boolean hasViolations(int i, int j) {

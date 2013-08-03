@@ -5,25 +5,21 @@ import java.util.List;
 import java.util.Stack;
 
 import org.eclipse.nebula.widgets.nattable.NatTable;
-import org.eclipse.nebula.widgets.nattable.config.IConfigRegistry;
 import org.eclipse.nebula.widgets.nattable.coordinate.PositionCoordinate;
 import org.eclipse.nebula.widgets.nattable.grid.data.DefaultCornerDataProvider;
 import org.eclipse.nebula.widgets.nattable.grid.layer.ColumnHeaderSelectionListener;
 import org.eclipse.nebula.widgets.nattable.grid.layer.CornerLayer;
 import org.eclipse.nebula.widgets.nattable.grid.layer.GridLayer;
 import org.eclipse.nebula.widgets.nattable.layer.DataLayer;
+import org.eclipse.nebula.widgets.nattable.layer.ILayerListener;
 import org.eclipse.nebula.widgets.nattable.layer.event.ILayerEvent;
-import org.eclipse.nebula.widgets.nattable.resize.command.InitializeAutoResizeColumnsCommand;
-import org.eclipse.nebula.widgets.nattable.resize.command.InitializeAutoResizeRowsCommand;
 import org.eclipse.nebula.widgets.nattable.selection.event.CellSelectionEvent;
-import org.eclipse.nebula.widgets.nattable.util.GCFactory;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 
+import com.dsmviewer.Activator;
 import com.dsmviewer.dsm.DependencyMatrix;
+import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.DsmView;
 import com.dsmviewer.ui.UiHelper;
 
@@ -127,6 +123,10 @@ public class DsmTableController {
                     }
                 });
     
+        
+        // Replace columns / rows in UI should cause replacing of related values in model
+        bodyLayer.addLayerListener(new DsmTableColumnReorderListener(this));
+
     }
 
     private void handleColumnHeaderSelectionEvent(ILayerEvent event) {

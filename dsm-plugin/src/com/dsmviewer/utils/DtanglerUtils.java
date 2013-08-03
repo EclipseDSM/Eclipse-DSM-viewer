@@ -132,7 +132,7 @@ public final class DtanglerUtils {
                 j--;
             }
             if (i < j) {
-                dsMatrix.replaceRows(i, j);
+                dsMatrix.replaceElements(i, j);
 
                 if (i == cur) {
                     cur = j;
