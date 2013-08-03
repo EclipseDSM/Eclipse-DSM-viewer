@@ -9,12 +9,9 @@ import org.eclipse.nebula.widgets.nattable.export.NatExporter;
 import org.eclipse.nebula.widgets.nattable.export.excel.ExcelExporter;
 
 import com.dsmviewer.Activator;
-import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.dsmtable.DsmTableController;
 
 public class ExportToExcelAction extends Action {
-
-    private Logger logger = Activator.getLogger(getClass());
 
     private DsmTableController dsmTableController;
 
@@ -36,7 +33,7 @@ public class ExportToExcelAction extends Action {
 
     @Override
     public String getToolTipText() {
-        return "Export DSM as Excel spreadsheet (*.xls)";
+        return "Export to Excel spreadsheet (*.xls)";
     }
 
     @Override

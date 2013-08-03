@@ -12,10 +12,13 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.dsmviewer.Activator;
+import com.dsmviewer.cluster.DependencyMatrixShuffler;
 import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.dsm.DependencyMatrixOrdering;
 import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.actions.ClearAllAction;
+import com.dsmviewer.ui.actions.PrintViolationsAction;
+import com.dsmviewer.ui.actions.ShuffleMatrixAction;
 import com.dsmviewer.ui.actions.ExportToExcelAction;
 import com.dsmviewer.ui.actions.ExportToImageAction;
 import com.dsmviewer.ui.actions.SortDependencyMatrixByInstabilityAction;
@@ -32,69 +35,72 @@ import com.dsmviewer.utils.EclipseUtils;
  */
 public class DsmView extends ViewPart {
 
-    private final Logger logger = Activator.getLogger(DsmView.class);
+	private final Logger logger = Activator.getLogger(DsmView.class);
 
-    public static final String ID = "com.dsmviewer.ui.DsmView";
+	public static final String ID = "com.dsmviewer.ui.DsmView";
 
-    private static DsmView currentInstance;
+	private static DsmView currentInstance;
 
-    private DsmViewLyfeCycleListener lifeCycleListener;
+	private DsmViewLyfeCycleListener lifeCycleListener;
 
-    private DsmTableController dsmTableController;
+	private DsmTableController dsmTableController;
 
-    private Action sortInNaturalOrderingAction;
-    private Action sortByInstabilityAction;
+	private Action sortInNaturalOrderingAction;
+	private Action sortByInstabilityAction;
 
-    private Action exportToImageAction;
-    private Action exportToExcelAction;
+	private Action exportToImageAction;
+	private Action exportToExcelAction;
 
-    private Action stepBackWardAction;
-    private Action stepForwardAction;
+	private Action stepBackWardAction;
+	private Action stepForwardAction;
 
-    private Action clearAllAction;
+	private Action clearAllAction;
+	private Action shuffleAction;
+	
+	private Action printViolationsAction;
 
-    private IPropertyChangeListener sortByInstailityActionPropertyChangeListener = new IPropertyChangeListener() {
-        @Override
-        public void propertyChange(PropertyChangeEvent event) {
-            if ("checked".equals(event.getProperty()) && event.getNewValue() == Boolean.TRUE) {
-                sortInNaturalOrderingAction.setChecked(false);
-            }
-        }
-    };
+	private IPropertyChangeListener sortByInstailityActionPropertyChangeListener = new IPropertyChangeListener() {
+		@Override
+		public void propertyChange(PropertyChangeEvent event) {
+			if ("checked".equals(event.getProperty()) && event.getNewValue() == Boolean.TRUE) {
+				sortInNaturalOrderingAction.setChecked(false);
+			}
+		}
+	};
 
-    private IPropertyChangeListener sortInNaturalOrderingPropertyChangeListener = new IPropertyChangeListener() {
-        @Override
-        public void propertyChange(PropertyChangeEvent event) {
-            if ("checked".equals(event.getProperty()) && event.getNewValue() == Boolean.TRUE) {
-                sortByInstabilityAction.setChecked(false);
-            }
-        }
-    };
+	private IPropertyChangeListener sortInNaturalOrderingPropertyChangeListener = new IPropertyChangeListener() {
+		@Override
+		public void propertyChange(PropertyChangeEvent event) {
+			if ("checked".equals(event.getProperty()) && event.getNewValue() == Boolean.TRUE) {
+				sortByInstabilityAction.setChecked(false);
+			}
+		}
+	};
 
-    public static DsmView getCurrent() {
-        return currentInstance;
-    }
+	public static DsmView getCurrent() {
+		return currentInstance;
+	}
 
-    @Override
-    public void createPartControl(final Composite parent) {
+	@Override
+	public void createPartControl(final Composite parent) {
 
 		currentInstance = this;
 
-        dsmTableController = new DsmTableController(parent);
+		dsmTableController = new DsmTableController(parent);
 
-        try {
+		try {
 
-            lifeCycleListener = new DsmViewLyfeCycleListener();
-            getViewSite().getPage().addPartListener(lifeCycleListener);
-            logger.info("View lifecycle listener was added to DSM View");
+			lifeCycleListener = new DsmViewLyfeCycleListener();
+			getViewSite().getPage().addPartListener(lifeCycleListener);
+			logger.info("View lifecycle listener was added to DSM View");
 
 //            hookContextMenu();
-            contributeToActionBars();
+			contributeToActionBars();
 
-        } catch (Exception e) {
-            logger.error("Cannot create control part of " + Activator.PLUGIN_ID, e);
-        }
-    }
+		} catch (Exception e) {
+			logger.error("Cannot create control part of " + Activator.PLUGIN_ID, e);
+		}
+	}
 
 //    private void hookContextMenu() {
 //        MenuManager menuMgr = new MenuManager("#PopupMenu");
@@ -121,133 +127,147 @@ public class DsmView extends ViewPart {
 //        manager.add(action4);
 //    }
 
-    private void contributeToActionBars() {
-        IActionBars bars = getViewSite().getActionBars();
+	private void contributeToActionBars() {
+		IActionBars bars = getViewSite().getActionBars();
 //        fillLocalPullDown(bars.getMenuManager());
-        fillLocalToolBar(bars.getToolBarManager());
-    }
+		fillLocalToolBar(bars.getToolBarManager());
+	}
 
 //    private void fillLocalPullDown(IMenuManager manager) {
 //
 //    }
 
-    private void fillLocalToolBar(IToolBarManager manager) {
+	private void fillLocalToolBar(IToolBarManager manager) {
 
-        stepBackWardAction = new StepBackwardAction();
-        stepForwardAction = new StepForwardAction();
+		stepBackWardAction = new StepBackwardAction();
+		stepForwardAction = new StepForwardAction();
 
-        sortInNaturalOrderingAction = new SortDependencyMatrixInNaturalOrderingAction(dsmTableController);
-        sortByInstabilityAction = new SortDependencyMatrixByInstabilityAction(dsmTableController);
+		sortInNaturalOrderingAction = new SortDependencyMatrixInNaturalOrderingAction(dsmTableController);
+		sortByInstabilityAction = new SortDependencyMatrixByInstabilityAction(dsmTableController);
 
-        clearAllAction = new ClearAllAction(dsmTableController);
+		shuffleAction = new ShuffleMatrixAction(dsmTableController);
 
-        exportToImageAction = new ExportToImageAction(dsmTableController);
-        exportToExcelAction = new ExportToExcelAction(dsmTableController);
+		clearAllAction = new ClearAllAction(dsmTableController);
 
-        addPropertyChangeListeners();
+		exportToImageAction = new ExportToImageAction(dsmTableController);
+		exportToExcelAction = new ExportToExcelAction(dsmTableController);
 
-        manager.add(stepBackWardAction);
-        manager.add(stepForwardAction);
-        manager.add(new Separator());
-        manager.add(sortInNaturalOrderingAction);
-        manager.add(sortByInstabilityAction);
-        manager.add(new Separator());
-        manager.add(clearAllAction);
-        manager.add(new Separator());
-        manager.add(exportToImageAction);
-        manager.add(exportToExcelAction);
+		printViolationsAction = new PrintViolationsAction(dsmTableController);	
 
-        setActionsEnabled(false);
-    }
+		addPropertyChangeListeners();
 
-    public void showDsMatrix(DependencyMatrix dsMatrix, boolean revealDsmView, boolean addToNavigationHistory) {
+		manager.add(stepBackWardAction);
+		manager.add(stepForwardAction);
+		manager.add(new Separator());
+		manager.add(sortInNaturalOrderingAction);
+		manager.add(sortByInstabilityAction);
+		manager.add(new Separator());
+		manager.add(shuffleAction);
+		manager.add(new Separator());
+		manager.add(clearAllAction);
+		manager.add(new Separator());
+		manager.add(exportToImageAction);
+		manager.add(exportToExcelAction);
+		manager.add(new Separator());
+		manager.add(printViolationsAction);
 
-        if (revealDsmView) {
-            EclipseUtils.showDsmView();
-        }
+		setActionsEnabled(false);
+	}
 
-        dsmTableController.setDependencyMatrix(dsMatrix, addToNavigationHistory);
-        setActionsEnabled(true);
-        updateSortActionsState(dsMatrix.getOrdering());
-    }
+	public void showDsMatrix(DependencyMatrix dsMatrix, boolean revealDsmView, boolean addToNavigationHistory) {
 
-    /**
-     * Passing the focus request to the view's parent control.
-     */
-    @Override
-    public void setFocus() {
-        if (dsmTableController != null) {
-            dsmTableController.setTableFocused();
-        }
-        if (lifeCycleListener != null) {
-            lifeCycleListener.logStatus("DSM view got focus.");
-        }
-    }
+		if (revealDsmView) {
+			EclipseUtils.showDsmView();
+		}
 
-    @Override
-    public void dispose() {
-        dsmTableController = null;
+		dsmTableController.setDependencyMatrix(dsMatrix, addToNavigationHistory);
+		setActionsEnabled(true);
+		updateSortActionsState(dsMatrix.getOrdering());
+	}
 
-        // Remove lifecycle listener from view
-        logger.info("Removing lifecycle listener from DSM view");
-        getViewSite().getPage().removePartListener(lifeCycleListener);
+	/**
+	 * Passing the focus request to the view's parent control.
+	 */
+	@Override
+	public void setFocus() {
+		if (dsmTableController != null) {
+			dsmTableController.setTableFocused();
+		}
+		if (lifeCycleListener != null) {
+			lifeCycleListener.logStatus("DSM view got focus.");
+		}
+	}
 
-        currentInstance = null;
-    }
+	@Override
+	public void dispose() {
+		dsmTableController = null;
 
-    public void updateSortActionsState(DependencyMatrixOrdering newDsmOrdering) {
-        switch (newDsmOrdering) {
-        case BY_INSTABILITY:
-            sortByInstabilityAction.setChecked(true);
-            sortInNaturalOrderingAction.setChecked(false);
-            break;
-        case NATURAL_ORDERING:
-            sortByInstabilityAction.setChecked(false);
-            sortInNaturalOrderingAction.setChecked(true);
-            break;
-        default:
-            throw new IllegalArgumentException("Ordering " + newDsmOrdering + " is not supported");
-        }
-    }
+		// Remove lifecycle listener from view
+		logger.info("Removing lifecycle listener from DSM view");
+		getViewSite().getPage().removePartListener(lifeCycleListener);
 
-    public void setActionsEnabled(boolean enabled) {
-        stepBackWardAction.setEnabled(enabled);
-        stepForwardAction.setEnabled(false); // TODO
-        sortInNaturalOrderingAction.setEnabled(enabled);
-        sortByInstabilityAction.setEnabled(enabled);
-        exportToImageAction.setEnabled(enabled);
-        exportToExcelAction.setEnabled(enabled);
-        clearAllAction.setEnabled(enabled);
-    }
+		currentInstance = null;
+	}
 
-    private void addPropertyChangeListeners() {
-        sortByInstabilityAction.addPropertyChangeListener(sortByInstailityActionPropertyChangeListener);
-        sortInNaturalOrderingAction.addPropertyChangeListener(sortInNaturalOrderingPropertyChangeListener);
-    }
+	public void updateSortActionsState(DependencyMatrixOrdering newDsmOrdering) {
+		switch (newDsmOrdering) {
+		case BY_INSTABILITY:
+			sortByInstabilityAction.setChecked(true);
+			sortInNaturalOrderingAction.setChecked(false);
+			break;
+		case NATURAL_ORDERING:
+			sortByInstabilityAction.setChecked(false);
+			sortInNaturalOrderingAction.setChecked(true);
+			break;
+		case UNKNOWN_ODERING:
+			sortByInstabilityAction.setChecked(false);
+			sortInNaturalOrderingAction.setChecked(false);
+			break;
+		default:
+			throw new IllegalArgumentException("Ordering " + newDsmOrdering + " is not supported");
+		}
+	}
 
-    public void minimize() {
-        setState(IWorkbenchPage.STATE_MINIMIZED);
-    }
+	public void setActionsEnabled(boolean enabled) {
+		stepBackWardAction.setEnabled(enabled);
+		stepForwardAction.setEnabled(false); // TODO
+		sortInNaturalOrderingAction.setEnabled(enabled);
+		sortByInstabilityAction.setEnabled(enabled);
+		shuffleAction.setEnabled(enabled);
+		exportToImageAction.setEnabled(enabled);
+		exportToExcelAction.setEnabled(enabled);
+		clearAllAction.setEnabled(enabled);
+		printViolationsAction.setEnabled(enabled);
+	}
 
-    public void maximize() {
-        setState(IWorkbenchPage.STATE_MAXIMIZED);
-    }
+	private void addPropertyChangeListeners() {
+		sortByInstabilityAction.addPropertyChangeListener(sortByInstailityActionPropertyChangeListener);
+		sortInNaturalOrderingAction.addPropertyChangeListener(sortInNaturalOrderingPropertyChangeListener);
+	}
 
-    public void restore() {
-        setState(IWorkbenchPage.STATE_RESTORED);
-    }
+	public void minimize() {
+		setState(IWorkbenchPage.STATE_MINIMIZED);
+	}
 
-    private void setState(int state) {
-        IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-        int currentState = page.getPartState(page.getReference(this));
-        if (currentState != state) {
-            page.activate(this);
-            page.setPartState(page.getReference(this), state);
-        }
-    }
+	public void maximize() {
+		setState(IWorkbenchPage.STATE_MAXIMIZED);
+	}
 
-    public DsmTableController getDsmTableController() {
-        return dsmTableController;
-    }
+	public void restore() {
+		setState(IWorkbenchPage.STATE_RESTORED);
+	}
+
+	private void setState(int state) {
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		int currentState = page.getPartState(page.getReference(this));
+		if (currentState != state) {
+			page.activate(this);
+			page.setPartState(page.getReference(this), state);
+		}
+	}
+
+	public DsmTableController getDsmTableController() {
+		return dsmTableController;
+	}
 
 }

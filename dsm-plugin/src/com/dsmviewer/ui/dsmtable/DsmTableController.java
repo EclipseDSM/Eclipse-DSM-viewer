@@ -5,21 +5,14 @@ import java.util.List;
 import java.util.Stack;
 
 import org.eclipse.nebula.widgets.nattable.NatTable;
-import org.eclipse.nebula.widgets.nattable.coordinate.PositionCoordinate;
 import org.eclipse.nebula.widgets.nattable.grid.data.DefaultCornerDataProvider;
-import org.eclipse.nebula.widgets.nattable.grid.layer.ColumnHeaderSelectionListener;
 import org.eclipse.nebula.widgets.nattable.grid.layer.CornerLayer;
 import org.eclipse.nebula.widgets.nattable.grid.layer.GridLayer;
 import org.eclipse.nebula.widgets.nattable.layer.DataLayer;
-import org.eclipse.nebula.widgets.nattable.layer.ILayerListener;
-import org.eclipse.nebula.widgets.nattable.layer.event.ILayerEvent;
-import org.eclipse.nebula.widgets.nattable.selection.event.CellSelectionEvent;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 
-import com.dsmviewer.Activator;
 import com.dsmviewer.dsm.DependencyMatrix;
-import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.DsmView;
 import com.dsmviewer.ui.UiHelper;
 
@@ -66,7 +59,7 @@ public class DsmTableController {
         rowHeaderDataProvider.setDependencyMatrix(dependencyMatrix);
         colHeaderDataProvider.setDependencyMatrix(dependencyMatrix);
 
-        // TODO: add human-changeable 'default cell size' property to plugin
+        // TODO: add human-changeable 'default cell size' plugin property
         int cellSize = UiHelper.DSM_CELL_SIZE_DEFAULT;
 
         Dimension cellDimension = new Dimension(cellSize, cellSize);
@@ -114,44 +107,12 @@ public class DsmTableController {
 
     private void configureListeners() {
 
-        // Select the row which represents the dependee for selected cell
+        // Select row which represents the dependee for cell which is currently being selected
         bodyLayer.getSelectionLayer().addLayerListener(
-                new ColumnHeaderSelectionListener(columnHeaderLayer.getColHeaderLayer()) {
-                    @Override
-                    public void handleLayerEvent(ILayerEvent event) {
-                        handleColumnHeaderSelectionEvent(event);
-                    }
-                });
+        		new DependeeRowSelectionChangedListener(columnHeaderLayer.getColHeaderLayer(), rowHeaderLayer));
     
-        
         // Replace columns / rows in UI should cause replacing of related values in model
         bodyLayer.addLayerListener(new DsmTableColumnReorderListener(this));
-
-    }
-
-    private void handleColumnHeaderSelectionEvent(ILayerEvent event) {
-        if (event instanceof CellSelectionEvent) {
-            CellSelectionEvent cellSelectionEvent = (CellSelectionEvent) event;
-            PositionCoordinate[] selectedCellPositions = cellSelectionEvent.getSelectionLayer()
-                    .getSelectedCellPositions();
-            if (selectedCellPositions.length == 1) {
-                int columnPosition = cellSelectionEvent.getColumnPosition();
-                PositionCoordinate selectedCellPosition = selectedCellPositions[0];
-                int selectedCellColumnIndex = selectedCellPosition.columnPosition;
-                int selectedCellRowIndex = selectedCellPositions[0].rowPosition;
-                if (selectedCellColumnIndex == selectedCellRowIndex) {
-                    rowHeaderLayer.deselectDependeeRow();
-                } else {
-                    if (rowHeaderLayer.getSelectedDependeeRowIndex() != columnPosition) {
-                        rowHeaderLayer.setSelectedDenendeeRowIndex(columnPosition);
-                    }
-                }
-            } else {
-                rowHeaderLayer.deselectDependeeRow();
-            }
-        } else { // if selection is not a single cell (range selection, etc.)
-            rowHeaderLayer.deselectDependeeRow();
-        }
     }
 
     public void refreshTable(boolean changed) {
@@ -159,14 +120,21 @@ public class DsmTableController {
         parent.layout(changed);
     }
 
-    public Point getDsmTableSize() {
-        int height = bodyLayer.getWidth() + rowHeaderLayer.getWidth();
-        int width = bodyLayer.getHeight() + columnHeaderLayer.getHeight();
-        return new Point(height, width);
-    }
+//    public int getDsmTableWidth() {        
+//        return bodyLayer.getWidth() + rowHeaderLayer.getWidth();
+//    }    
+//    public int getDsmTableHeight() {        
+//    	return bodyLayer.getHeight() + columnHeaderLayer.getHeight();
+//    }
+//    public int getDsmTablePreferredWidth() {        
+//    	return bodyLayer.getPreferredWidth() + rowHeaderLayer.getPreferredWidth();
+//    }    
+//    public int getDsmTablePreferredHeight() {        
+//    	return bodyLayer.getPreferredHeight() + columnHeaderLayer.getPreferredHeight();
+//    }
 
-    public void setDsmTableBounds(Point bounds) {
-        dsmTable.setBounds(bounds.x, bounds.y, bounds.x, bounds.y);
+    public void setDsmTableBounds(Rectangle bounds) {
+        dsmTable.setBounds(bounds);
     }
 
     public DependencyMatrix getDependencyMatrix() {

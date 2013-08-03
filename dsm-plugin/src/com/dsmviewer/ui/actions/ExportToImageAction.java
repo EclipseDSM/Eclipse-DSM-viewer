@@ -101,7 +101,7 @@ public class ExportToImageAction extends Action {
 		IConfigRegistry configRegistry = table.getConfigRegistry();
 		layer.getLayerPainter().paintLayer(layer, gc, 0, 0, layerBounds, configRegistry);
 
-        restoreViewPorSize(layer);
+        restoreViewPortSize(layer);
 
 		gc.dispose();
 
@@ -113,11 +113,12 @@ public class ExportToImageAction extends Action {
 	 * all the contents fit in the viewport. This ensures that when the grid prints
 	 * we print the <i>entire</i> table.
 	 */
-	private void setViewportSize(final ILayer layer, int width, int height) {		
+	private static void setViewportSize(final ILayer layer, int width, int height) {		
 
 		final Rectangle layerBounds = new Rectangle(0, 0, width, height);
 
 		layer.setClientAreaProvider(new IClientAreaProvider() {
+			@Override
 			public Rectangle getClientArea() {
 				return layerBounds;
 			}
@@ -129,18 +130,18 @@ public class ExportToImageAction extends Action {
 	/**
 	 * Restores layer`s viewport to its normal operation.
 	 */
-	private void restoreViewPorSize(ILayer layer) {
+	private static void restoreViewPortSize(ILayer layer) {
 		layer.doCommand(new TurnViewportOnCommand());
 	}
 
     @Override
     public String getToolTipText() {
-        return "Export dependency matrix to PNG image";
+        return "Export to image";
     }
 
     @Override
     public ImageDescriptor getImageDescriptor() {
-        return Activator.getImageDescriptorFromRegistry("take_screenshot.png");
+        return Activator.getImageDescriptorFromRegistry("export_to_image.png");
     }
 
 }

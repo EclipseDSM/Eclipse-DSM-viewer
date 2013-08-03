@@ -25,6 +25,7 @@ public class DsmTableColumnReorderListener implements ILayerListener {
 		this.dsmTableController = dsmTableController;
 	}
 
+	@Override
 	public void handleLayerEvent(ILayerEvent event) {
 
 		logger.info(event.getClass().getName());

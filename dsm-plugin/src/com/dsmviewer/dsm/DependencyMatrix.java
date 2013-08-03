@@ -28,7 +28,6 @@ public class DependencyMatrix {
     private DependencyGraph dependencyGraph;
     private DependencyMatrixOrdering currentOrdering;
 
-    @SuppressWarnings("unchecked")
 	public DependencyMatrix() {
         this(new DependencyGraph(JavaScope.locations),
                 new AnalysisResult(Collections.EMPTY_MAP, Collections.EMPTY_SET, true),
@@ -47,6 +46,10 @@ public class DependencyMatrix {
         }
     }
 
+    public DependencyMatrix copy() {
+    	return new DependencyMatrix(getDependencyGraph(), getAnalysisResult(), getOrdering());
+    }
+    
     public List<DsmRow> getRows() {
         return this.rows;
     }
@@ -212,7 +215,7 @@ public class DependencyMatrix {
                     : MessageFormat.format("has {0} violations", analysisResult.getAllViolations().size());
             return "DependencyMatrix: size = " + getSize() + ", " + hasViolationsSuffix;
         } else {
-            // TODO: This code is written for test purposes and should be removed before release
+            // TODO: This code has been written for test purposes and should be removed before release
             StringBuilder sb = new StringBuilder(getClass().getSimpleName());
             sb.append("\n");
             List<String> displayNames = getDisplayNames();
