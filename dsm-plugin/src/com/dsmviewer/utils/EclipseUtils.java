@@ -69,9 +69,8 @@ public final class EclipseUtils {
         String sourceFilePath = getSourceFilePath(javaClassResource);
         if (sourceFilePath != null) {
             return toIfile(sourceFilePath);
-        } else {
-            throw new IllegalArgumentException("Cannot find appropriate Eclipse resource for: " + javaClassResource);
         }
+        return null;
     }
 
     public static String getSourceFilePath(Dependable javaClassResource) {

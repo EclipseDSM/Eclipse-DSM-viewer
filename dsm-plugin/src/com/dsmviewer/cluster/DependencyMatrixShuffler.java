@@ -6,6 +6,7 @@ import org.dtangler.core.dsm.DsmCell;
 import org.dtangler.core.dsm.DsmRow;
 
 import com.dsmviewer.dsm.DependencyMatrix;
+import com.dsmviewer.utils.Utils;
 
 public class DependencyMatrixShuffler {
 
@@ -22,7 +23,7 @@ public class DependencyMatrixShuffler {
 		double maxTotalDistance = countTotalDistance(dependencyMatrix);
 
 		for (int i = 0; i < numberOfPassages; i++) {
-			internalShuffle(dependencyMatrix);
+			performShuffle(dependencyMatrix);
 			double totalDistance = countTotalDistance(dependencyMatrix);
 			if (maxTotalDistance < totalDistance) {
 				maxTotalDistance = totalDistance;
@@ -33,21 +34,16 @@ public class DependencyMatrixShuffler {
 		return result;
 	}
 
-	private static void internalShuffle(DependencyMatrix dependencyMatrix) {
+	private static void performShuffle(DependencyMatrix dependencyMatrix) {
 
-		int size = dependencyMatrix.getSize();
-		for (int i = 0; i < size * 2; i++) {
-			int randomIndex1 = getRandomInt(0, size - 1);
-			int randomIndex2 = getRandomInt(0, size - 1);
+		int matrixSize = dependencyMatrix.getSize();
+		for (int i = 0; i < matrixSize * 2; i++) {
+			int randomIndex1 = Utils.getRandomInt(0, matrixSize - 1);
+			int randomIndex2 = Utils.getRandomInt(0, matrixSize - 1);
 			if (randomIndex1 != randomIndex2) {
 				dependencyMatrix.replaceElements(randomIndex1, randomIndex2);
 			}
 		}
-	}
-
-	private static int getRandomInt(int min, int max) {
-		int result = min + (int) (Math.random() * ((max - min) + 1));
-		return (result % 2 == 0) ? 0 : result;
 	}
 
 	private static double countTotalDistance(DependencyMatrix dependencyMatrix) {
@@ -69,17 +65,13 @@ public class DependencyMatrixShuffler {
 			}
 		}
 
-		if (result < 0) {
-			throw new IllegalArgumentException();
-		}
-
 		return result;
 	}
 
 	private static double countDistanceToAnotherCells(List<DsmRow> rows,
 			int rowIndex, int columnIndex, int cellFromDependencyWeight) {
 
-		long result = 0;
+		double result = 0;
 
 		for (int i = 0; i < rows.size(); i++) {
 

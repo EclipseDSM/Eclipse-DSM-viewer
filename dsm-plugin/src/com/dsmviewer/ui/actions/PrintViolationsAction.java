@@ -22,10 +22,7 @@ public class PrintViolationsAction extends Action {
 	@Override
 	public void run() {
 		DependencyMatrix dependencyMatrix = dsmTableController.getDependencyMatrix();		
-		DependencyGraph dependencies = dependencyMatrix.getDependencyGraph();		
-		AnalysisResult analysisResult = dependencyMatrix.getAnalysisResult();
-
-		DtanglerUtils.printDsmAndViolations(new SysoutWriter(), dependencies , analysisResult , true);
+		DtanglerUtils.printViolations(dependencyMatrix);
 	}
 
 	@Override

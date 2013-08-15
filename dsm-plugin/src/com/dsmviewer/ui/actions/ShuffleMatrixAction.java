@@ -40,7 +40,7 @@ public class ShuffleMatrixAction extends Action {
 
 	@Override
 	public String getToolTipText() {
-		return "Shuffle";
+		return "Shuffle to be more close one to another";
 	}
 
 	@Override

@@ -17,6 +17,7 @@ import com.dsmviewer.dsm.DependencyMatrix;
 import com.dsmviewer.dsm.DependencyMatrixOrdering;
 import com.dsmviewer.logging.Logger;
 import com.dsmviewer.ui.actions.ClearAllAction;
+import com.dsmviewer.ui.actions.ShuffleToBeCloseToMainDiagonalAction;
 import com.dsmviewer.ui.actions.PrintViolationsAction;
 import com.dsmviewer.ui.actions.ShuffleMatrixAction;
 import com.dsmviewer.ui.actions.ExportToExcelAction;
@@ -56,6 +57,7 @@ public class DsmView extends ViewPart {
 
 	private Action clearAllAction;
 	private Action shuffleAction;
+	private Action getElementsCloseTodiagonalAction;
 	
 	private Action printViolationsAction;
 
@@ -146,6 +148,7 @@ public class DsmView extends ViewPart {
 		sortByInstabilityAction = new SortDependencyMatrixByInstabilityAction(dsmTableController);
 
 		shuffleAction = new ShuffleMatrixAction(dsmTableController);
+		getElementsCloseTodiagonalAction = new ShuffleToBeCloseToMainDiagonalAction(dsmTableController);
 
 		clearAllAction = new ClearAllAction(dsmTableController);
 
@@ -163,6 +166,7 @@ public class DsmView extends ViewPart {
 		manager.add(sortByInstabilityAction);
 		manager.add(new Separator());
 		manager.add(shuffleAction);
+		manager.add(getElementsCloseTodiagonalAction);
 		manager.add(new Separator());
 		manager.add(clearAllAction);
 		manager.add(new Separator());
@@ -234,6 +238,7 @@ public class DsmView extends ViewPart {
 		sortInNaturalOrderingAction.setEnabled(enabled);
 		sortByInstabilityAction.setEnabled(enabled);
 		shuffleAction.setEnabled(enabled);
+		getElementsCloseTodiagonalAction.setEnabled(enabled);
 		exportToImageAction.setEnabled(enabled);
 		exportToExcelAction.setEnabled(enabled);
 		clearAllAction.setEnabled(enabled);
