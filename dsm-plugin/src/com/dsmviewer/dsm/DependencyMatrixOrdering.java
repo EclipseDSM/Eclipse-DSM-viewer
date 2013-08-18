@@ -6,7 +6,8 @@ package com.dsmviewer.dsm;
  */
 public enum DependencyMatrixOrdering {
     NATURAL_ORDERING,
-    BY_INSTABILITY;
+    BY_INSTABILITY,
+    UNKNOWN_ODERING;
 
     public static boolean isDtanglerDefaultOrdering(DependencyMatrixOrdering ordering) {
         return BY_INSTABILITY == ordering;

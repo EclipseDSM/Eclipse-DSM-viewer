@@ -1,4 +1,4 @@
-package com.dsmviewer.ui.action;
+package com.dsmviewer.ui.actions;
 
 import org.eclipse.jface.action.Action;
 
@@ -25,7 +25,7 @@ public abstract class AbstractSortDependencyMatrixAction extends Action {
         DependencyMatrix dependencyMatrix = dsmTableController.getDependencyMatrix();
         if (dependencyMatrix != null) {
             dependencyMatrix.sort(getDependencyMatrixOrdering());
-            dsmTableController.setDependencyMatrix(dependencyMatrix, false, false);
+            dsmTableController.setDependencyMatrix(dependencyMatrix, false);
         }
     }
 
