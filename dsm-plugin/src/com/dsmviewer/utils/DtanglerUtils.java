@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
 
 import org.dtangler.core.analysisresult.AnalysisResult;
 import org.dtangler.core.dependencies.Dependable;
@@ -13,6 +14,7 @@ import org.dtangler.core.dsm.DsmCell;
 import org.dtangler.core.dsm.DsmRow;
 import org.dtangler.core.dsmengine.DsmEngine;
 import org.dtangler.core.textui.DSMWriter;
+import org.dtangler.core.textui.SysoutWriter;
 import org.dtangler.core.textui.ViolationWriter;
 import org.dtangler.core.textui.Writer;
 
@@ -26,117 +28,182 @@ import com.dsmviewer.utils.misc.NaturalOrderComparator;
  */
 public final class DtanglerUtils {
 
-    private static final NaturalOrderComparator NATURAL_ORDER_COMPARATOR = new NaturalOrderComparator();
+	private static final NaturalOrderComparator NATURAL_ORDER_COMPARATOR = new NaturalOrderComparator();
 
-    private DtanglerUtils() {
-    }
+	private DtanglerUtils() {
+	}
 
-    /**
-     * Prints the DS Matrix for given dependencies and analysis result and all analysis violations.
-     * 
-     * @param Writer any kind of custom writer to use for export (CsvWriter, SysoutWriter, etc)
-     * @param dependencies the Dependencies.
-     * @param analysisResult the Analysis result.
-     */
-    public static synchronized void printDsmAndViolations(Writer writer, DependencyGraph dependencies,
-            AnalysisResult analysisResult, boolean printViolations) {
-        DSMWriter textUI = new DSMWriter(writer);
-        textUI.printDsm(new DsmEngine(dependencies).createDsm(), analysisResult);
-        if (printViolations) {
-            ViolationWriter violationWriter = new ViolationWriter(writer);
-            violationWriter.printViolations(analysisResult.getViolations(dependencies.getAllItems()));
-        }
-    }
+	
+	public static void printDsm(DependencyMatrix dependencyMatrix) {
+		SysoutWriter writer = new SysoutWriter();
+		printDsm(dependencyMatrix, writer);
+	}
 
-    public static String getAbsolutePath(Dependable resource, DependencyScope scope) {
-        return getAbsolutePath(resource.getFullyQualifiedName(), scope);
-    }
+	private static void printDsm(DependencyMatrix dependencyMatrix, SysoutWriter writer) {
+		DependencyGraph dependencies = dependencyMatrix.getDependencyGraph();		
+		AnalysisResult analysisResult = dependencyMatrix.getAnalysisResult();
 
-    /**
-     * Translates Dtangler FullyQualifiedName to absolutePath. <br/>
-     * <p>
-     * Example for packages: '/home/Workspace/Project: test.package' --> '/home/Workspace/Project/test/package' <br/>
-     * <p>
-     * Example for Classes: '/home/Workspace/Project: ClassName' --> '/home/Workspace/Project/Classname'
-     * 
-     * @param fullyQualifiedName Dtangler resources naming format (see examples above)
-     * @param scope
-     * @return
-     */
-    public static String getAbsolutePath(String fullyQualifiedName, DependencyScope scope) {
+		DtanglerUtils.printDsm(writer, dependencies , analysisResult);
+	}
+	
+	/**
+	 * Prints the DS Matrix for given dependencies and analysis result and all analysis violations.
+	 * 
+	 * @param Writer
+	 *            any kind of custom writer to use for export (CsvWriter, SysoutWriter, etc)
+	 * @param dependencies
+	 *            the Dependencies.
+	 * @param analysisResult
+	 *            the Analysis result.
+	 */
+	public static synchronized void printDsm(Writer writer, DependencyGraph dependencies,
+			AnalysisResult analysisResult) {
+		Dsm dsm = new DsmEngine(dependencies).createDsm();
+		printDsm(writer, dsm, analysisResult);
+	}
 
-        String[] splitted = fullyQualifiedName.split(": ");
-        String resourceParentPath = splitted[0];
+	public static void printDsm(Writer writer, Dsm dsm, AnalysisResult analysisResult) {
+		DSMWriter dsmWriter = new DSMWriter(writer);
+		dsmWriter.printDsm(dsm, analysisResult);
+	}
 
-        switch (scope) {
-        case PACKAGES:
-            String resourceRelativePath = splitted[1].replaceAll("\\.", File.separator);
+	public static void printViolations(DependencyMatrix dependencyMatrix) {
+		SysoutWriter writer = new SysoutWriter();
+		printViolations(dependencyMatrix, writer);
+	}
 
-            String resourceFullPath = resourceParentPath.concat(File.separator).concat(resourceRelativePath);
-            return resourceFullPath;
-        case CLASSES:
-            return resourceParentPath;
-        default:
-            throw new IllegalArgumentException("Scope " + scope + " is not supported");
-        }
-    }
 
-    public static List<DsmRow> buildDsmRowsUsingDtangler(DependencyGraph dependencyGraph) {
-        Dsm dsm = new DsmEngine(dependencyGraph).createDsm();
-        // transpose matrix to make it more human-readable
-        return DtanglerUtils.transposeDsm(dsm).getRows();
-    }
+	private static void printViolations(DependencyMatrix dependencyMatrix, SysoutWriter writer) {
+		DependencyGraph dependencies = dependencyMatrix.getDependencyGraph();		
+		AnalysisResult analysisResult = dependencyMatrix.getAnalysisResult();
 
-    @SuppressWarnings("unchecked")
-    public static void sortDisplayNamesInNaturalOrder(DependencyMatrix dsMatrix) {
-        int startIndex = 0;
-        int endIndex = dsMatrix.getSize() - 1;
-        quickSortByDepName(dsMatrix, NATURAL_ORDER_COMPARATOR, startIndex, endIndex);
-    }
+		DtanglerUtils.printViolations(writer, dependencies , analysisResult);
+	}
+	
+	public static void printViolations(Writer writer, DependencyGraph dependencies, AnalysisResult analysisResult) {
+		ViolationWriter violationWriter = new ViolationWriter(writer);
+		violationWriter.printViolations(analysisResult.getViolations(dependencies.getAllItems()));
+	}
 
-    private static void quickSortByDepName(DependencyMatrix dsMatrix, Comparator<String> comparator, int start, int end) {
-        if (start >= end) {
-            return;
-        }
-        int i = start, j = end;
-        int cur = i - (i - j) / 2;
-        while (i < j) {
-            while (i < cur && (comparator.compare(dsMatrix.getDisplayName(i), dsMatrix.getDisplayName(cur)) <= 0)) {
-                i++;
-            }
-            while (j > cur && (comparator.compare(dsMatrix.getDisplayName(cur), dsMatrix.getDisplayName(j)) <= 0)) {
-                j--;
-            }
-            if (i < j) {
-                dsMatrix.replaceRows(i, j);
+	public static String getAbsolutePath(Dependable resource, DependencyScope scope) {
+		return getAbsolutePath(resource.getFullyQualifiedName(), scope);
+	}
 
-                if (i == cur) {
-                    cur = j;
-                }
-                else if (j == cur) {
-                    cur = i;
-                }
-            }
-        }
-        quickSortByDepName(dsMatrix, comparator, start, cur);
-        quickSortByDepName(dsMatrix, comparator, cur + 1, end);
-    }
+	/**
+	 * Translates Dtangler FullyQualifiedName to absolutePath. <br/>
+	 * <p>
+	 * Example for packages: '/home/Workspace/Project: test.package' --> '/home/Workspace/Project/test/package' <br/>
+	 * <p>
+	 * Example for Classes: '/home/Test2/bin: test.package.AbstractClass1' --> ''
+	 * 
+	 * @param fullyQualifiedName
+	 *            Dtangler resources naming format (see examples above)
+	 * @param scope
+	 * @return
+	 */
+	public static String getAbsolutePath(String fullyQualifiedName, DependencyScope scope) {
 
-    public static Dsm transposeDsm(Dsm dsm) {
-        List<DsmRow> inputRows = dsm.getRows();
-        int dsmSize = inputRows.size();
+		String[] splitted = fullyQualifiedName.split(": ");
+		String resourceParentPath = splitted[0];
 
-        List<DsmRow> resultRows = new ArrayList<DsmRow>(dsmSize);
+		switch (scope) {
+		case PACKAGES:
+			if ("default".equals(splitted[1])) { //
+				// do not include package name if there is a "default" package
+				// (note that Eclipse package can`t be named as "default" manually)
+				return resourceParentPath;
+			} else {
+				String packageRelativePath = splitted[1].replaceAll("\\.", Matcher.quoteReplacement(File.separator));
+				return resourceParentPath.concat(File.separator).concat(packageRelativePath);
+			}
+		case CLASSES:
+			if (resourceParentPath.endsWith(".class")) {
+				return resourceParentPath;
+			} else {
+				String classRelativePath = splitted[1].replaceAll("\\.", Matcher.quoteReplacement(File.separator));
 
-        for (int i = 0; i < dsmSize; i++) {
-            ArrayList<DsmCell> cells = new ArrayList<DsmCell>(dsmSize);
-            for (int j = 0; j < dsmSize; j++) {
-                DsmCell inputCell = inputRows.get(j).getCells().get(i);
-                cells.add(inputCell);
-            }
-            Dependable dependee = inputRows.get(i).getDependee();
-            resultRows.add(new DsmRow(dependee, cells));
-        }
-        return new Dsm(resultRows);
-    }
+				// fix the path for resource if it is placed under "default" package
+				String defaultPackageName = "default" + File.separator;
+				if (classRelativePath.startsWith(defaultPackageName)) {
+					classRelativePath = classRelativePath.substring(defaultPackageName.length());
+				}
+
+				String classFullPath = resourceParentPath.concat(File.separator).concat(classRelativePath);
+				if (!classFullPath.endsWith(".class")) {
+					classFullPath = classFullPath.concat(".class");
+				}
+				return classFullPath;
+			}
+		default:
+			throw new IllegalArgumentException("Scope " + scope + " is not supported");
+		}
+	}
+
+	public static List<DsmRow> buildDsmRowsUsingDtanglersDefaultOrdering(DependencyGraph dependencyGraph) {
+		Dsm dsm = new DsmEngine(dependencyGraph).createDsm();
+		// transpose matrix to make it more human-readable
+		return DtanglerUtils.transposeDsm(dsm).getRows();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static void sortDisplayNamesInNaturalOrder(DependencyMatrix dsMatrix) {
+		int startIndex = 0;
+		int endIndex = dsMatrix.getSize() - 1;
+		sortByDependencyNames(dsMatrix, NATURAL_ORDER_COMPARATOR, startIndex, endIndex);
+	}
+
+	/**
+	 * Sort dependency matrix by dependant resources names. Uses quick sort algorithm.
+	 */
+	private static void sortByDependencyNames(DependencyMatrix dsMatrix, Comparator<String> comparator, int start,
+			int end) {
+		if (start >= end) {
+			return;
+		}
+		int i = start, j = end;
+		int cur = i - (i - j) / 2;
+		while (i < j) {
+			while (i < cur && (comparator.compare(dsMatrix.getDisplayName(i), dsMatrix.getDisplayName(cur)) <= 0)) {
+				i++;
+			}
+			while (j > cur && (comparator.compare(dsMatrix.getDisplayName(cur), dsMatrix.getDisplayName(j)) <= 0)) {
+				j--;
+			}
+			if (i < j) {
+				dsMatrix.replaceElements(i, j);
+
+				if (i == cur) {
+					cur = j;
+				}
+				else if (j == cur) {
+					cur = i;
+				}
+			}
+		}
+		sortByDependencyNames(dsMatrix, comparator, start, cur);
+		sortByDependencyNames(dsMatrix, comparator, cur + 1, end);
+	}
+
+	public static Dsm transposeDsm(Dsm dsm) {
+		List<DsmRow> inputRows = dsm.getRows();
+		int dsmSize = inputRows.size();
+
+		List<DsmRow> resultRows = new ArrayList<DsmRow>(dsmSize);
+
+		for (int i = 0; i < dsmSize; i++) {
+			ArrayList<DsmCell> cells = new ArrayList<DsmCell>(dsmSize);
+			for (int j = 0; j < dsmSize; j++) {
+				DsmCell inputCell = inputRows.get(j).getCells().get(i);
+				cells.add(inputCell);
+			}
+			Dependable dependee = inputRows.get(i).getDependee();
+			resultRows.add(new DsmRow(dependee, cells));
+		}
+
+		// free the memory
+		inputRows = null;
+		dsm = null;
+
+		return new Dsm(resultRows);
+	}
 }

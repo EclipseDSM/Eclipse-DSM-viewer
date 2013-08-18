@@ -8,6 +8,8 @@ import org.eclipse.nebula.widgets.nattable.layer.AbstractLayerTransform;
 import org.eclipse.nebula.widgets.nattable.layer.DataLayer;
 import org.eclipse.nebula.widgets.nattable.layer.config.DefaultColumnHeaderLayerConfiguration;
 
+import com.dsmviewer.ui.UiHelper;
+
 /**
  * 
  * @author <a href="mailto:Daniil.Yaroslavtsev@gmail.com"> Daniil Yaroslavtsev</a>
@@ -16,7 +18,7 @@ public class DsmColumnHeaderLayer extends AbstractLayerTransform {
 
     private DataLayer columnDataLayer;
 
-    private Dimension cellSize = new Dimension(20, 10);
+    private Dimension cellSize = new Dimension(UiHelper.DSM_CELL_SIZE_DEFAULT, UiHelper.DSM_CELL_SIZE_DEFAULT);
 
     private ColumnHeaderLayer colHeaderLayer;
 
@@ -31,6 +33,11 @@ public class DsmColumnHeaderLayer extends AbstractLayerTransform {
             }
         });
         setUnderlyingLayer(colHeaderLayer);
+    }
+
+    @Override
+    public boolean isRowPositionResizable(int rowPosition) {
+    	return false;
     }
 
     @Override

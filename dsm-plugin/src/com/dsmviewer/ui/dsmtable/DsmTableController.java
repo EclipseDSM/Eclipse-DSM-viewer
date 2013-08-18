@@ -5,19 +5,21 @@ import java.util.List;
 import java.util.Stack;
 
 import org.eclipse.nebula.widgets.nattable.NatTable;
-import org.eclipse.nebula.widgets.nattable.coordinate.PositionCoordinate;
 import org.eclipse.nebula.widgets.nattable.grid.data.DefaultCornerDataProvider;
-import org.eclipse.nebula.widgets.nattable.grid.layer.ColumnHeaderSelectionListener;
 import org.eclipse.nebula.widgets.nattable.grid.layer.CornerLayer;
 import org.eclipse.nebula.widgets.nattable.grid.layer.GridLayer;
 import org.eclipse.nebula.widgets.nattable.layer.DataLayer;
-import org.eclipse.nebula.widgets.nattable.layer.event.ILayerEvent;
-import org.eclipse.nebula.widgets.nattable.selection.event.CellSelectionEvent;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolTip;
 
 import com.dsmviewer.dsm.DependencyMatrix;
-import com.dsmviewer.dsm.DependencyScope;
 import com.dsmviewer.ui.DsmView;
 import com.dsmviewer.ui.UiHelper;
 
@@ -27,183 +29,161 @@ import com.dsmviewer.ui.UiHelper;
  */
 public class DsmTableController {
 
-    private static final int ICON_SIZE = DependencyScope.PACKAGES.getDisplayIcon().getBounds().width; // 16px
+	private NatTable dsmTable;
 
-    private DsmBodyDataProvider mainDataProvider;
-    private DsmRowHeaderDataProvider rowHeaderDataProvider;
-    private DsmColumnHeaderDataProvider colHeaderDataProvider;
+	private Composite parent;
 
-    private DsmBodyLayer bodyLayer;
-    private DsmColumnHeaderLayer columnHeaderLayer;
-    private DsmRowHeaderLayer rowHeaderLayer;
+	private DsmBodyDataProvider mainDataProvider;
+	private DsmRowHeaderDataProvider rowHeaderDataProvider;
+	private DsmColumnHeaderDataProvider colHeaderDataProvider;
 
-    private Composite parent;
-    private NatTable table;
+	private DsmBodyLayer bodyLayer;
+	private DsmColumnHeaderLayer columnHeaderLayer;
+	private DsmRowHeaderLayer rowHeaderLayer;
 
-    private boolean alreadyInitialized = false;
+	private boolean alreadyInitialized = false;
 
-    private Stack<DependencyMatrix> stack = new Stack<DependencyMatrix>();
+	private Stack<DependencyMatrix> stack = new Stack<DependencyMatrix>();
 
-    public DsmTableController(Composite parent) {
-        this.parent = parent;
-    }
+	public DsmTableController(Composite parent) {
+		this.parent = parent;
+	}
 
-    public void setDependencyMatrix(DependencyMatrix dependencyMatrix, boolean fullRefresh, boolean addToHistory) {
+	public void setDependencyMatrix(DependencyMatrix dependencyMatrix, boolean addToNavigationHistory) {
+		internalSetDependencyMatrix(dependencyMatrix);
+		if (addToNavigationHistory) {
+			stack.add(dependencyMatrix);
+		}
+	}
 
-        if (!alreadyInitialized) {
-            init(dependencyMatrix);
-        }
+	private void internalSetDependencyMatrix(DependencyMatrix dependencyMatrix) {
 
-        mainDataProvider.setDependencyMatrix(dependencyMatrix);
-        rowHeaderDataProvider.setDependencyMatrix(dependencyMatrix);
-        colHeaderDataProvider.setDependencyMatrix(dependencyMatrix);
+		if (!alreadyInitialized) {
+			init(dependencyMatrix);
+		}
 
-        // TODO: add to plugin human-changeable properties as 'default cell size'
-        int cellSize = UiHelper.DSM_CELL_SIZE_DEFAULT;
+		mainDataProvider.setDependencyMatrix(dependencyMatrix);
+		rowHeaderDataProvider.setDependencyMatrix(dependencyMatrix);
+		colHeaderDataProvider.setDependencyMatrix(dependencyMatrix);
 
-        Dimension cellDimension = new Dimension(cellSize, cellSize);
+		// TODO: add human-changeable 'default cell size' plugin property
+		int cellSize = UiHelper.DSM_CELL_SIZE_DEFAULT;
 
-        bodyLayer.setCellSize(cellDimension);
-        columnHeaderLayer.setCellSize(cellDimension);
+		Dimension cellDimension = new Dimension(cellSize, cellSize);
+		bodyLayer.setCellSize(cellDimension);
+		columnHeaderLayer.setCellSize(cellDimension);
+		rowHeaderLayer.setRowHeight((int) (cellSize * 1.2));
 
-        int rowHeight = (int) (cellSize * 1.25);
-        rowHeaderLayer.setRowHeight(rowHeight);
+		List<String> displayNames = dependencyMatrix.getDisplayNames();
+		int maxTextExtent = UiHelper.computeMaxTextExtent(displayNames, dsmTable.getShell());
+		rowHeaderLayer.setWidth(maxTextExtent + 2 * UiHelper.ICON_SIZE + 20);
 
-        int maximumHeaderWidth = computeMaximumRowHeaderWidth(dependencyMatrix.getDisplayNames());
-        rowHeaderLayer.setHeaderWidth(maximumHeaderWidth);
+		refreshTable(true);
+	}
 
-        refreshTable(fullRefresh);
+	private void init(DependencyMatrix dependencyMatrix) {
 
-        if (addToHistory) {
-            stack.add(dependencyMatrix);
-        }
-    }
+		mainDataProvider = new DsmBodyDataProvider(dependencyMatrix);
+		colHeaderDataProvider = new DsmColumnHeaderDataProvider(dependencyMatrix);
+		rowHeaderDataProvider = new DsmRowHeaderDataProvider(dependencyMatrix);
 
-    private void init(DependencyMatrix dependencyMatrix) {
+		bodyLayer = new DsmBodyLayer(mainDataProvider);
+		columnHeaderLayer = new DsmColumnHeaderLayer(colHeaderDataProvider, bodyLayer);
+		rowHeaderLayer = new DsmRowHeaderLayer(rowHeaderDataProvider, bodyLayer);
 
-        mainDataProvider = new DsmBodyDataProvider(dependencyMatrix);
-        colHeaderDataProvider = new DsmColumnHeaderDataProvider(dependencyMatrix);
-        rowHeaderDataProvider = new DsmRowHeaderDataProvider(dependencyMatrix);
+		// just for now I want to do nothing with left-upper corner. It will be the simple gray rectangle
+		DefaultCornerDataProvider cornerDataProvider =
+				new DefaultCornerDataProvider(colHeaderDataProvider, rowHeaderDataProvider);
 
-        bodyLayer = new DsmBodyLayer(mainDataProvider);
-        columnHeaderLayer = new DsmColumnHeaderLayer(colHeaderDataProvider, bodyLayer);
-        rowHeaderLayer = new DsmRowHeaderLayer(rowHeaderDataProvider, bodyLayer);
+		CornerLayer cornerLayer = new CornerLayer(new DataLayer(cornerDataProvider), rowHeaderLayer, columnHeaderLayer);
 
-        // just for now I want to do nothing with left-upper corner. It will be a simply rectangle gray area
-        DefaultCornerDataProvider cornerDataProvider =
-                new DefaultCornerDataProvider(colHeaderDataProvider, rowHeaderDataProvider);
+		GridLayer mainLayer = new GridLayer(bodyLayer, columnHeaderLayer, rowHeaderLayer, cornerLayer);
 
-        CornerLayer cornerLayer = new CornerLayer(new DataLayer(cornerDataProvider), rowHeaderLayer, columnHeaderLayer);
+		dsmTable = new NatTable(parent, mainLayer, false);
 
-        GridLayer mainLayer = new GridLayer(bodyLayer, columnHeaderLayer, rowHeaderLayer, cornerLayer);
+		{ // configuring layers
+			mainLayer.clearConfiguration(); // do not configure parent layer, only child layers
+			cornerLayer.addConfiguration(new DsmCornerLayerConfiguration());
+			dsmTable.configure(); // apply all configuration tweaks to all table layers recursively 
+		}
 
-        table = new NatTable(parent, mainLayer, false);
+		configureListeners();
 
-        { // configuring layers
-            mainLayer.clearConfiguration(); // do not configure parent layer, only child layers
-            cornerLayer.addConfiguration(new DsmCornerLayerConfiguration());
-            table.configure(); // apply all configuration tweaks to all table layers
-        }
+		alreadyInitialized = true;
+	}
 
-        configureListeners();
+	private void configureListeners() {
 
-        alreadyInitialized = true;
-    }
+		// Select row which represents the dependee for cell which is currently being selected
+		bodyLayer.getSelectionLayer().addLayerListener(
+				new DependeeRowSelectionChangedListener(columnHeaderLayer.getColHeaderLayer(), rowHeaderLayer));
 
-    private void configureListeners() {
+		// Replace columns / rows in UI should cause replacing of related values in model
+		bodyLayer.addLayerListener(new DsmTableColumnReorderListener(this));
 
-        // Select the row which represents the dependee for selected cell
-        bodyLayer.getSelectionLayer().addLayerListener(
-                new ColumnHeaderSelectionListener(columnHeaderLayer.getColHeaderLayer()) {
-                    @Override
-                    public void handleLayerEvent(ILayerEvent event) {
-                        handleColumnHeaderSelectionEvent(event);
-                    }
-                });
+		dsmTable.addListener(SWT.MouseHover, new Listener() {
 
-    }
+			@Override
+			public void handleEvent(Event event) {
+//				System.out.println("Hower!");
+//				// TODO: use https://sites.google.com/site/javatipstocode/how-to/how-to-display-hover-text-in-swt
+//				// to display help dialog on hower
+			}
+		});
 
-    private void handleColumnHeaderSelectionEvent(ILayerEvent event) {
-        if (event instanceof CellSelectionEvent) {
-            CellSelectionEvent cellSelectionEvent = (CellSelectionEvent) event;
-            PositionCoordinate[] selectedCellPositions = cellSelectionEvent.getSelectionLayer()
-                    .getSelectedCellPositions();
-            if (selectedCellPositions.length == 1) {
-                int columnPosition = cellSelectionEvent.getColumnPosition();
-                PositionCoordinate selectedCellPosition = selectedCellPositions[0];
-                int selectedCellColumnIndex = selectedCellPosition.columnPosition;
-                int selectedCellRowIndex = selectedCellPositions[0].rowPosition;
-                if (selectedCellColumnIndex == selectedCellRowIndex) {
-                    rowHeaderLayer.deselectDependeeRow();
-                } else {
-                    if (rowHeaderLayer.getSelectedDependeeRowIndex() != columnPosition) {
-                        rowHeaderLayer.setSelectedDenendeeRowIndex(columnPosition);
-                    }
-                }
-            } else {
-                rowHeaderLayer.deselectDependeeRow();
-            }
-        } else { // if selection is not a single cell (range selection, etc.)
-            rowHeaderLayer.deselectDependeeRow();
-        }
-    }
+	}
 
-    public void refreshTable(boolean layoutAll) {
-        table.refresh();
-        parent.layout(layoutAll);
-    }
+	public void refreshTable(boolean changed) {
+		dsmTable.refresh();
+		parent.layout(changed);
+	}
 
-    public Point getDsmTableBounds() {
-        int height = bodyLayer.getWidth() + rowHeaderLayer.getWidth();
-        int width = bodyLayer.getHeight();
-        return new Point(height, width);
-    }
-
-    public DependencyMatrix getDependencyMatrix() {
-        return mainDataProvider.getDependencyMatrix();
-    }
-
-    private static int computeMaximumRowHeaderWidth(List<String> displayNames) {
-        int maxLength = 0;
-        for (int i = 0; i < displayNames.size(); i++) {
-            int length = displayNames.get(i).length();
-            if (maxLength < length) {
-                maxLength = length;
-            }
-        }
-        return (int) (maxLength * UiHelper.DEFAULT_FONT_SIZE / 1.2) + 2 * ICON_SIZE;
-    }
-
-    public NatTable getTable() {
-        return table;
-    }
-
-    public boolean setTableFocused() {
-        if (table == null) {
-            return false;
-        } else {
-            return table.forceFocus();
-        }
-    }
-
-    // TODO:
-//    public void doStepForward() {
-//        
+//    public int getDsmTableWidth() {        
+//        return bodyLayer.getWidth() + rowHeaderLayer.getWidth();
+//    }    
+//    public int getDsmTableHeight() {        
+//    	return bodyLayer.getHeight() + columnHeaderLayer.getHeight();
+//    }
+//    public int getDsmTablePreferredWidth() {        
+//    	return bodyLayer.getPreferredWidth() + rowHeaderLayer.getPreferredWidth();
+//    }    
+//    public int getDsmTablePreferredHeight() {        
+//    	return bodyLayer.getPreferredHeight() + columnHeaderLayer.getPreferredHeight();
 //    }
 
-    public void doStepBackWard() {
-        if (stack.size() > 1) {
-            DependencyMatrix dependencyMatrix = stack.get(stack.size() - 2);
-            setDependencyMatrix(dependencyMatrix, false, false);
-            DsmView.getCurrent().updateSortActionsState(dependencyMatrix.getOrdering());
-            stack.pop();
-        } else {
-            // TODO: disable 'backward' action button
-        }
-    }
+	public void setDsmTableBounds(Rectangle bounds) {
+		dsmTable.setBounds(bounds);
+	}
 
-    public void crearStack() {
-        stack.clear();
-    }
+	public DependencyMatrix getDependencyMatrix() {
+		return mainDataProvider == null ? null : mainDataProvider.getDependencyMatrix();
+	}
+
+	public NatTable getTable() {
+		return dsmTable;
+	}
+
+	public boolean setTableFocused() {
+		if (dsmTable == null) {
+			return false;
+		} else {
+			return dsmTable.forceFocus();
+		}
+	}
+
+	public void doStepBackWard() {
+		if (stack.size() > 1) {
+			DependencyMatrix dependencyMatrix = stack.get(stack.size() - 2);
+			setDependencyMatrix(dependencyMatrix, false);
+			DsmView.getCurrent().updateSortActionsState(dependencyMatrix.getOrdering());
+			stack.pop();
+		} else {
+			// TODO: disable 'backward' action button
+		}
+	}
+
+	public void clearHistory() {
+		stack.clear();
+	}
 
 }

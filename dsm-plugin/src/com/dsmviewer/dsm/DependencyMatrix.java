@@ -2,14 +2,21 @@ package com.dsmviewer.dsm;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.dtangler.core.analysisresult.AnalysisResult;
+import org.dtangler.core.analysisresult.Violation;
+import org.dtangler.core.cycleanalysis.DependencyCycle;
+import org.dtangler.core.dependencies.Dependable;
 import org.dtangler.core.dependencies.Dependency;
 import org.dtangler.core.dependencies.DependencyGraph;
 import org.dtangler.core.dependencies.Scope;
 import org.dtangler.core.dsm.DsmCell;
 import org.dtangler.core.dsm.DsmRow;
+import org.dtangler.javaengine.types.JavaScope;
 
 import com.dsmviewer.utils.DtanglerUtils;
 
@@ -19,247 +26,285 @@ import com.dsmviewer.utils.DtanglerUtils;
  */
 public class DependencyMatrix {
 
-    private AnalysisResult analysisResult;
-    private List<DsmRow> rows;
-    private DependencyGraph dependencyGraph;
-    private DependencyMatrixOrdering currentOrdering;
+	public static final DependencyMatrix EMPTY_MATRIX = new DependencyMatrix();
 
-    public DependencyMatrix(DependencyGraph dependencyGraph, AnalysisResult analysisResult,
-            DependencyMatrixOrdering ordering) {
-        this.dependencyGraph = dependencyGraph;
-        this.rows = DtanglerUtils.buildDsmRowsUsingDtangler(dependencyGraph);
-        this.analysisResult = analysisResult;
+	private List<DsmRow> rows;
+	private DependencyGraph dependencyGraph;
+	private AnalysisResult analysisResult;
+	private Set<Violation> violations;
+	private Set<DependencyCycle> dependencyCycles;
 
-        // skip sorting if Dtangler`s default ordering is provided
-        if (!DependencyMatrixOrdering.isDtanglerDefaultOrdering(ordering)) {
-            sort(ordering);
-        }
-    }
+	private DependencyMatrixOrdering currentOrdering;
 
-    public List<DsmRow> getRows() {
-        return this.rows;
-    }
+	public DependencyMatrix() {
+		this(new DependencyGraph(JavaScope.locations),
+				new AnalysisResult(Collections.EMPTY_MAP, Collections.EMPTY_SET, true),
+				DependencyMatrixOrdering.getPluginDefaultOrdering());
+	}
 
-    public DsmRow getRow(int index) {
-        return this.rows.get(index);
-    }
+	public DependencyMatrix(DependencyGraph dependencyGraph, AnalysisResult analysisResult,
+			DependencyMatrixOrdering ordering) {
+		this.dependencyGraph = dependencyGraph;
+		this.rows = DtanglerUtils.buildDsmRowsUsingDtanglersDefaultOrdering(dependencyGraph);
+		this.analysisResult = analysisResult;
+		this.violations = analysisResult.getViolations(dependencyGraph.getAllItems());
+		dependencyCycles = getDependencyCycles(violations);
+		// skip sorting if Dtangler`s default ordering is provided
+		if (!DependencyMatrixOrdering.isDtanglerDefaultOrdering(ordering)) {
+			sort(ordering);
+		}
+	}
 
-    public void setRow(int index, DsmRow row) {
-        this.rows.set(index, row);
-    }
+	private static Set<DependencyCycle> getDependencyCycles(Set<Violation> violations) {
+		Set<DependencyCycle> result = new HashSet<DependencyCycle>();
+		for (Violation violation : violations) {
+			if (violation instanceof DependencyCycle) {
+				result.add((DependencyCycle) violation);
+			}
+		}
+		return result;
+	}
 
-    public void setRows(List<DsmRow> rows) {
-        this.rows = rows;
-    }
+	public List<DsmRow> getRows() {
+		return this.rows;
+	}
 
-    public int getRowIndex(String displayName) {
-        return getDisplayNames().indexOf(displayName);
-    }
+	public DsmRow getRow(int index) {
+		return this.rows.get(index);
+	}
 
-    public final int getSize() {
-        return this.rows.size();
-    }
+	public void setRow(int index, DsmRow row) {
+		this.rows.set(index, row);
+	}
 
-    public List<String> getDisplayNames() {
-        List<String> result = new ArrayList<String>(getSize());
-        for (int i = 0; i < getSize(); i++) {
-            result.add(this.rows.get(i).getDependee().getDisplayName());
-        }
-        return result;
-    }
+	public void setRows(List<DsmRow> rows) {
+		this.rows = rows;
+	}
 
-    public String getDisplayName(int rowIndex) {
-        return this.rows.get(rowIndex).getDependee().getDisplayName();
-    }
+	public int getRowIndex(String displayName) {
+		return getDisplayNames().indexOf(displayName);
+	}
 
-    public String getFullyQualifiedName(int rowIndex) {
-        return this.rows.get(rowIndex).getDependee().getFullyQualifiedName();
-    }
+	public final int getSize() {
+		return this.rows.size();
+	}
 
-    public AnalysisResult getAnalysisResult() {
-        return this.analysisResult;
-    }
+	public List<String> getDisplayNames() {
+		List<String> result = new ArrayList<String>(getSize());
+		for (int i = 0; i < getSize(); i++) {
+			result.add(this.rows.get(i).getDependee().getDisplayName());
+		}
+		return result;
+	}
 
-    public DsmCell getCell(int rowIndex, int columnIndex) {
-        return getRow(rowIndex).getCells().get(columnIndex);
-    }
+	public String getDisplayName(int rowIndex) {
+		return this.rows.get(rowIndex).getDependee().getDisplayName();
+	}
 
-    public void setCell(int rowIndex, int columnIndex, DsmCell value) {
-        getRow(rowIndex).getCells().set(columnIndex, value);
-    }
+	public String getFullyQualifiedName(int rowIndex) {
+		return this.rows.get(rowIndex).getDependee().getFullyQualifiedName();
+	}
 
-    public final void replaceCells(int rowIndex1, int columnIndex1, int rowIndex2, int columnIndex2) {
-        DsmCell temp = getCell(rowIndex1, columnIndex1);
-        setCell(rowIndex1, columnIndex1, getCell(rowIndex2, columnIndex2));
-        setCell(rowIndex2, columnIndex2, temp);
-    }
+	public AnalysisResult getAnalysisResult() {
+		return this.analysisResult;
+	}
 
-    public void replaceRows(int rowNum1, int rowNum2) {
+	public DsmCell getCell(int rowIndex, int columnIndex) {
+		return getRow(rowIndex).getCells().get(columnIndex);
+	}
 
-        int row1Index = Math.min(rowNum1, rowNum2);
-        int row2Index = Math.max(rowNum1, rowNum2);
+	public void setCell(int rowIndex, int columnIndex, DsmCell value) {
+		getRow(rowIndex).getCells().set(columnIndex, value);
+	}
 
-        // replace rows
-        for (int j = 0; j < getSize(); j++) {
-            if (j == row1Index || j == row2Index) {
-                // skip
-            } else {
-                replaceCells(row1Index, j, row2Index, j);
-            }
-        }
+	public final void replaceCells(int rowIndex1, int columnIndex1, int rowIndex2, int columnIndex2) {
+		DsmCell temp = getCell(rowIndex1, columnIndex1);
+		setCell(rowIndex1, columnIndex1, getCell(rowIndex2, columnIndex2));
+		setCell(rowIndex2, columnIndex2, temp);
+	}
 
-        // replace columns
-        for (int i = 0; i < getSize(); i++) {
-            if (i == row1Index || i == row2Index) {
-                // skip
-            } else {
-                replaceCells(i, row1Index, i, row2Index);
-            }
-        }
+	public void replaceElements(int element1Index, int element2Index) {
 
-        // replace additional cells on intersection of row1 and row2
-        replaceCells(row2Index, row1Index, row1Index, row2Index);
+		int el1Index = Math.min(element1Index, element2Index);
+		int el2Index = Math.max(element1Index, element2Index);
 
-        DsmRow row1 = getRow(rowNum1);
-        DsmRow row2 = getRow(rowNum2);
-        rows.set(rowNum1, new DsmRow(row2.getDependee(), row1.getCells()));
-        rows.set(rowNum2, new DsmRow(row1.getDependee(), row2.getCells()));
-    }
+		// replace rows
+		for (int j = 0; j < getSize(); j++) {
+			if (j == el1Index || j == el2Index) {
+				// skip
+			} else {
+				replaceCells(el1Index, j, el2Index, j);
+			}
+		}
 
-    public boolean hasViolations(int i, int j) {
-        return hasViolations(getCell(i, j));
-    }
+		// replace columns
+		for (int i = 0; i < getSize(); i++) {
+			if (i == el1Index || i == el2Index) {
+				// skip
+			} else {
+				replaceCells(i, el1Index, i, el2Index);
+			}
+		}
 
-    public boolean hasViolations(DsmCell cell) {
-        return hasViolations(cell.getDependency());
-    }
+		// replace additional cells on intersection of row1 and row2
+		replaceCells(el2Index, el1Index, el1Index, el2Index);
 
-    public boolean hasViolations(Dependency dependency) {
-        return this.analysisResult.hasViolations(dependency);
-    }
+		DsmRow row1 = getRow(element1Index);
+		DsmRow row2 = getRow(element2Index);
+		rows.set(element1Index, new DsmRow(row2.getDependee(), row1.getCells()));
+		rows.set(element2Index, new DsmRow(row1.getDependee(), row2.getCells()));
+	}
 
-    public DependencyScope getScope(int i, int j, DependencyType dependencyLocation) {
-        return getScope(dependencyLocation, getCell(i, j));
-    }
+	public boolean hasViolations(int i, int j) {
+		return hasViolations(getCell(i, j));
+	}
 
-    private DependencyScope getScope(DependencyType dependencyLocation, DsmCell cell) {
-        return getScope(cell.getDependency(), dependencyLocation);
-    }
+	public boolean hasViolations(DsmCell cell) {
+		return hasViolations(cell.getDependency());
+	}
 
-    public DependencyScope getScope(Dependency dependency, DependencyType dependencyLocation) {
-        Scope scope = null;
-        switch (dependencyLocation) {
-        case DEPENDANT:
-            scope = dependency.getDependant().getScope();
-            break;
-        case DEPENDEE:
-            scope = dependency.getDependee().getScope();
-            break;
-        default:
-            return null;
-        }
+	public boolean hasViolations(Dependency dependency) {
+		return this.analysisResult.hasViolations(dependency);
+	}
 
-        switch (scope.index()) {
-        case 1:
-            return DependencyScope.PACKAGES;
-        case 2:
-            return DependencyScope.CLASSES;
-        default:
-            return null;
-        }
-    }
+	public DependencyScope getScope(int i, int j, DependencyType dependencyLocation) {
+		return getScope(dependencyLocation, getCell(i, j));
+	}
 
-    public DependencyGraph getDependencyGraph() {
-        return dependencyGraph;
-    }
+	private DependencyScope getScope(DependencyType dependencyLocation, DsmCell cell) {
+		return getScope(cell.getDependency(), dependencyLocation);
+	}
 
-    public void sort(DependencyMatrixOrdering ordering) {
-        if (currentOrdering != ordering) {
-            this.currentOrdering = ordering;
+	public DependencyScope getScope(Dependency dependency, DependencyType dependencyLocation) {
+		Scope scope = null;
+		switch (dependencyLocation) {
+		case DEPENDANT:
+			scope = dependency.getDependant().getScope();
+			break;
+		case DEPENDEE:
+			scope = dependency.getDependee().getScope();
+			break;
+		default:
+			return null;
+		}
 
-            switch (ordering) {
-            case BY_INSTABILITY:
-                setRows(DtanglerUtils.buildDsmRowsUsingDtangler(getDependencyGraph()));
-                break;
-            case NATURAL_ORDERING:
-                DtanglerUtils.sortDisplayNamesInNaturalOrder(this);
-                break;
-            default:
-                throw new IllegalArgumentException("Ordering '" + ordering + "' is not supported");
-            }
-        }
-    }
+		switch (scope.index()) {
+		case 1:
+			return DependencyScope.PACKAGES;
+		case 2:
+			return DependencyScope.CLASSES;
+		default:
+			return null;
+		}
+	}
 
-    public DependencyMatrixOrdering getOrdering() {
-        return currentOrdering;
-    }
+	public DependencyGraph getDependencyGraph() {
+		return dependencyGraph;
+	}
 
-    @Override
-    public String toString() {
-        if (getSize() > 20) {
-            String hasViolationsSuffix = analysisResult.isValid() ? ""
-                    : MessageFormat.format("has {0} violations", analysisResult.getAllViolations().size());
-            return "DependencyMatrix: size = " + getSize() + ", " + hasViolationsSuffix;
-        } else {
-            // TODO: This code is written for test purposes and should be removed before release
-            StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-            sb.append("\n");
-            List<String> displayNames = getDisplayNames();
-            for (int i = 0; i < getSize(); i++) {
-                sb.append(displayNames.get(i));
-                sb.append(" ");
-                for (int j = 0; j < getSize(); j++) {
-                    sb.append("| ");
-                    sb.append(getCell(i, j).getDependencyWeight());
-                    sb.append(" |");
-                }
-                sb.append("\n");
-            }
-            return sb.toString();
-        }
-    }
+	public void sort(DependencyMatrixOrdering ordering) {
+		if (currentOrdering != ordering) {
+			this.currentOrdering = ordering;
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((analysisResult == null) ? 0 : analysisResult.hashCode());
-        result = prime * result + ((currentOrdering == null) ? 0 : currentOrdering.hashCode());
-        result = prime * result + ((dependencyGraph == null) ? 0 : dependencyGraph.hashCode());
-        result = prime * result + ((rows == null) ? 0 : rows.hashCode());
-        return result;
-    }
+			switch (ordering) {
+			case BY_INSTABILITY:
+				setRows(DtanglerUtils.buildDsmRowsUsingDtanglersDefaultOrdering(getDependencyGraph()));
+				break;
+			case NATURAL_ORDERING:
+				DtanglerUtils.sortDisplayNamesInNaturalOrder(this);
+				break;
+			default:
+				throw new IllegalArgumentException("Ordering '" + ordering + "' is not supported");
+			}
+		}
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        DependencyMatrix other = (DependencyMatrix) obj;
-        if (analysisResult == null) {
-            if (other.analysisResult != null) {
-                return false;
-            }
-        } else if (!analysisResult.getAllViolations().equals(other.analysisResult.getAllViolations())) {
-            return false;
-        }
-        if (currentOrdering != other.currentOrdering) {
-            return false;
-        }
-        if (dependencyGraph == null) {
-            if (other.dependencyGraph != null) {
-                return false;
-            }
-        } else if (!dependencyGraph.getAllItems().equals(other.dependencyGraph.getAllItems())) {
-            return false;
-        }
-        return true;
-    }
+	public DependencyMatrixOrdering getOrdering() {
+		return currentOrdering;
+	}
+
+	@Override
+	public String toString() {
+		if (getSize() > 20) {
+			String hasViolationsSuffix = analysisResult.isValid() ? ""
+					: MessageFormat.format("has {0} violations", analysisResult.getAllViolations().size());
+			return "DependencyMatrix: size = " + getSize() + ", " + hasViolationsSuffix;
+		} else {
+			// TODO: This code has been written for test purposes and should be removed before release
+			StringBuilder sb = new StringBuilder(getClass().getSimpleName());
+			sb.append("\n");
+			List<String> displayNames = getDisplayNames();
+			for (int i = 0; i < getSize(); i++) {
+				sb.append(displayNames.get(i));
+				sb.append(" ");
+				for (int j = 0; j < getSize(); j++) {
+					sb.append("| ");
+					sb.append(getCell(i, j).getDependencyWeight());
+					sb.append(" |");
+				}
+				sb.append("\n");
+			}
+			return sb.toString();
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((analysisResult == null) ? 0 : analysisResult.hashCode());
+		result = prime * result + ((currentOrdering == null) ? 0 : currentOrdering.hashCode());
+		result = prime * result + ((dependencyGraph == null) ? 0 : dependencyGraph.hashCode());
+		result = prime * result + ((rows == null) ? 0 : rows.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		DependencyMatrix other = (DependencyMatrix) obj;
+		if (analysisResult == null) {
+			if (other.analysisResult != null) {
+				return false;
+			}
+		} else if (!analysisResult.getAllViolations().equals(other.analysisResult.getAllViolations())) {
+			return false;
+		}
+		if (currentOrdering != other.currentOrdering) {
+			return false;
+		}
+		if (dependencyGraph == null) {
+			if (other.dependencyGraph != null) {
+				return false;
+			}
+		} else if (!dependencyGraph.getAllItems().equals(other.dependencyGraph.getAllItems())) {
+			return false;
+		}
+		return true;
+	}
+
+	public Set<Violation> getAllViolations() {
+		return violations;
+	}
+
+	public Set<Violation> getViolations(Dependency dependency) {
+		return analysisResult.getViolations(dependency);
+	}
+
+	public Set<DependencyCycle> getDependencyCycles() {
+		return dependencyCycles;
+	}
+
+	public void setDependencyCycles(Set<DependencyCycle> dependencyCycles) {
+		this.dependencyCycles = dependencyCycles;
+	}
 
 }
