@@ -12,7 +12,7 @@ import com.dsmviewer.ui.dsmtable.DsmTableController;
 
 public class ShuffleMatrixAction extends Action {
 
-	private static final int DEFAULT_SHUFFLE_PASSAGES_COUNT = 150;
+	private static final int DEFAULT_SHUFFLE_PASSAGES_COUNT = 1500;
 
 	private DsmTableController dsmTableController;
 

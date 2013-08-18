@@ -25,7 +25,7 @@ public class ShuffleToBeCloseToMainDiagonalAction extends Action {
 	@Override
 	public void run() {
 		DependencyMatrix dependencyMatrix = dsmTableController.getDependencyMatrix();
-		DependencyMatrix shuffledMatrix = shuffle(dependencyMatrix, 150);
+		DependencyMatrix shuffledMatrix = shuffle(dependencyMatrix, 1500);
 
 		dsmTableController.setDependencyMatrix(shuffledMatrix, true);
 		DsmView.getCurrent().updateSortActionsState(DependencyMatrixOrdering.UNKNOWN_ODERING);
