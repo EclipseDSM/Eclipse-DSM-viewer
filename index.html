@@ -47,15 +47,15 @@ h3 {
 
 a {
   color:#242630;
-  -o-transition:.2s;
-  -ms-transition:.2s;
-  -moz-transition:.2s;
-  -webkit-transition:.2s;
-  transition:.2s;
+  -o-transition:.01s;
+  -ms-transition:.01s;
+  -moz-transition:.01s;
+  -webkit-transition:.01s;
+  transition:.01s;
   
   /* Micro shadow in all sides */
-  text-shadow: 0 0 1px #5D6369;
-  transform: scale(1.02);
+  text-shadow: 0 0 1px #79848F;
+  transform: scale(1.01);
 }
 
 a:hover {
@@ -129,7 +129,7 @@ img.darkShadowed {
 		$(document).ready(function() {
 			
 			// Configure spoilers. Spoilers are configured by their classes: 
-			// openOnHover colorOnHover preOpenedSpoiler
+			// openOnHover color_on_hover pre_opened_spoiler
 			var fadeTime = 300;
 
 			// Set the toggle operarions (spoilers fading)
@@ -150,9 +150,9 @@ img.darkShadowed {
 			$("div.spoiler div.name span").mouseover(function() {	
 
 			    var openOnHover = $(this).parent("div.name").parent("div.spoiler").hasClass("openOnHower");
-		        var colorOnHover = $(this).parent("div.name").parent("div.spoiler").hasClass("colorOnHover");
+		        var color_on_hover = $(this).parent("div.name").parent("div.spoiler").hasClass("color_on_hover");
 		    
-				if (colorOnHover) {
+				if (color_on_hover) {
 				    $(this).children().css("color", "#1D4875");
 			    }			
 				if (openOnHover) {
@@ -160,14 +160,14 @@ img.darkShadowed {
 				}
 
 			}).mouseout(function() {			
-				var colorOnHover = $(this).parent("div.name").parent("div.spoiler").hasClass("colorOnHover");
-				if (colorOnHover) {
+				var color_on_hover = $(this).parent("div.name").parent("div.spoiler").hasClass("color_on_hover");
+				if (color_on_hover) {
 					$(this).children().css("color", "#242630");
 	 		    }			    
 			});
 			
 		    // Open spoilers with 'pre-opened' class
-			$(".preOpenedSpoiler").children("div.text").fadeIn(fadeTime);
+			$(".pre_opened_spoiler").children("div.text").fadeIn(fadeTime);
 			// End configure spoilers
 		});
 	</script>
@@ -191,7 +191,7 @@ img.darkShadowed {
 		  <!-- <br><span class="small">By ...</span> -->
 		</h1>
 
- 		<div class="spoiler colorOnHover preOpenedSpoiler">
+ 		<div class="spoiler color_on_hover pre_opened_spoiler">
 		<div class="name"><span><h2>Project description</h2></span></div>
 		<div class="text">
 		   <p>
@@ -209,7 +209,7 @@ img.darkShadowed {
 		</div>
 		</div>
 
- 		<div class="spoiler colorOnHover preOpenedSpoiler">
+ 		<div class="spoiler color_on_hover pre_opened_spoiler">
 		<div class="name"><span><h2>Detailed description</h2></span></div>
 		<div class="text">
             <p>Currently graph representation is the most popular format when representing programming systems with their internal relationships:  <a href="https://developers.google.com/java-dev-tools/codepro/doc/features/dependencies/dependencies">example</a>. But if the graph contains more than 30 nodes (or 100+ edges), it becomes almost <a href="./images/huge_dependency_graph.png">unreadable</a> for an average person.</p>
@@ -223,7 +223,7 @@ img.darkShadowed {
 		</div>
 		</div>
 	 
- 		<div class="spoiler colorOnHover preOpenedSpoiler">
+ 		<div class="spoiler color_on_hover pre_opened_spoiler">
 		<div class="name"><span><h2>Questions</h2></span></div>
 		<div class="text">
 			<ol>
@@ -234,7 +234,7 @@ img.darkShadowed {
 		</div>
 		</div>
 	 
-	  	<div class="spoiler colorOnHover preOpenedSpoiler">
+	  	<div class="spoiler color_on_hover pre_opened_spoiler">
 		<div class="name"><span class="small"><h2>Main project goals</h2></span></div>
 		<div class="text">    
 			<nl>
@@ -255,7 +255,7 @@ img.darkShadowed {
 		</div>
       
       
-      	<div class="spoiler colorOnHover preOpenedSpoiler">
+      	<div class="spoiler color_on_hover pre_opened_spoiler">
 		<div class="name"><span><h2>Versions history</h2></span></div>
 		<div class="text"> 
 			<ul type="square">
@@ -282,14 +282,14 @@ img.darkShadowed {
 		</div>
 		</div>
 		
-		<div class="spoiler colorOnHover preOpenedSpoiler">
+		<div class="spoiler color_on_hover pre_opened_spoiler">
 		<div class="name"><span class="small"><h2>Contributor</h2></span></div>
 		<div class="text">
 		    <a href="https://github.com/daniilyar">Daniil Yaroslavtsev</a>: Daniil.Yaroslavtsev@gmail.com
     	</div>
 		</div>
 
-		<div class="spoiler colorOnHover preOpenedSpoiler">
+		<div class="spoiler color_on_hover pre_opened_spoiler">
 		<div class="name"><span><h2>Curator</h2></span></div>
 		<div class="text">
 		    <a href="https://github.com/romani">Roman Ivanov</a>: ivanov-jr[*]mail[*]ru
@@ -297,7 +297,7 @@ img.darkShadowed {
 		</div>
      
 
-		<div class="spoiler colorOnHover preOpenedSpoiler">
+		<div class="spoiler color_on_hover pre_opened_spoiler">
 		<div class="name"><span><h2>Download</h2></span></div>
 		<div class="text">
 		        <li>You can install the DSM-viewer plugin using the <a href="http://eclipsedsm.github.com/Eclipse-DSM-viewer/">link to this page</a> as Eclipse update site.
@@ -316,7 +316,7 @@ img.darkShadowed {
     	</div>
 		</div>
  
- 		<div class="spoiler colorOnHover preOpenedSpoiler">
+ 		<div class="spoiler color_on_hover pre_opened_spoiler">
 		<div class="name"><span><h2>Another SevNTU Team projects:</h2></span></div>
 		<div class="text">
 			<p><a href="https://github.com/sevntu-checkstyle/sevntu.checkstyle">SevNTU-Checkstyle project</a></p>
