@@ -51,7 +51,7 @@ The second approach is to display dependencies as a special kinds of incidence m
 DSM is a simple and compact visual representation of a system or project. It is a square matrix such as below:
 ![Example DSM](https://raw.github.com/daniilyar/Eclipse-DSM-viewer/gh-pages/images/exampleDSM.png)
 
-This example DSM is drawn for imaginary system (or project) which consists of three modules: A, B and C. Moreover, we can see that it is a second module (B) consits of three submodules: D, E and F. Green cells in this table displays the dependencies. 
+This example DSM is drawn for imaginary system (or project) which consists of three modules: A, B and C. Moreover, we can see that it is a second module (B) consists of three submodules: D, E and F. Green cells in this table displays the dependencies. 
 We can see on given DSM that the example system consists of Module A, Module B and Module C. Module A is dependent only from module C (see the first matrix line) and the module B is fully-independent as it has only internal dependencies. In the same way, the 2 submodules of B (E and F) are dependent from the third it`s submodule (D).
 Above you can see the graph representation of our example system:
 ![Example Graph](https://raw.github.com/daniilyar/Eclipse-DSM-viewer/gh-pages/images/exampleGRAPH.png)
